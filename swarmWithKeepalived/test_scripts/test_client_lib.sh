@@ -54,7 +54,7 @@ running_loop() {
             ;;
         "start") 
             echo "-- Starting new Subscriber"
-            start_new_subscriber
+            start_new_subscriber 1> /dev/null
             update_id_ip_nodes
             ;;
         "reset") 

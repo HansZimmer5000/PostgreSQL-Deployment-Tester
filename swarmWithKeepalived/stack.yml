@@ -87,7 +87,7 @@ services:
             pgnet:
         deploy:
             mode: replicated
-            replicas: 1
+            replicas: 2
             #placement: 
             #  constraints:
             #    - node.labels.init_node!=true
