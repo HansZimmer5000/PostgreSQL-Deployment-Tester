@@ -43,10 +43,21 @@ setup_vm(){
         if [[ "$ping_result" = *", 0 received"* ]] || [[ -z "$ping_result" ]];  then 
             echo "www.google.de was not responding. Is this VM connected to the internet?"
         else
-            setup_packages
+            setup_packages $1
         fi
+    fi
+}
+
+set_hostname(){
+    $ssh_cmd root@$1 hostnamectl set-hostname $2
+
+    if [[ "$($ssh_cmd root@$1 hostname)" != *"$2"* ]]; then
+        echo "hostname '$2' could not be set at '$1' and was "
     fi
 }
 
 setup_vm 192.168.99.101
 setup_vm 192.168.99.102
+
+set_hostname 192.168.99.101 docker-swarm-node1.localdomain
+set_hostname 192.168.99.102 docker-swarm-node2.localdomain
