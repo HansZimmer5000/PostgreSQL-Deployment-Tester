@@ -18,6 +18,7 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
   - (MUST) There are only four pre defined tests
   - (SHOULD) Only can interact and test with current configuration
 - Implementations
+  - (SHOULD) There are alot of fixed IPs, hostname and magic numbers
   - (SHOULD) The code is in a bad shape in terms of test coverage (none), readability and flakiness
 
 ## VM Setup
