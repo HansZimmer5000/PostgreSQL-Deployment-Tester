@@ -236,8 +236,6 @@ start_machines(){
 
     echo "-- Running VMs: "
     VBoxManage list runningvms
-
-    # TODO/HINT Shutdown: VBoxManage controlvm "*VMNAME*" poweroff
 }
 
 print_help(){
