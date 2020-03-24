@@ -1,0 +1,59 @@
+version: "3"
+
+networks:
+    pgnet:
+
+services:
+
+    adminer:
+        image: adminer:4.7.2 
+        restart: always
+        environment:
+            - ADMINER_DEFAULT_SERVER=primary
+        networks:
+            - pgnet
+        ports:
+            - 8082:8080
+
+    provider:
+        hostname: 'provider95'
+        image: mypglog:9.5-raw
+        #command: 'postgres -c config_file=/etc/postgresql/postgresql.conf'
+        build:
+            context: ../customimage
+            dockerfile: raw.dockerfile
+        environment:
+            - POSTGRES_PASSWORD=pass
+            - POSTGRES_USER=primaryuser
+            - POSTGRES_DB=testdb
+            #- PGDATA="/pgdata/"
+        volumes:
+            #- ./provider95data:/pgdata/
+            #- ./provider_postgresql.conf:/etc/postgresql/postgresql.conf
+            - ./table_setup.sql:/docker-entrypoint-initdb.d/init.sql
+            - ./prov_postgresql.conf:/usr/share/postgresql/postgresql.conf.sample
+            - ./prov_setup.sh:/docker-entrypoint-initdb.d/setup.sh
+        ports:
+            - 5432:5432
+        networks:
+            - pgnet
+
+    subscriber:
+        hostname: 'subscriber95'
+        image: mypglog:9.5-raw
+        #command: 'postgres -c config_file=/etc/postgresql/postgresql.conf'
+        build:
+            context: ../customimage
+            dockerfile: raw.dockerfile
+        environment:
+            - POSTGRES_PASSWORD=pass
+            - POSTGRES_USER=primaryuser
+            - POSTGRES_DB=testdb
+        volumes:
+            - ./table_setup.sql:/docker-entrypoint-initdb.d/init.sql
+            - ./sub_postgresql.conf:/usr/share/postgresql/postgresql.conf.sample
+            - ./sub_setup.sh:/docker-entrypoint-initdb.d/sub_setup.sh
+        ports:
+            - 5433:5432
+        networks:
+            - pgnet
