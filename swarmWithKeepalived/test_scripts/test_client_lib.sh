@@ -1,6 +1,10 @@
 #!/bin/sh -x
 # This File is supposed to be included ('source') from setup.sh so it can use some function from it, do not execute on its own!
 
+ssh_into_vm(){
+    $SSH_CMD root@$1
+}
+
 get_virtualip_owner(){    
     ping -c 1 192.168.99.101 1> /dev/null
     ping -c 1 192.168.99.102 1> /dev/null
@@ -100,6 +104,15 @@ running_loop() {
         "vip")
             get_virtualip_owner
             ;;
+        "ssh")
+            if [ "$PARAM1" == "1" ]; then
+                ssh_into_vm 192.168.99.101
+            elif [ "$PARAM1" == "2" ]; then
+                ssh_into_vm 192.168.99.102
+            elif [ "$PARAM1" == "3" ]; then
+                ssh_into_vm 192.168.99.103
+            fi
+            ;;
         "table") 
             if [ -z $PARAM1 ]; then
                 echo "-- Missing Number"
@@ -135,13 +148,14 @@ running_loop() {
         *) 
             echo "' $COMMAND $PARAM1 ' is not a valid command:"
             echo "COMMAND=[
-    kill, start, reset, log, status, end, check, vip, table]"
+    kill, start, reset, log, status, end, check, vip, ssh, table]"
             echo "
     PARAM1=[
         kill: [0=provider,1=sub1,2=sub2,...]
         status: [-a,-o,-f], 
         log: [0=provider,1=sub1,2=sub2,...]
         notify: [node url], 
+        ssh: [1,2,3 for vm of dsn 1 2 or 3]
         table: [0=provider,1=sub1,...]
         test: [1-4]
     ]"
