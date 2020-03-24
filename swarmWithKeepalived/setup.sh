@@ -198,7 +198,8 @@ start_swarm() {
     SSH_CMD_FOR_EACH_NODE "systemctl start docker"
     SSH_CMD_FOR_EACH_NODE "docker swarm leave -f"
     
-    echo $($SSH_CMD root@$MANAGER_NODE "docker swarm init --advertise-addr 192.168.99.101")
+    full_init_msg=$($SSH_CMD root@$MANAGER_NODE "docker swarm init --advertise-addr 192.168.99.101")
+    echo "$full_init_msg" | grep "SWMTKN"
     read -p "-- Please enter Token: " TOKEN
     $SSH_CMD root@192.168.99.102 "docker swarm join --token $TOKEN 192.168.99.101:2377"
     #ADJUSTMENT: $SSH_CMD root@dsn3 "docker swarm join --token $TOKEN 192.168.99.101:2377"
