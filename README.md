@@ -25,7 +25,10 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
 
 - Downloaded vdi from [osboxes](https://www.osboxes.org/centos/#centos-1908-vbox) (Password: osboxes.org)
 - Set Name according to "Docker Swarm Node 0", replace 0 with number (1 ... n)
-- Set three Networks: NAT, Host-Only and Internal-Network
+- Networks: 
+  - First Try: NAT, Host-Only and Internal-Network (works but Flaky)
+  - Second Try: Bridged Network (doesn't have 192.168.99.10* IPs)
+  - Third Try: Host-Only and Bridged Network (does have 192.168.99.10* IPs and internet connection = win!)
 - ssh
   - via NAT Network:
     - Set Port Forwarding (VirtualBox -> VM Settings -> Network -> Advanced -> GuestPort=22 HostPort=49022)
