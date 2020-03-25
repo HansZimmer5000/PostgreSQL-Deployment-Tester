@@ -209,7 +209,7 @@ test_4(){
 
     echo "$(date) 4. Let Docker Swarm start new provider"
     wait_for_all_pg_to_boot
-    reconnect_all_subscriber
+    reconnect_all_subscriber #TODO Problem is that by accident, freshly started instance will get provider
 
     echo "$(date) 5. Add Data via provider"
     provider_tuple="$(get_all_provider)"
