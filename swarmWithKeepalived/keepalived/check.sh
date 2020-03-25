@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO What happens when keepalived on Provider node fails - Release of VIP?
+
 gather_running_pg_container(){
     docker ps --format "table {{.ID}}\t{{.Names}}" | grep "pg_db"
 }
