@@ -147,6 +147,7 @@ test_3(){
 
     echo "4. Kill Provider"
     kill_provider -c
+    update_id_ip_nodes
 
     echo "5. Let Docker Swarm start new provider"
     wait_for_all_pg_to_boot
