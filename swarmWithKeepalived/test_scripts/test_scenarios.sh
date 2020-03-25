@@ -51,6 +51,7 @@ reset_cluster(){
 
     update_id_ip_nodes
     clear_all_local_tables
+    reconnect_all_subscriber
 }
 
 test_1(){
