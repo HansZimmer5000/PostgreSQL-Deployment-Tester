@@ -3,7 +3,7 @@
 TYPE=$1
 NAME=$2
 STATE=$3
-echo "$STATE" > /etc/keepalived/current_state.txt
+echo "$STATE $(date)" > /etc/keepalived/current_state.txt
 
 log(){
 	echo "$1" >> /etc/keepalived/notify_log.txt
@@ -49,22 +49,24 @@ case $STATE in
 	"MASTER") 	if [ -z "$container_id" ] || [ -z "$subscription_id" ]; then
 					log "MASTER Failed due to empty container_id($container_id) or subscription_id($subscription_id)"
 				elif [ -z $(docker ps | grep "pg_db") ]; then {
-					echo "Restarting keepalived with notify.sh: $(docker ps | grep "pg_db")"  >> /etc/keepalived/notify_log.txt
+					log "Restarting keepalived with notify.sh: $(docker ps | grep "pg_db")" 
 					systemctl restart keepalived
 				}
 				else
-					/etc/keepalived/promote.sh "$container_id" "$subscription_id" >> /etc/keepalived/notify_log.txt
+					/etc/keepalived/promote.sh "$container_id" 
+					log "ENTER MASTER" 
 				fi
  				;;
 	"BACKUP") 	if [ -z "$container_id" ] || [ -z "$subscription_id" ]; then
 					log "BACKUP Failed due to empty container_id($container_id) or subscription_id($subscription_id)"
 				else
-					/etc/reconnect.sh "$container_id" "$subscription_id" >> /etc/keepalived/notify_log.txt
+					/etc/reconnect.sh "$container_id"
+					log "ENTER BACKUP" 
 				fi
 				;;
-	"FAULT")  	echo "FAULTY" >> /etc/keepalived/notify_log.txt
+	"FAULT")  	log "ENTER FAULT" 
 				;;
-	*)			echo "NIX" >> /etc/keepalived/notify_log.txt
+	*)			log "NIX"
 				;;
 esac
 
