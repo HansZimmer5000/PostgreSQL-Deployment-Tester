@@ -24,7 +24,6 @@ reset_cluster(){
     for tuple in $ID_IP_NODEs 
     do
         current_role=$(get_role "$tuple")
-        # TODO What if there are two Providers? Check that case too
         if [[ $current_role == "prov" ]] && ! $provider_exists; then
             provider_exists=true
         elif [[ $current_role == "prov" ]] && $provider_exists; then
@@ -92,8 +91,6 @@ test_2(){
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
 
-    #CURRENT_INFO=$(get_node_and_id_from_name db_i)
-    #IFS=',' read PROVIDER_NODE PROVIDER_ID <<< "${CURRENT_INFO}"
     FIRST_INSERTED_ID=1
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
@@ -165,8 +162,6 @@ test_3(){
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
     
-    #CURRENT_INFO=$(get_node_and_id_from_name db_i)
-    #IFS=',' read PROVIDER_NODE PROVIDER_ID <<< "${CURRENT_INFO}"
     SECOND_INSERTED_ID=2
     add_entry $PROVIDER_NODE $PROVIDER_ID $SECOND_INSERTED_ID 1> /dev/null
 
@@ -197,8 +192,6 @@ test_4(){
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
     
-    #CURRENT_INFO=$(get_node_and_id_from_name db_i)
-    #IFS=',' read PROVIDER_NODE PROVIDER_ID <<< "${CURRENT_INFO}"
     FIRST_INSERTED_ID=1
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
@@ -223,8 +216,6 @@ test_4(){
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
 
-    #CURRENT_INFO=$(get_node_and_id_from_name db_i)
-    #IFS=',' read PROVIDER_NODE PROVIDER_ID <<< "${CURRENT_INFO}"
     SECOND_INSERTED_ID=2
     add_entry $PROVIDER_NODE $PROVIDER_ID $SECOND_INSERTED_ID 1> /dev/null
 
