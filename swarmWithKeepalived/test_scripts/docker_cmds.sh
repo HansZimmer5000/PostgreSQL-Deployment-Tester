@@ -75,9 +75,9 @@ get_notify_log(){
 wait_for_all_pg_to_boot(){
     for tuple in $ID_IP_NODEs; do
         container_id=$(get_id "$tuple")
-        
+        node=$(get_node "$tuple")
         while true; do
-            result="$($SSH_CMD root@$1 docker exec $container_id pg_isready)"
+            result="$($SSH_CMD root@$node docker exec $container_id pg_isready)"
             if [[ "$result" == *"- accepting connections"* ]]; then
                 printf "."
                 break
