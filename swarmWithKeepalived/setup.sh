@@ -54,6 +54,9 @@ update_keepalived_basics(){
     SCP_CMD_FOR_EACH_NODE ./keepalived/notify.sh /etc/keepalived/
     SCP_CMD_FOR_EACH_NODE ./keepalived/keepalived.conf /etc/keepalived/keepalived.conf
 
+    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/keepalived/check.sh"
+    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/keepalived/promote.sh"
+    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/keepalived/notify.sh"
     SSH_CMD_FOR_EACH_NODE "> /etc/keepalived/notify_log.txt"
     SSH_CMD_FOR_EACH_NODE "systemctl restart keepalived"
 }
@@ -172,7 +175,7 @@ prepare_machines() {
 }
 
 prepare_swarm() {
-    build_images > /dev/null
+    build_images 1> /dev/null
     set_configs > /dev/null
     set_scripts > /dev/null
 }
