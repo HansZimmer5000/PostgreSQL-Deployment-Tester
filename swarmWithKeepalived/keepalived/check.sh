@@ -32,7 +32,7 @@ determine_role(){
 pg_is_up(){
     container_id=$(get_pg_container_id)
     if [ -z "$container_id" ]; then
-        if [[ "$(hostname -I)" == *"192.168.99.149"* ]]; then
+        if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
             systemctl restart keepalived
         else
             exit 0
@@ -44,13 +44,13 @@ pg_is_up(){
 
         #/etc/keepalived/current_state.txt
         if [ "$result" == "prov" ]; then
-            if [[ "$(hostname -I)" == *"192.168.99.149"* ]]; then
+            if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
                 echo 1
             else 
                 /etc/keepalived/notify.sh . . BACKUP >> /etc/keepalived/notify_log.txt
             fi
         else   
-            if [[ "$(hostname -I)" == *"192.168.99.149"* ]]; then
+            if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
                 echo "Restarting keepalived" >> /etc/keepalived/notify_log.txt
                 systemctl restart keepalived
                 #/etc/keepalived/notify.sh . . MASTER >> /etc/keepalived/notify_log.txt
