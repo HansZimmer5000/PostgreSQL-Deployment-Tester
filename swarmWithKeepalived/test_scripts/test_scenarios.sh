@@ -2,7 +2,7 @@
 # This is meant to be 'sourced' from test_client_lib.sh!
 
 # TESTSCENARIOS
-# Expecting 1 Provider 1 Subscriber with name "subscriber.1"
+# Expecting 1 Provider 1 and  Subscriber with name "subscriber.1"
 ################
 
 reset_cluster(){
