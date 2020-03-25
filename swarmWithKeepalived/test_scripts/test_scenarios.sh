@@ -97,6 +97,7 @@ test_2(){
     # 2.
     echo "2. Start new subscriber"
     start_new_subscriber 1> /dev/null
+    sleep 5s # For older Hardware
     update_id_ip_nodes
 
     # 3.
@@ -133,6 +134,7 @@ test_3(){
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
+    FIRST_INSERTED_ID=1
 
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
@@ -148,7 +150,8 @@ test_3(){
 
     echo "4. Kill Provider"
     kill_provider -c
-    update_id_ip_nodes
+    sleep 75s #Let slow hardware handle the "killing" and give time to docker & keepalived reevalute 
+    update_id_ip_nodes 
 
     echo "5. Let Docker Swarm start new provider"
     wait_for_all_pg_to_boot
@@ -205,6 +208,8 @@ test_4(){
 
     echo "3. Kill Provider"
     kill_provider -c
+    sleep 75s #Let slow hardware handle the "killing" and give time to docker & keepalived reevalute 
+    update_id_ip_nodes
 
     echo "4. Let Docker Swarm start new provider"
     wait_for_all_pg_to_boot
