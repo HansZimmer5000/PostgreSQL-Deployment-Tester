@@ -1,5 +1,7 @@
 #!/bin/sh 
 
+source ./.env
+
 ssh_cmd="ssh -i ./swarmWithKeepalived/keys/dsnkey"
 
 setup_firewall(){
@@ -33,7 +35,7 @@ setup_packages(){
 
 setup_vm(){
 
-    if [[ "$(ping -a 192.168.99.101 -c 1 -w 1)" = *", 0 received"* ]];  then 
+    if [[ "$(ping -a $1 -c 1 -w 1)" = *", 0 received"* ]];  then 
         echo "$1 was not responding. Is it up and running?"
     else 
         setup_firewall $1
@@ -56,8 +58,8 @@ set_hostname(){
     fi
 }
 
-setup_vm 192.168.99.101
-setup_vm 192.168.99.102
+setup_vm $dsn1_node
+setup_vm $dsn2_node
 
-set_hostname 192.168.99.101 docker-swarm-node1.localdomain
-set_hostname 192.168.99.102 docker-swarm-node2.localdomain
+set_hostname $dsn1_node docker-swarm-node1.localdomain
+set_hostname $dsn2_node docker-swarm-node2.localdomain

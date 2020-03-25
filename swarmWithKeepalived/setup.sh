@@ -14,12 +14,7 @@ echo "
 # VARIABLES & CONSTANTS
 ################
 
-
-#ADJUSTMENT: replace dsn1,2,3 with actual IPs
-MANAGER_NODE="192.168.99.101"
-INIT_NODE="192.168.99.102"
-OTHER_NODES="" #ADJUSTMENT: without dsn3" 
-ALL_NODES="$MANAGER_NODE $INIT_NODE $OTHER_NODES" # Nodes are not allowed to have spaces in their names!
+source ../.env
 
 SSH_KEY="-i ./keys/dsnkey"
 SSH_CMD="ssh $SSH_KEY"
@@ -187,7 +182,7 @@ deploy_stack() {
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c portainer-agent-stack.yml portainer"
     sleep 15s #Wait till everything has started 
     
-    echo "-- Connect to Portainer at: http://192.168.99.101:9000/"
+    echo "-- Connect to Portainer at: http://$dsn1_node:9000/"
 }
 
 start_keepalived() {
@@ -198,11 +193,11 @@ start_swarm() {
     SSH_CMD_FOR_EACH_NODE "systemctl start docker"
     SSH_CMD_FOR_EACH_NODE "docker swarm leave -f"
     
-    full_init_msg=$($SSH_CMD root@$MANAGER_NODE "docker swarm init --advertise-addr 192.168.99.101")
+    full_init_msg=$($SSH_CMD root@$MANAGER_NODE "docker swarm init --advertise-addr $dsn1_node")
     echo "$full_init_msg" | grep "SWMTKN"
     read -p "-- Please enter Token: " TOKEN
-    $SSH_CMD root@192.168.99.102 "docker swarm join --token $TOKEN 192.168.99.101:2377"
-    #ADJUSTMENT: $SSH_CMD root@dsn3 "docker swarm join --token $TOKEN 192.168.99.101:2377"
+    $SSH_CMD root@$dsn2_node "docker swarm join --token $TOKEN $dsn1_node:2377"
+    #ADJUSTMENT: $SSH_CMD root@dsn3 "docker swarm join --token $TOKEN $dsn1_node:2377"
 }
 
 start_machines(){
@@ -227,9 +222,9 @@ start_machines(){
     #sleep 5s
 
     #echo "-- Wait for VMs to boot up"
-    #wait_for_vm 192.168.99.101
+    #wait_for_vm $dsn1_node
     #printf "."
-    #wait_for_vm 192.168.99.102
+    #wait_for_vm $dsn2_node
     #printf "."
     # ADJUSTMENT: wait_for_vm dsn3
     #printf ".\n"

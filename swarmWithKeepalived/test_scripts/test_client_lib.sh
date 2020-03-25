@@ -6,9 +6,9 @@ ssh_into_vm(){
 }
 
 get_virtualip_owner(){    
-    ping -c 1 192.168.99.101 1> /dev/null
-    ping -c 1 192.168.99.102 1> /dev/null
-    ping -c 1 192.168.99.103 1> /dev/null
+    ping -c 1 $dsn1_node 1> /dev/null
+    ping -c 1 $dsn2_node 1> /dev/null
+    ping -c 1 $dsn3_node 1> /dev/null
     ping -c 1 192.168.99.149 1> /dev/null
 
     virtualip_entry=($(arp -n 192.168.99.149))
@@ -106,11 +106,11 @@ running_loop() {
             ;;
         "ssh")
             if [ "$PARAM1" == "1" ]; then
-                ssh_into_vm 192.168.99.101
+                ssh_into_vm $dsn1_node
             elif [ "$PARAM1" == "2" ]; then
-                ssh_into_vm 192.168.99.102
+                ssh_into_vm $dsn2_node
             elif [ "$PARAM1" == "3" ]; then
-                ssh_into_vm 192.168.99.103
+                ssh_into_vm $dsn3_node
             fi
             ;;
         "table") 
