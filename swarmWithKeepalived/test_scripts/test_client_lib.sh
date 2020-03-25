@@ -124,6 +124,10 @@ running_loop() {
                 get_table "db.$PARAM1"
             fi
             ;;
+        "reconnect")
+            echo "Reconnecting all subscribers"
+            reconnect_all_subscriber
+            ;;
         "test")
             if [[ $PARAM1 -gt 0 && $PARAM1 -le 4 ]]; then
                 echo "-- Executing Test $PARAM1"
@@ -157,6 +161,7 @@ running_loop() {
         notify: [node url], 
         ssh: [1,2,3 for vm of dsn 1 2 or 3]
         table: [0=provider,1=sub1,...]
+        reconnect
         test: [1-4]
     ]"
             echo "
