@@ -33,6 +33,7 @@ pg_is_up(){
     container_id=$(get_pg_container_id)
     if [ -z "$container_id" ]; then
         if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
+            echo "Restarting keepalived due to having VIP but not having any postgres instance" >> /etc/keepalived/notify_log.txt
             systemctl restart keepalived
         else
             exit 0
@@ -51,7 +52,7 @@ pg_is_up(){
             fi
         else   
             if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
-                echo "Restarting keepalived" >> /etc/keepalived/notify_log.txt
+                echo "Restarting keepalived due to having VIP but not having Primary" >> /etc/keepalived/notify_log.txt
                 systemctl restart keepalived
                 #/etc/keepalived/notify.sh . . MASTER >> /etc/keepalived/notify_log.txt
             else 
