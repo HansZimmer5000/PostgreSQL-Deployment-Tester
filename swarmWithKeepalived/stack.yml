@@ -84,7 +84,7 @@ services:
               mode: host
             - "5432:5432"
         networks:
-            pgnet:
+            - pgnet
         deploy:
             mode: replicated
             replicas: 1
