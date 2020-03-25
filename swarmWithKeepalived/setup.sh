@@ -126,6 +126,7 @@ build_images() {
 
 set_scripts(){
     SCP_CMD_FOR_EACH_NODE "./postgres/reconnect.sh" /etc/
+    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/reconnect.sh"
 }
 
 set_configs(){
