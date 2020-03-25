@@ -5,13 +5,21 @@
 # Expecting 1 Provider 1 and  Subscriber with name "subscriber.1"
 ################
 
+# Expecting Subscriber count as Param1, default is 1
 reset_cluster(){
-    echo "Reseting Cluster"
+    sub_count=1
+    if ! [ -z "$1" ]; then
+        if [ "$1" -ge 0 ]; then
+            sub_count=$1
+        fi
+    fi
+
+    echo "Reseting Cluster with $sub_count Subscriber"
     update_id_ip_nodes
 
     # check if provider exists
     provider_exists=false
-    subscriber_exists=false
+    sub_exists_count=0
 
     for tuple in $ID_IP_NODEs 
     do
@@ -22,12 +30,12 @@ reset_cluster(){
         elif [[ $current_role == "prov" ]] && $provider_exists; then
             echo "There are multiple providers in the cluster!"
             exit 1
-        elif [[ $current_role == "sub" ]] && ! $subscriber_exists; then
-            subscriber_exists=true
+        elif [[ $current_role == "sub" ]] && [ $sub_exists_count -lt $sub_count ]; then
+            sub_exists_count=$((sub_exists_count+1))
         else
             current_name=$(get_name "$tuple")
             current_number=${current_name:3:1}
-            echo "removing $current_number"
+            echo "removing db.$current_number"
             kill_subscriber "$current_number" 1> /dev/null
         fi
     done
@@ -36,9 +44,10 @@ reset_cluster(){
         start_new_subscriber
     fi
 
-    if ! $subscriber_exists; then
+    while [ $sub_exists_count -lt $sub_count ]; do
         start_new_subscriber
-    fi
+        sub_exists_count=$((sub_exists_count+1))
+    done
 
     update_id_ip_nodes
     clear_all_local_tables
@@ -55,7 +64,7 @@ test_1(){
     #   2. Check that only this subscriber has new data
 
     # 0.
-    reset_cluster 1> /dev/null
+    reset_cluster 1 1> /dev/null
 
     # 1. - 4.
     check_roles
@@ -71,7 +80,7 @@ test_2(){
 
     # 0.
     echo "0. Reset Cluster"
-    reset_cluster 1> /dev/null
+    reset_cluster 0 1> /dev/null
 
     # 1.
     echo "1. Add Data via provider"
@@ -93,6 +102,7 @@ test_2(){
     echo "3. Add Data via provider"
     SECOND_INSERTED_ID=2
     add_entry $PROVIDER_NODE $PROVIDER_ID $SECOND_INSERTED_ID 1> /dev/null
+    sleep 5s # For older hardware
 
     # 4.
     echo "4. Check if subscriber has both datasets"
@@ -109,23 +119,20 @@ test_3(){
     # 0. Reset Cluster
     # 1. Add Data via provider
     # 2. Check that all instances have same state
-    # 3. Remove all data from subscribers
+    # 3. Remove all data from subscribers #TODO neccessary to have more than one sub?
     # 4. Kill Provider
-    # 5. Let Docker Swarm start new provider
+    # 5. Let Docker Swarm start new provider #TODO and keepalived
     # 6. Add Data via provider
     # 7. Check that all instances have the new data
 
     echo "0. Reset Cluster"
-    reset_cluster 1> /dev/null
+    reset_cluster 1 1> /dev/null
 
     echo "1. Add Data via provider"
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
-    
-    #CURRENT_INFO=$(get_node_and_id_from_name db_i)
-    #IFS=',' read PROVIDER_NODE PROVIDER_ID <<< "${CURRENT_INFO}"
-    #FIRST_INSERTED_ID=1
+
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
     echo "2. Check that all instances have same state"
@@ -170,12 +177,12 @@ test_4(){
     # 1. Add Data via provider
     # 2. Check that all instances have same state
     # 3. Kill Provider
-    # 4. Let Docker Swarm start new provider
+    # 4. Let Docker Swarm start new provider #TODO and keepalived
     # 5. Add Data via provider
     # 6. Check that all instances have same state
 
     echo "0. Reset Cluster"
-    reset_cluster 1> /dev/null
+    reset_cluster 1 1> /dev/null
 
     echo "1. Add Data via provider"
     provider_tuple="$(get_all_provider)"
@@ -214,7 +221,7 @@ test_4(){
     echo "6. Check that all instances have the new data"
     result=$(check_tables true)
     if [[ $result == true ]]; then
-        echo "Test 3 was successfull"
+        echo "Test 4 was successfull"
     else
         >&2 echo "$result"
     fi

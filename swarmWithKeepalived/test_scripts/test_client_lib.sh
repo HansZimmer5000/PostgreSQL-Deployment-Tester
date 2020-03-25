@@ -59,7 +59,7 @@ running_loop() {
             ;;
         "reset") 
             echo "-- Reseting Cluster"
-            reset_cluster
+            reset_cluster 1
             update_id_ip_nodes
             ;;
         "status") 
