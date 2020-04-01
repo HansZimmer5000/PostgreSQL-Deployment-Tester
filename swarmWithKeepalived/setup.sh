@@ -39,6 +39,8 @@ SSH_CMD_FOR_EACH_NODE() {
 }
 
 allow_keepalived_selinux() {
+    # Additionally in current configuration: 
+    # in "/etc/sysconfig/selinux" is: SELINUX=disabled (needed restart)
     SSH_CMD_FOR_EACH_NODE "setenforce 0"
 }
 

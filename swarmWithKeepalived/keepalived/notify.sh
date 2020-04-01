@@ -4,6 +4,32 @@ log(){
 	echo "$1" >> /etc/keepalived/notify_log.txt
 }
 
+get_pg_status(){
+	(docker exec $1 psql -v ON_ERROR_STOP=1 --username primaryuser --dbname testdb -c 'SELECT * FROM pglogical.pglogical_node_info();') 1> /dev/null
+}
+
+pg_is_ready(){
+	result=false
+	err=$(get_pg_status $1 2>&1)
+	if [ -z "$err" ]; then
+		result=true
+	fi
+	echo $result
+}
+
+wait_for_all_pg_to_boot(){
+    while [[ $(systemctl status keepalived) == *"Active: active"* ]]; do
+
+		if $(pg_is_ready $1); then
+			break
+		fi
+		
+		log "Still waiting for PG"
+        sleep 2s
+    done
+    echo ""
+}
+
 gather_running_containers(){
     docker ps --format "table {{.ID}}\t{{.Names}}"
 }
@@ -78,35 +104,42 @@ log "ContainerID: $container_id SubscriptionID: $subscription_id"
 
 case $state in
 	"MASTER") 	log "Enter MASTER" 
-				if [ -z $(docker ps | grep "pg_db") ]; then {
+				grep_res=$(docker ps | grep "pg_db")
+				if [ -z "$grep_res" ]; then 
 					log "Finite State Machine State 4 - VIP but no PG"
 					log "Restarting keepalived with notify.sh: $(docker ps | grep "pg_db")" 
 					systemctl restart keepalived
-				}
 				else
 					# Differentiate State 5 and 6
 					if [ -z "$container_id" ]; then
-						"ContainerID was empty, no role check or pormotion possible!"
+						log "ContainerID was empty, no role check or pormotion possible!"
 					else
 						role=$(determine_role $container_id)
 						if [ $role == "sub" ]; then 
 							log "Finite State Machine State 5 - VIP and Sub"
+
+							log "Waiting for Postgres to be ready"
+							wait_for_all_pg_to_boot $container_id
+							#if $(pg_is_ready $container_id); then
 							log "$(/etc/keepalived/promote.sh $container_id $subscription_id)"
+							#else
+							#	log "Postgres is not ready yet"
+							#fi
 						fi
 					fi
 				fi
  				;;
 	"BACKUP") 	log "Enter BACKUP" 
 				if [ -z $(docker ps | grep "pg_db") ]; then
-					log "Finite State Macine State 1 - no VIP, no PG"
+					log "Finite State Machine State 1 - no VIP, no PG"
 				else
 					if [ -z "$container_id" ]; then
-						"ContainerID was empty, no role check or reconnection possible!"
+						log "ContainerID was empty, no role check or reconnection possible!"
 					else
 						role=$(determine_role $container_id)
 						if [ $role == "sub" ]; then 
 							log "Finite State Machine State 2 - no VIP, Subscriber, but Provider may have changed so reconnect to make logical replication work again"
-							/etc/reconnect.sh "$container_id"
+							/etc/reconnect.sh $container_id $subscription_id
 						else
 							log "Finite State Machine State 5 - no VIP, Provider"
 							# TODO Reconnect or wait for VIP to be released?
@@ -117,7 +150,7 @@ case $state in
 							#	- Promotion without VIP
 							# 	Is there another Provider now in the system?
 							log "Testing Safe Approach - Reconnect"
-							/etc/reconnect.sh "$container_id"
+							/etc/reconnect.sh $container_id $subscription_id
 						fi
 					fi
 				fi

@@ -22,5 +22,5 @@ subscription_id($subscription_id)
 virtual_ip($virtual_ip)
 "
 
-remove_old_subscription $container_id $subscription_id
-enable_providing $container_id $virtual_ip
+echo $(remove_old_subscription $container_id $subscription_id)
+echo $(enable_providing $container_id $virtual_ip)
