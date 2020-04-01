@@ -89,11 +89,17 @@ running_loop() {
                 get_log "db.$PARAM1"
             fi
             ;;
-        "notify")
+        "notify")            
             if [ -z "$PARAM1" ]; then
                 echo "-- Missing node"
             else
-                get_notify_log "$PARAM1"
+                if [ "$PARAM1" == "1" ]; then
+                    get_notify_log $dsn1_node
+                elif [ "$PARAM1" == "2" ]; then
+                    get_notify_log $dsn2_node
+                elif [ "$PARAM1" == "3" ]; then
+                    get_notify_log $dsn3_node
+                fi
             fi
             ;;
         "check")
