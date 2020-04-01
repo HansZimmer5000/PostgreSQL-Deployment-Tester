@@ -110,6 +110,14 @@ case $state in
 						else
 							log "Finite State Machine State 5 - no VIP, Provider"
 							# TODO Reconnect or wait for VIP to be released?
+							# What do i need to answer this?
+							# 	Why did Provider loose the VIP?
+							#	- keepalived Fails
+							#	- keepalived has lower priority
+							#	- Promotion without VIP
+							# 	Is there another Provider now in the system?
+							log "Testing Safe Approach - Reconnect"
+							/etc/reconnect.sh "$container_id"
 						fi
 					fi
 				fi
