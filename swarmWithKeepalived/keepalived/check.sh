@@ -13,7 +13,7 @@ get_pg_container_id(){
     fi
 }
 
-sql(){
+role_sql(){
     docker exec $1 psql -v ON_ERROR_STOP=1 --username primaryuser --dbname testdb -c 'SELECT * FROM pglogical.pglogical_node_info();'
 }
 
@@ -21,7 +21,7 @@ determine_role(){
     # pglogical.show_subscription_status() --> if >0 shows that subscriber
     # SELECT * FROM pg_replication_slots; --> if >0 shows that provider
     # pglogical.pglogical_node_info() --> shows what nodes are active, if "provider" -> provider
-    res="$(sql $1)"
+    res="$(role_sql $1)"
     rows=$( echo "$res" | grep "provider")
     if [[ "$rows" == *provider* ]]; then
         echo "prov"
