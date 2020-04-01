@@ -130,12 +130,12 @@ set_scripts(){
 }
 
 set_configs(){
-    reset_config "tables" "../table_setup.sql" "/etc/table_setup.sql"
+    reset_config "tables" "./postgres/table_setup.sql" "/etc/table_setup.sql"
     
-    reset_config "prov_config" "../prov_postgresql.conf" "/etc/prov_postgresql.conf"
+    reset_config "prov_config" "./postgres/prov_postgresql.conf" "/etc/prov_postgresql.conf"
     reset_config "prov_setup" "./postgres/prov_setup.sh" "/etc/prov_setup.sh"
 
-    reset_config "sub_config" "../sub_postgresql.conf" "/etc/sub_postgresql.conf"
+    reset_config "sub_config" "./postgres/sub_postgresql.conf" "/etc/sub_postgresql.conf"
     reset_config "sub_setup" "./postgres/sub_setup.sh" "/etc/sub_setup.sh"
 
     reset_config "reconnect" "./postgres/reconnect.sh" "/etc/reconnect.sh"
