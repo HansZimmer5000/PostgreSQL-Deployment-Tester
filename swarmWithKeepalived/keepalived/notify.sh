@@ -46,8 +46,6 @@ set_ids(){
 					# It is only possible to have one postgres instance running!
 					container_id="$CURRENT_ID"
 					subscription_id="subscription${CURRENT_IP//./}"
-
-					log "GOT $container_id AND $subscription_id"
 				fi
 			fi
 		fi
@@ -64,7 +62,9 @@ log "Notify.sh at $(date):"
 container_id=""
 subscription_id=""
 set_ids
-echo "ContainerID: $container_id SubscriptionID: $subscription_id"
+
+log "1=$1 2=$2 State=$3 Prio=$4"
+log "ContainerID: $container_id SubscriptionID: $subscription_id"
 
 # TODO Notes
 # State 1: no VIP, 	no PG	-> Nothing todo 
@@ -91,13 +91,13 @@ case $state in
 						role=$(determine_role $container_id)
 						if [ $role == "sub" ]; then 
 							log "Finite State Machine State 5 - VIP and Sub"
-							/etc/keepalived/promote.sh "$container_id" 
+							log "$(/etc/keepalived/promote.sh $container_id $subscription_id)"
 						fi
 					fi
 				fi
  				;;
 	"BACKUP") 	log "Enter BACKUP" 
-				fi [ -z $(docker ps | grep "pg_db") ]; then
+				if [ -z $(docker ps | grep "pg_db") ]; then
 					log "Finite State Macine State 1 - no VIP, no PG"
 				else
 					if [ -z "$container_id" ]; then
@@ -128,4 +128,5 @@ case $state in
 				;;
 esac
 
+log "Notify End"
 log ""

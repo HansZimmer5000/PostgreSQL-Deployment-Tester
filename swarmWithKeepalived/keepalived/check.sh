@@ -2,6 +2,13 @@
 
 # TODO What happens when keepalived on Provider node fails - Release of VIP?
 
+# Exit 0 = OK
+# Exit 1 = NOK
+
+log(){
+	echo "$1" >> /etc/keepalived/notify_log.txt
+}
+
 gather_running_pg_container(){
     docker ps --format "table {{.ID}}\t{{.Names}}" | grep "pg_db"
 }
@@ -31,13 +38,15 @@ determine_role(){
 }
 
 # Exists with 0 if pg status' is good, otherwise 1
-pg_is_up(){
+sophisticated_test(){
     container_id=$(get_pg_container_id)
     if [ -z "$container_id" ]; then
         if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
-            echo "Restarting keepalived due to having VIP but not having any postgres instance" >> /etc/keepalived/notify_log.txt
+            # Finit State Machine State 4 - VIP, no PG
+            log "Restarting keepalived due to having VIP but not having any postgres instance"
             systemctl restart keepalived
         else
+            # Finit State Machine State 1 - not VIP, no PG 
             exit 0
         fi
     else
@@ -48,13 +57,15 @@ pg_is_up(){
         #/etc/keepalived/current_state.txt
         if [ "$result" == "prov" ]; then
             if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
-                echo 1
+                # Finite State Machine State 6 - VIP, Provider 
+                echo 0
             else 
+                # Finite State Machine State 3 - no VIP, Provider
                 /etc/keepalived/notify.sh . . BACKUP >> /etc/keepalived/notify_log.txt
             fi
         else   
             if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
-                echo "Restarting keepalived due to having VIP but not having Primary" >> /etc/keepalived/notify_log.txt
+                log "Restarting keepalived due to having VIP but not having Primary"
                 systemctl restart keepalived
                 #/etc/keepalived/notify.sh . . MASTER >> /etc/keepalived/notify_log.txt
             else 
@@ -64,4 +75,32 @@ pg_is_up(){
     fi
 }
 
-pg_is_up
+advanced_test(){
+    container_id=$(get_pg_container_id)
+    has_vip=false
+
+    if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
+        has_vip=true
+    fi
+
+    if [ -z "$container_id" ] && $has_vip; then
+        exit 1
+    elif [ -z "$container_id" ] && ! $has_vip; then
+        exit 0
+    elif ! [ -z "$container_id" ] && $has_vip; then
+        exit 0
+    else 
+        exit 0
+    fi
+}
+
+basic_test(){
+    container_id=$(get_pg_container_id)
+    if [ -z "$container_id" ]; then
+        exit 1
+    else
+        exit 0
+    fi
+}
+
+basic_test
