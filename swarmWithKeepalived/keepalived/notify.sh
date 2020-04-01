@@ -74,6 +74,8 @@ echo "ContainerID: $container_id SubscriptionID: $subscription_id"
 # State 5: VIP, 	Sub		-> Release VIP or promote 
 # State 6: VIP, 	Prov	-> Nothing todo 
 
+# TODO keepalived restart -> beduetet das eine Zurücksetzung der Priority? - Fehler gefunden dass neuer keepalivd immer Vip bkeommt ? test 4 
+
 case $state in
 	"MASTER") 	log "Enter MASTER" 
 				if [ -z $(docker ps | grep "pg_db") ]; then {
@@ -82,11 +84,15 @@ case $state in
 					systemctl restart keepalived
 				}
 				else
-					log "Finite State Machine State 3 - VIP but no Provider"
+					# Differentiate State 5 and 6
 					if [ -z "$container_id" ]; then
-						"ContainerID was empty, no promotion possible!"
+						"ContainerID was empty, no role check or pormotion possible!"
 					else
-						/etc/keepalived/promote.sh "$container_id" 
+						role=$(determine_role $container_id)
+						if [ $role == "sub" ]; then 
+							log "Finite State Machine State 5 - VIP and Sub"
+							/etc/keepalived/promote.sh "$container_id" 
+						fi
 					fi
 				fi
  				;;
@@ -94,11 +100,17 @@ case $state in
 				fi [ -z $(docker ps | grep "pg_db") ]; then
 					log "Finite State Macine State 1 - no VIP, no PG"
 				else
-					log "Finite State Machine State 2 - no VIP, and Subscriber, but Provider may have changed so reconnect to make logical replication work again"
 					if [ -z "$container_id" ]; then
-						"ContainerID was empty, no reconnection possible!"
+						"ContainerID was empty, no role check or reconnection possible!"
 					else
-						/etc/reconnect.sh "$container_id"
+						role=$(determine_role $container_id)
+						if [ $role == "sub" ]; then 
+							log "Finite State Machine State 2 - no VIP, Subscriber, but Provider may have changed so reconnect to make logical replication work again"
+							/etc/reconnect.sh "$container_id"
+						else
+							log "Finite State Machine State 5 - no VIP, Provider"
+							# TODO Reconnect or wait for VIP to be released?
+						fi
 					fi
 				fi
 				;;
