@@ -227,3 +227,9 @@ test_4(){
         >&2 echo "$result"
     fi
 }
+
+####### UPGRADE_TESTS
+
+upgrade_test_1(){
+    #TODO
+}
