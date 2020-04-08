@@ -1,11 +1,5 @@
 #!/bin/sh
 
-# TODO may be add to clean up:
-# systemctl start docker
-# docker swarm leave -f
-# docker system prune --volumes -f
-# docker rm $(docker ps -aq) -f
-
 # Meeting 08.04.2020
 # Done:
 # - Habe Keepalived Logik komplett neu strukturiert (wie im Diagramm in der Dokumentation)
@@ -165,11 +159,12 @@ wait_for_vm() {
 # Contains Echos
 ################
 
-remove_stack_and_volumes() {
+prune_docker() {
     $SSH_CMD root@$MANAGER_NODE "docker stack rm pg"
     sleep 10s #Wait till everything is deleted
 
-    SSH_CMD_FOR_EACH_NODE "docker volume prune -f"
+    SSH_CMD_FOR_EACH_NODE "docker rm $(docker ps -aq) -f"
+    SSH_CMD_FOR_EACH_NODE "docker system prune --volumes -f"
 }
 
 prepare_machines() {
@@ -287,7 +282,7 @@ fi
 if $postgres_is_not_running; then
     # CleanUp
     echo "-- Cleaning Up Old Stuff"
-    remove_stack_and_volumes
+    prune_docker
 
     # Prepare 
     echo "-- Preparing Machines and Swarm"
