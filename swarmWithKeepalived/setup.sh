@@ -1,16 +1,5 @@
 #!/bin/sh
 
-# TODOS
-
-echo "
------ TODOs:
-1. Keepalived master ist dort wo Provider ist
-2. Keepalived promoted subscriber zu provider
-3. Wieder ein Init-node für den initalen Provider gebraucht, dieses Mal mit Script automatisieren
-4. Weitere Tests mit logischer Replikation mit verschiedenen Versionen
-5. Test 4 klappt aktuell noch nicht weil neugestarteter Provider aktuell mit leerer DB anfängt -> keepalived implementieren, dann sollte es klappen.
-"
-
 # VARIABLES & CONSTANTS
 ################
 
@@ -218,22 +207,6 @@ start_machines(){
         printf "."
     done
     printf "\n"
-    # TODO Loop through vms
-    #echo "-- Booting VMs: "
-    #VBoxManage startvm --type headless "Docker Swarm Node 1"&
-    #sleep 5s
-    #VBoxManage startvm --type headless "Docker Swarm Node 2"&
-    #sleep 5s
-    # ADJUSTMENT: VBoxManage startvm "Docker Swarm Node 3"&
-    #sleep 5s
-
-    #echo "-- Wait for VMs to boot up"
-    #wait_for_vm $dsn1_node
-    #printf "."
-    #wait_for_vm $dsn2_node
-    #printf "."
-    # ADJUSTMENT: wait_for_vm dsn3
-    #printf ".\n"
 
     echo "-- Running VMs: "
     VBoxManage list runningvms
@@ -267,6 +240,15 @@ while getopts 'hmsp' opts; do
         p)  postgres_is_not_running=true  ;;
     esac
 done
+
+echo "
+    Starting Setup Script 
+----------------------------------
+with values:
+machines_are_not_running=$machines_are_not_running
+swarm_is_not_initialized=$swarm_is_not_initialized
+postgres_is_not_running=$postgres_is_not_running
+"
 
 if $machines_are_not_running; then
     echo "-- Starting VMs"
