@@ -97,7 +97,7 @@ test_2(){
     # 2.
     echo "$(date) 2. Start new subscriber"
     start_new_subscriber 1> /dev/null
-    sleep 5s # For older Hardware
+    sleep 15s # For older Hardware
     update_id_ip_nodes
 
     # 3.
