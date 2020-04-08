@@ -35,39 +35,9 @@ services:
     #      mode: replicated
     #      replicas: 1
 
-    #db_init_helper:
-    #    hostname: 'provider95'
-    #    image: mypglog:9.5-raw
-    #    #command: 'postgres -c config_file=/etc/postgresql/postgresql.conf'
-    #    environment:
-    #        - POSTGRES_PASSWORD=pass
-    #        - POSTGRES_USER=primaryuser
-    #        - POSTGRES_DB=testdb
-    #    configs:
-    #        - source: tables
-    #          target: /docker-entrypoint-initdb.d/init.sql
-    #        - source: prov_config
-    #          target: /usr/share/postgresql/postgresql.conf.sample
-    #        - source: prov_setup
-    #          target: /docker-entrypoint-initdb.d/setup.sh
-    #    ports:
-    #        - target: 5432
-    #          published: 5433
-    #          protocol: tcp
-    #          mode: host
-    #    deploy:
-    #        mode: replicated
-    #        replicas: 1
-    #        placement:
-    #          constraints:
-    #            - node.labels.init_node==true
-    #        restart_policy:
-    #            condition: none # Do not restart ever! One primary is initialy needed for the system #(other services, slave replicas) to start working
-
     db:
         hostname: 'subscriber95'
         image: mypglog:9.5-raw
-        #command: 'postgres -c config_file=/etc/postgresql/postgresql.conf'
         environment:
             - POSTGRES_PASSWORD=pass
             - POSTGRES_USER=primaryuser
@@ -90,6 +60,3 @@ services:
         deploy:
             mode: replicated
             replicas: 1
-            #placement: 
-            #  constraints:
-            #    - node.labels.init_node!=true
