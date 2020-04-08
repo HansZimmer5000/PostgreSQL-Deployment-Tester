@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# TODO may be add to clean up:
+# systemctl start docker
+# docker swarm leave -f
+# docker system prune --volumes -f
+# docker rm $(docker ps -aq) -f
+
 # VARIABLES & CONSTANTS
 ################
 
