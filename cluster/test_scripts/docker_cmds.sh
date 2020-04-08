@@ -26,7 +26,6 @@ kill_provider(){
             CURRENT_NAME=$(get_name "$tuple")
             kill_postgres "$CURRENT_NAME"
             CURRENT_NODE=$(get_node "$tuple")
-            #$SSH_CMD root@$CURRENT_NODE "systemctl restart keepalived"
 
             if [[ $CURRENT_NAME == "db_i" ]]; then
                 # Killing Init_helper, so better make sure we have one more sub that can take over as provider

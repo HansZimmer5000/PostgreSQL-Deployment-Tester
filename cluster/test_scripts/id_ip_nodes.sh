@@ -1,6 +1,5 @@
 #!/bin/sh
 # This script is meant to be "sourced"
-# TODO: Currently this does not work if not sourced by setup.sh (directly or indirectly)!
 
 # id,ip,nodes are not allowed to have spaces in their names!
 # Example: "db1(prov):containerid,containerip,vmnode db2(sub):..."
@@ -88,10 +87,6 @@ get_all_subscriber(){
 }
 
 determine_role(){
-    # pglogical.show_subscription_status() --> if >0 shows that subscriber
-    # SELECT * FROM pg_replication_slots; --> if >0 shows that provider
-    # pglogical.pglogical_node_info() --> shows what nodes are active, if "provider" -> provider
-    
     res="$(execute_sql $1 $2 'SELECT * FROM pglogical.pglogical_node_info();')"
     rows=$( echo "$res" | grep "provider")
     if [[ "$rows" == *provider* ]]; then

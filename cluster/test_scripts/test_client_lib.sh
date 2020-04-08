@@ -88,8 +88,7 @@ running_loop() {
                 get_log "db.$PARAM1"
             fi
             ;;
-        "notify")  
-            #--since "2015-01-10 17:15:00"          
+        "notify")          
             if [ -z "$PARAM1" ]; then
                 echo "-- Missing node"
             else
