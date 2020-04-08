@@ -246,7 +246,7 @@ This script sets up the environment (machines and docker swarm) to start a Postg
 Flags:
 -m  will start the VMs (Only works on MacOS and Linux with VirtualBoxManager so far).
 -s  will initialize the swarm cluster.
--p  will setup the postgres cluster.
+-p  will start the postgres cluster.
 "
 }
 
@@ -255,7 +255,7 @@ Flags:
 
 machines_are_not_running=false
 swarm_is_not_initialized=false
-postgres_is_not_setup=false
+postgres_is_not_running=false
 
 # 'hmsp:' would mean p also delivers a value (p=4), get it with $OPTARG
 while getopts 'hmsp' opts; do
@@ -264,7 +264,7 @@ while getopts 'hmsp' opts; do
             exit 0 ;;
         m)  machines_are_not_running=true ;;
         s)  swarm_is_not_initialized=true ;;
-        p)  postgres_is_not_setup=true ;;
+        p)  postgres_is_not_running=true  ;;
     esac
 done
 
@@ -286,7 +286,7 @@ else
     echo "-- Skipping Docker Swarm and Keepalived setup"
 fi
 
-if $postgres_is_not_setup; then
+if $postgres_is_not_running; then
     # CleanUp
     echo "-- Cleaning Up Old Stuff"
     remove_stack_and_volumes
