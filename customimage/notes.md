@@ -1,5 +1,3 @@
 # Custom Images
 
-## Raw
-
-This approach is likely to be harder / more complex but currently is the only option left.
+This image bases upon `postgres:9.5.18` and installs `pglogical`. This image exists since its faster to build once and deploy often than to install `pglogical` for every deployment.
