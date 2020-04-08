@@ -244,9 +244,9 @@ print_help(){
 This script sets up the environment (machines and docker swarm) to start a PostgreSQL Cluster for certain experiments.
 --------------------
 Flags:
--m  will start the VMs (Only works on MacOS and Linux with VirtualBoxManager so far).
--s  will initialize the swarm cluster.
--p  will start the postgres cluster.
+-m  will start the VMs first (Only works on MacOS and Linux with VirtualBoxManager so far).
+-s  will initialize the swarm cluster ontop of the running VMS.
+-p  will start the postgres cluster <als letztes>.
 "
 }
 
