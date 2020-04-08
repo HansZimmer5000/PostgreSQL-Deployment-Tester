@@ -9,12 +9,6 @@ configs:
     tables:
         external: true
 
-    prov_config:
-        external: true
-
-    prov_setup:
-        external: true
-
     sub_config:
         external: true
 
