@@ -11,7 +11,7 @@ This program does two things:
 As this is a Work in Progress there are currently alot of limitations. Each of them will be addressed if there is time according to their priority (MUST > SHOULD > NICE-to-have)
 
 - Deployment
-  - (SHOULD) Reseach Docker Swarm Health checks and their use for this project
+  - (SHOULD) Research Docker Swarm Health checks and their use for this project
   - (NICE) Only works fully with VirtualBox
   - (NICE) Only works with Docker Swarm
 - Testing
