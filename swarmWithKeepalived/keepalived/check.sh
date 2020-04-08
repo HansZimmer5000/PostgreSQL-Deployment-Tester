@@ -66,6 +66,7 @@ sophisticated_test(){
             # Finite State Machine State 3 - no VIP, Provider
             #/etc/keepalived/notify.sh . . BACKUP >> /etc/keepalived/notify_log.txt
             # TODO what now? Wait for release or become sub?
+            exit 0 # wait
         elif [ "$role" == "sub" ] && $has_vip; then
             # Finite State Machine State 5 - VIP, no Provider
             # TODO Restart keepalived or Promote or wait for notify script to promote
