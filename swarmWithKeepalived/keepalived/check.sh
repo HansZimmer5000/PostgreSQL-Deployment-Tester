@@ -40,37 +40,42 @@ determine_role(){
 # Exists with 0 if pg status' is good, otherwise 1
 sophisticated_test(){
     container_id=$(get_pg_container_id)
-    if [ -z "$container_id" ]; then
-        if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
-            # Finit State Machine State 4 - VIP, no PG
-            log "Restarting keepalived due to having VIP but not having any postgres instance"
-            systemctl restart keepalived
-        else
-            # Finit State Machine State 1 - not VIP, no PG 
-            exit 0
-        fi
+    has_vip=false
+
+    if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
+        has_vip=true
+    fi
+
+    if [ -z "$container_id" ] && $has_vip; then
+        # Finit State Machine State 4 - VIP, no PG
+        log "Restarting keepalived due to having VIP but not having any postgres instance"
+        systemctl restart keepalived
+    elif [ -z "$container_id" ] && ! $has_vip; then
+        # Finit State Machine State 1 - not VIP, no PG 
+        exit 0
     else
+        role="$(determine_role $container_id)"
         #result="$(docker exec -ti $container_id pg_isready)"
         #if [[ "$result" == *"- accepting connections"* ]]; then
-        result="$(determine_role $container_id)"
-
         #/etc/keepalived/current_state.txt
-        if [ "$result" == "prov" ]; then
-            if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
-                # Finite State Machine State 6 - VIP, Provider 
-                echo 0
-            else 
-                # Finite State Machine State 3 - no VIP, Provider
-                /etc/keepalived/notify.sh . . BACKUP >> /etc/keepalived/notify_log.txt
-            fi
-        else   
-            if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
-                log "Restarting keepalived due to having VIP but not having Primary"
-                systemctl restart keepalived
-                #/etc/keepalived/notify.sh . . MASTER >> /etc/keepalived/notify_log.txt
-            else 
-                exit 0
-            fi
+
+        if [ "$role" == "prov" ] && $has_vip; then
+            # Finite State Machine State 6 - VIP, Provider 
+            exit 0
+        elif [ "$role" == "prov" ] && ! $has_vip; then
+            # Finite State Machine State 3 - no VIP, Provider
+            #/etc/keepalived/notify.sh . . BACKUP >> /etc/keepalived/notify_log.txt
+            # TODO what now? Wait for release or become sub?
+        elif [ "$role" == "sub" ] && $has_vip; then
+            # Finite State Machine State 5 - VIP, no Provider
+            # TODO Restart keepalived or Promote or wait for notify script to promote
+            exit 0 #wait
+
+            #log "Restarting keepalived due to having VIP but not having Primary"
+            #systemctl restart keepalived
+            #/etc/keepalived/notify.sh . . MASTER >> /etc/keepalived/notify_log.txt
+        else # [ "$role" == "sub" ] && ! $has_vip; then
+            exit 0
         fi
     fi
 }
@@ -114,4 +119,4 @@ basic_test_v2(){
     exit 1
 }
 
-basic_test
+sophisticated_test
