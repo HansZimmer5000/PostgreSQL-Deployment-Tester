@@ -36,8 +36,7 @@ running_loop() {
     update_id_ip_nodes
     print_id_ip_nodes
 
-    while $LOOP
-    do
+    while $LOOP; do
         read -p ">> input command: " COMMAND PARAM1 PARAM2
         case "$COMMAND" in
         "kill") 
