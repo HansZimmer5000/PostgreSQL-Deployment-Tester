@@ -13,7 +13,7 @@
 # VARIABLES & CONSTANTS
 ################
 
-source ../.env
+source ./.env
 
 SSH_KEY="-i ./keys/dsnkey"
 SSH_CMD="ssh $SSH_KEY"
