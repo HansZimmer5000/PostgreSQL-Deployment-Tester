@@ -243,57 +243,65 @@ print_help(){
     echo "
 This script sets up the environment (machines and docker swarm) to start a PostgreSQL Cluster for certain experiments.
 --------------------
-Inuts:
-1. (true (default) /false) is needed to determine if the VMs are already started (Only works on MacOS with VirtualBoxManager so far).
-2. (true (default) /false) is needed to determine if keepalived and docker swarm (with 'dsn1' as Manager) is already running and set up.
-3. (true (default) /false) is needed to determine if stack is already running and set up.
+Flags:
+-m  will start the VMs (Only works on MacOS and Linux with VirtualBoxManager so far).
+-s  will initialize the swarm cluster.
+-p  will setup the postgres cluster.
 "
 }
 
 # SCRIPT START
 ##############
 
-# TODOs define flags instead of fixed variables (true/false)
+machines_are_not_running=false
+swarm_is_not_initialized=false
+postgres_is_not_setup=false
 
-if [ "$1" == "-h" ]; then
-    print_help
-else 
-    if ! $1; then
-        echo "-- Starting VMs"
-        start_machines
-        sleep 10s
-    else
-        echo "-- Using already started VMs"
-    fi
+# 'hmsp:' would mean p also delivers a value (p=4), get it with $OPTARG
+while getopts 'hmsp' opts; do
+    case ${opts} in 
+        h)  print_help 
+            exit 0 ;;
+        m)  machines_are_not_running=true ;;
+        s)  swarm_is_not_initialized=true ;;
+        p)  postgres_is_not_setup=true ;;
+    esac
+done
 
-    if ! $2; then
-        echo "-- Starting Keepalived"
-        start_keepalived
-        echo "-- Starting Docker"
-        echo "$ALL_NODES"
-        start_swarm
-    else
-        echo "-- Skipping Docker Swarm and Keepalived setup"
-    fi
-
-    if ! $3; then
-
-        # CleanUp
-        echo "-- Cleaning Up Old Stuff"
-        remove_stack_and_volumes
-
-        # Prepare 
-        echo "-- Preparing Machines and Swarm"
-        prepare_machines
-        prepare_swarm
-
-        # Start Stack
-        deploy_stack
-    else
-        echo "-- Using existing stack deployment"
-    fi
-
-    source "./test_scripts/test_client_lib.sh"
-    running_loop
+if $machines_are_not_running; then
+    echo "-- Starting VMs"
+    start_machines
+    sleep 10s
+else
+    echo "-- Using already started VMs"
 fi
+
+if $swarm_is_not_initialized; then
+    echo "-- Starting Keepalived"
+    start_keepalived
+    echo "-- Starting Docker"
+    echo "$ALL_NODES"
+    start_swarm
+else
+    echo "-- Skipping Docker Swarm and Keepalived setup"
+fi
+
+if $postgres_is_not_setup; then
+    # CleanUp
+    echo "-- Cleaning Up Old Stuff"
+    remove_stack_and_volumes
+
+    # Prepare 
+    echo "-- Preparing Machines and Swarm"
+    prepare_machines
+    prepare_swarm
+
+    # Start Stack
+    deploy_stack
+else
+    echo "-- Using existing stack deployment"
+fi
+
+source "./test_scripts/test_client_lib.sh"
+running_loop
 
