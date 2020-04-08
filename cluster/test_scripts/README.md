@@ -3,21 +3,18 @@
 ## Normal Tests
 
 1. Check if roles of Postgres are really what they are
-2. 
+2. TODO
 
-## Upgrade Tests
+## Major Upgrade Tests
 
 Lower/Default Version: 9.5.18
-Higher Minor Version: 9.5.20
 Higher Major Version: 10.12
 
-1. Minor Upgrade of Postgres 
-2. Major Upgrade of Postgres 
-3. Minor Upgrade of running Subscriber
-4. Major Upgrade of running Subscriber
-5. Higher Provider, lower Subscriber, execute normal tests again? 
-6. Lower Provider, higher Subscriber, execute normal tests again?
-7. Major Update of Cluster (How much downtime?)
+0. Major Upgrade of Postgres (in /upgrade/tests/simple_test.sh)
+1. Major Upgrade of running Subscriber
+2. Higher Provider, lower Subscriber, execute normal tests again? 
+3. Lower Provider, higher Subscriber, execute normal tests again?
+4. Major Update of Cluster (How much downtime?)
     - Update Subscriber
     - Promote Subscriber
     - Update Provider

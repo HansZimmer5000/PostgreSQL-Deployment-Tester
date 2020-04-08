@@ -231,5 +231,30 @@ test_4(){
 ####### UPGRADE_TESTS
 
 upgrade_test_1(){
-    #TODO
+    # Major Upgrade of running Subscriber
+    echo "0"
 }
+
+upgrade_test_2(){
+    # Higher Provider, lower Subscriber, execute normal tests again? 
+    echo "0"
+}
+
+upgrade_test_3(){
+    # Lower Provider, higher Subscriber, execute normal tests again?
+    echo "0"
+}
+
+upgrade_test_4(){
+    # Major Update of Cluster (How much downtime?)
+    #   - Update Subscriber
+    #   - Promote Subscriber
+    #   - Update Provider
+    #   - Degrade Provider
+    echo "0"
+}
+
+ 
+
+
+

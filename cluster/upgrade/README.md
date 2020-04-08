@@ -16,7 +16,7 @@ This folder contains following contents:
 - File newstack.yml: The stack/compose file for the new postgres version
 - File oldstack.yml: The stack/compose file for the old postgres version
 - File test_scenario.sh: Tests for a specific scenario
-- File test.sh: The File which can be executed to test if this solution with the seperate container works. 
+- File simple_test.sh: The File which can be executed to test if this solution with the seperate container works. 
 
 In test.sh a test can be executed to test if this solution works. Following the steps:
 1. Start the PostgreSQL via oldstack.yml

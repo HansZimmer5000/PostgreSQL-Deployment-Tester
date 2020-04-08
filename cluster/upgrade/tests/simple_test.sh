@@ -29,6 +29,8 @@ test() {
         echo -e "BEWARE Log is not saved into file -> ${RED} no checking of the result! ${BLANK}"
         ./test_scenario.sh $1 $2
     fi
+    clean_up_logs
+    rm -rf ./vol/
 }
 
 # VARIABLES / SCRIPT
