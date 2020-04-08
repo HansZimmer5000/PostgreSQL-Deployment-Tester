@@ -103,4 +103,14 @@ basic_test(){
     fi
 }
 
+basic_test_v2(){
+    container_id=$(get_pg_container_id)
+    if [ -z "$container_id" ]; then
+        if [ $(determine_role $container_id) == "prov" ]; then
+            exit 0
+        fi
+    fi
+    exit 1
+}
+
 basic_test
