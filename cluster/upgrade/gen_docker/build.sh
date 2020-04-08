@@ -34,6 +34,11 @@ show_images() {
     docker images
 }
 
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Err: Need two versions!"
+    exit 1
+fi
+
 echo # For new Line
 echo "Create Image to Upgrade PostgresV$PG_OLD_MAJOR_VERSION to PostgresV$PG_NEW_MAJOR_VERSION"
 if $(new_version_is_higher); then
