@@ -6,6 +6,16 @@
 # docker system prune --volumes -f
 # docker rm $(docker ps -aq) -f
 
+# Meeting 08.04.2020
+# Done:
+# - Habe Keepalived Logik komplett neu strukturiert (wie im Diagramm in der Dokumentation)
+# - Kein Init Postgres mehr nötig
+# - Szenarien 1 und 2 laufen
+# - Habe das ganze doch etwas unterschätzt
+# TODO:
+# - Szenario 3 und 4 Testen
+# - Dokumentation updaten: Text und Dateien
+
 # VARIABLES & CONSTANTS
 ################
 
