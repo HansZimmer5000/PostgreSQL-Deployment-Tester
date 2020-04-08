@@ -24,16 +24,16 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
 ## VM Setup
 
 - Downloaded vdi from [osboxes](https://www.osboxes.org/centos/#centos-1908-vbox) (Password: osboxes.org)
-- Set Name according to "Docker Swarm Node 0", replace 0 with number (1 ... n)
+- Set VirtualBox Name according to "Docker Swarm Node 0", replace 0 with number (1 ... n)
 - Networks: 
   - First Try: NAT, Host-Only and Internal-Network (works but Flaky)
-  - Second Try: Bridged Network (doesn't have 192.168.99.10* IPs)
+  - Second Try: Bridged Network (doesn't have 192.168.99.10* IPs but works, Current Setting!)
   - Third Try: Host-Only and Bridged Network (does have 192.168.99.10* IPs and internet connection = win!)
 - ssh
   - via NAT Network:
     - Set Port Forwarding (VirtualBox -> VM Settings -> Network -> Advanced -> GuestPort=22 HostPort=49022)
     - ssh via `ssh -p 49022 root@localhost` (Password osboxes.org)
-  - via Host-Only Network (preferred):
+  - via Host-Only or Bridged Network (preferred):
     - get IP via Guest: hostname -I
     - ssh via `ssh root@<guest-ip>`
   - Set ssh key:
@@ -44,12 +44,10 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
   - `yum install upgrade -y`
   - `yum install keepalived docker`
   - Open Ports
-    - TODO alos open up ports for keepalived and portainer
+    - TODO also open up ports for keepalived and portainer
     - `firewall-cmd --permanent --add-port=2377/tcp`
     - `firewall-cmd --reload`
     - Or More "Durch die Wand" approach:
       - iptables-save
       - service firewalld stop
       - systemctl disable firewalld
-
-  #VBoxManage controlvm "Docker Swarm Node 2" acpipowerbutton; VBoxManage controlvm "Docker Swarm Node 1" acpipowerbutton
