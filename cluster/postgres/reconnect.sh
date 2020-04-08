@@ -1,3 +1,4 @@
+# TODO this is used by keepalived and postgres, where to place?
 echo "Next line may fail if database was not able to start right in the first place"
 
 docker exec $1 psql -e -v ON_ERROR_STOP=1 --username primaryuser --dbname testdb -c "SELECT pglogical.drop_subscription('$2');"

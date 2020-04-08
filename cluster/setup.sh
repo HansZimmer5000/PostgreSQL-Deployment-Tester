@@ -52,6 +52,7 @@ update_keepalived_basics(){
 
     SCP_CMD_FOR_EACH_NODE ./keepalived/check.sh /etc/keepalived/
     SCP_CMD_FOR_EACH_NODE ./keepalived/promote.sh /etc/keepalived/
+    
     SCP_CMD_FOR_EACH_NODE ./keepalived/notify.sh /etc/keepalived/
     SCP_CMD_FOR_EACH_NODE ./keepalived/keepalived.conf /etc/keepalived/keepalived.conf
 
@@ -135,8 +136,6 @@ set_configs(){
     
     reset_config "sub_config" "./postgres/sub_postgresql.conf" "/etc/sub_postgresql.conf"
     reset_config "sub_setup" "./postgres/sub_setup.sh" "/etc/sub_setup.sh"
-
-    reset_config "reconnect" "./postgres/reconnect.sh" "/etc/reconnect.sh"
 }
 
 wait_for_vm() {
