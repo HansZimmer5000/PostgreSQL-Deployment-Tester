@@ -1,3 +1,6 @@
+#!/bin/sh
+set +x
+
 # Loop with Old_versions and New_versions and dynamic creation of the log files and checking these is not so hard but not worth the effort as not so much test are be done.
 
 # CONSTANTS / HELPER
@@ -37,7 +40,7 @@ fi
 
 clean_up_logs
 
-#test 9.5 10 95_to_10
+test 9.5 10 95_to_10
 #test 10 11 10_to_11
 #test 9.5 11 95_to_11
 #test 9.5 12 95_to_12
