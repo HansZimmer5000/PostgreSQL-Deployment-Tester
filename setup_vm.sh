@@ -2,7 +2,7 @@
 
 source ./.env
 
-ssh_cmd="ssh -i ./swarmWithKeepalived/keys/dsnkey"
+ssh_cmd="ssh -i ./cluster/keys/dsnkey"
 
 setup_firewall(){
     #https://www.rootusers.com/how-to-open-a-port-in-centos-7-with-firewalld/
