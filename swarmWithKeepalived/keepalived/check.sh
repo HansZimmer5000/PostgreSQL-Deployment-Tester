@@ -104,6 +104,7 @@ basic_test(){
 }
 
 basic_test_v2(){
+    # Not a good idea since then if only subs are in cluster, all keepalived priorities decrease infinitely
     container_id=$(get_pg_container_id)
     if [ -z "$container_id" ]; then
         if [ $(determine_role $container_id) == "prov" ]; then
