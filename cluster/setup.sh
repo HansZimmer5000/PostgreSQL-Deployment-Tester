@@ -63,8 +63,8 @@ update_keepalived_basics(){
 }
 
 update_stacks(){
-    SCP_CMD_FOR_EACH_NODE ./stack.yml /root/
-    SCP_CMD_FOR_EACH_NODE ./portainer-agent-stack.yml /root/
+    SCP_CMD_FOR_EACH_NODE ./stacks/stack.yml /root/
+    SCP_CMD_FOR_EACH_NODE ./stacks/portainer-agent-stack.yml /root/
 }
 
 gather_id() {
