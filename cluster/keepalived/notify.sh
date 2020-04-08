@@ -39,9 +39,6 @@ role_sql(){
 }
 
 determine_role(){
-    # pglogical.show_subscription_status() --> if >0 shows that subscriber
-    # SELECT * FROM pg_replication_slots; --> if >0 shows that provider
-    # pglogical.pglogical_node_info() --> shows what nodes are active, if "provider" -> provider
     res="$(role_sql $1)"
     rows=$( echo "$res" | grep "provider")
     if [[ "$rows" == *provider* ]]; then
@@ -79,8 +76,6 @@ set_ids(){
 	done
 }
 
-# unused value TYPE=$1
-# unused value NAME=$2
 state=$3
 echo "$state $(date)" > /etc/keepalived/current_state.txt
 
@@ -92,15 +87,13 @@ set_ids
 log "1=$1 2=$2 State=$3 Prio=$4"
 log "ContainerID: $container_id SubscriptionID: $subscription_id"
 
-# TODO Notes
+## States
 # State 1: no VIP, 	no PG	-> Nothing todo 
 # State 2: no VIP, 	Sub		-> Nothing todo 
 # State 3: no VIP, 	Prov	-> Reconnect or Receive VIP
 # State 4: VIP, 	no PG	-> Release VIP
 # State 5: VIP, 	Sub		-> Release VIP or promote 
 # State 6: VIP, 	Prov	-> Nothing todo 
-
-# TODO keepalived restart -> beduetet das eine Zurücksetzung der Priority? - Fehler gefunden dass neuer keepalivd immer Vip bkeommt ? test 4 
 
 case $state in
 	"MASTER") 	log "Enter MASTER" 
@@ -120,11 +113,7 @@ case $state in
 
 							log "Waiting for Postgres to be ready"
 							wait_for_all_pg_to_boot $container_id
-							#if $(pg_is_ready $container_id); then
 							log "$(/etc/keepalived/promote.sh $container_id $subscription_id)"
-							#else
-							#	log "Postgres is not ready yet"
-							#fi
 						fi
 					fi
 				fi
