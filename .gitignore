@@ -1,3 +1,5 @@
 vdi/
+
+cluster/.vagrant
 cluster/upgrade/tests/vol/
 cluster/upgrade/tests/*.log
