@@ -41,7 +41,7 @@ prepare_images() {
 startolddb() {
 	echo "--> Start up old database"
 	docker-compose -f oldstack.yml up -d --quiet-pull --no-color
-	sleep 20s
+	sleep 10s
 }
 
 startnewdb(){
