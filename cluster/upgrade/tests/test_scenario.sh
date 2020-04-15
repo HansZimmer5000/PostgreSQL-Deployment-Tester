@@ -109,6 +109,8 @@ filldb
 
 showcount
 
+read 
+
 removeolddb
 
 upgradevol
