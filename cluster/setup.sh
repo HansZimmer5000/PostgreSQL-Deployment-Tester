@@ -65,6 +65,7 @@ update_keepalived_basics(){
 
 update_stacks(){
     SCP_CMD_FOR_EACH_NODE ./stacks/stack.yml /root/
+    SCP_CMD_FOR_EACH_NODE ./stacks/stack_upgraded.yml /root/
     SCP_CMD_FOR_EACH_NODE ./stacks/portainer-agent-stack.yml /root/
 }
 
@@ -184,6 +185,7 @@ prepare_swarm() {
 
 deploy_stack() {
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack.yml pg"
+    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack_upgraded.yml pgup"
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c portainer-agent-stack.yml portainer"
     sleep 15s #Wait till everything has started 
     
