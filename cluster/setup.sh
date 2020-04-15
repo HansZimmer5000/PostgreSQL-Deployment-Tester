@@ -185,7 +185,6 @@ prepare_swarm() {
 
 deploy_stack() {
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack.yml pg"
-    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack_upgraded.yml pgup"
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c portainer-agent-stack.yml portainer"
     sleep 15s #Wait till everything has started 
     
