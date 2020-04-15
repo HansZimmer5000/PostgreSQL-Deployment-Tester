@@ -265,13 +265,22 @@ upgrade_test_1(){
     fi
 
     test_log "3. Stop Subscriber"
-    todo
+    # We can do the following command since after "reset_cluster" only one sub is active.
+    sub_tuple=$(get_all_subscriber)
+    sub_name=$(get_name "$sub_tuple")
+    sub_number=${sub_name:3}
+    sub_node=$(get_node "$sub_tuple")
+    kill_subscriber $sub_number 1> /dev/null
 
     test_log "4. Update Subscriber"
     todo
+    # Label all nodes so that sub_node will be updated
+    # Check that volume paths from both stacks file match what volume update expects!
+    # Execute volume updater on sub_node
 
     test_log "5. Restart updated Subscriber"
     todo
+    # Start new Subscriber on sub_node
 
     test_log "6. Check that Subscriber still has old data"
     result=$(check_tables true)

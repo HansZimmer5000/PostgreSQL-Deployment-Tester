@@ -123,7 +123,10 @@ $(get_current_node_ips)
 
 build_images() {
     SCP_CMD_FOR_EACH_NODE "../customimage/9.5.18.dockerfile" /etc/
+    SCP_CMD_FOR_EACH_NODE "../customimage/10.12.dockerfile" /etc/
+
     SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5-raw" 
+    SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/10.12.dockerfile -t mypglog:10-raw" 
 }
 
 set_scripts(){
