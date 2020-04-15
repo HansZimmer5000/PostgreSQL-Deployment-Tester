@@ -5,7 +5,11 @@ PG_OLD_MAJOR_VERSION=$1
 Dockerfile=UpgradeFrom9.dockerfile 
 
 new_version_is_higher() {
-    if [ $(bc <<< "$PG_OLD_MAJOR_VERSION < $PG_NEW_MAJOR_VERSION") -eq 1 ]; then
+    $tmp_old="${PG_OLD_MAJOR_VERSION:0:2}"
+    $tmp_new="${PG_NEW_MAJOR_VERSION:0:2}"
+    tmp_old="${tmp_old//./}"   
+
+    if [ $(bc <<< "$tmp_old < $tmp_new") -eq 1 ]; then
         echo true
     else 
         echo false
