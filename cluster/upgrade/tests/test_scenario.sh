@@ -52,8 +52,7 @@ startnewdb(){
 
 removeolddb() {
 	echo "--> Remove old database"
-	docker-compose -f oldstack.yml stop 
-	docker-compose -f oldstack.yml rm -f
+	docker-compose -f oldstack.yml down
 	sleep 10s
 }
 
