@@ -272,6 +272,8 @@ upgrade_test_1(){
     sub_node=$(get_node "$sub_tuple")
     kill_subscriber $sub_number 1> /dev/null
 
+    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack_upgraded.yml pgup"
+
     test_log "4. Update Subscriber"
     todo
     # Label all nodes so that sub_node will be updated
