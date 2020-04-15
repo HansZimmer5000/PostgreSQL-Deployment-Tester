@@ -1,6 +1,6 @@
 # Swarm Tests
 
-Test sequence:
+Abstract test sequence:
 - Start old Postgres stack
 - Fill sample data
 - Shutdown old Postgres
