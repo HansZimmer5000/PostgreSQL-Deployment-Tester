@@ -59,4 +59,4 @@ services:
             - data_10.12:/var/lib/postgresql/data
         deploy:
             mode: replicated
-            replicas: 0
+            replicas: 1
