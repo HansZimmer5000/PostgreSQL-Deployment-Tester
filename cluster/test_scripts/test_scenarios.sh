@@ -234,17 +234,19 @@ test_4(){
 
 ####### UPGRADE_TESTS
 
+upgrade(){
+    /etc/upgrade_to_v10.sh
+}
+
 upgrade_test_1(){
     # Major Upgrade of running Subscriber
     # 0. Reset Cluster
     # 1. Add Data via provider
     # 2. Check that all instances have same state
-    # 3. Stop Subscriber
-    # 4. Update Subscriber
-    # 5. Restart updated Subscriber
-    # 6. Check that Subscriber still has old data
-    # 7. Add Data via provider
-    # 8. Check that all instances have same state
+    # 3. Upgrade Subscriber
+    # 4. Check that Subscriber still has old data
+    # 5. Add Data via provider
+    # 6. Check that all instances have same state
 
     test_log "0. Reset Cluster"
     reset_cluster 1 1> /dev/null
@@ -264,44 +266,28 @@ upgrade_test_1(){
         exit 1
     fi
 
-    test_log "3. Stop Subscriber"
-    # We can do the following command since after "reset_cluster" only one sub is active.
-    sub_tuple=$(get_all_subscriber)
-    sub_name=$(get_name "$sub_tuple")
-    sub_number=${sub_name:3}
-    sub_node=$(get_node "$sub_tuple")
-    kill_subscriber $sub_number 1> /dev/null
+    test_log "3. Upgrade Subscriber"
+    sub=$(get_all_subscriber)
+    sub_container_id=$(get_id "$sub")
+    docker exec $sub_container_id upgrade
 
-    #$SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack_upgraded.yml pgup"
-
-    test_log "4. Update Subscriber"
-    todo
-    # Label all nodes so that sub_node will be updated
-    # Check that volume paths from both stacks file match what volume update expects!
-    # Execute volume updater on sub_node
-
-    test_log "5. Restart updated Subscriber"
-    todo
-    # Start new Subscriber on sub_node
-
-    test_log "6. Check that Subscriber still has old data"
+    test_log "4. Check that Subscriber still has old data"
     result=$(check_tables true)
     if [[ $result != true ]]; then
         >&2 echo "$result"
         exit 1
     fi
 
-    test_log "7. Add Data via provider"
-    todo
+    test_log "5. Add Data via provider"    
+    SECOND_INSERTED_ID=1
+    add_entry $PROVIDER_NODE $PROVIDER_ID $SECOND_INSERTED_ID 1> /dev/null
 
-    test_log "8. Check that all instances have same state"
+    test_log "6. Check that all instances have same state"
     result=$(check_tables true)
     if [[ $result != true ]]; then
         >&2 echo "$result"
         exit 1
     fi
-
-    echo "0"
 }
 
 upgrade_test_2(){
