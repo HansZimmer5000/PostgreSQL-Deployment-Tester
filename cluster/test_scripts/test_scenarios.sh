@@ -51,7 +51,7 @@ reset_cluster(){
 }
 
 test_log(){
-    test_log "$1"
+    echo "$(date) $1"
 }
 
 # TESTSCENARIOS
@@ -234,8 +234,10 @@ test_4(){
 
 ####### UPGRADE_TESTS
 
+# $1 = Node, $2 = Container ID
 upgrade(){
-    /etc/upgrade_to_v10.sh
+    $SSH_CMD root@$1 "docker exec $2 /etc/upgrade_to_v10.sh"
+    
 }
 
 upgrade_test_1(){
@@ -269,7 +271,8 @@ upgrade_test_1(){
     test_log "3. Upgrade Subscriber"
     sub=$(get_all_subscriber)
     sub_container_id=$(get_id "$sub")
-    docker exec $sub_container_id upgrade
+    sub_node=$(get_node "$sub")
+    upgrade "$sub_node" "$sub_container_id"
 
     test_log "4. Check that Subscriber still has old data"
     result=$(check_tables true)
@@ -279,7 +282,7 @@ upgrade_test_1(){
     fi
 
     test_log "5. Add Data via provider"    
-    SECOND_INSERTED_ID=1
+    SECOND_INSERTED_ID=2
     add_entry $PROVIDER_NODE $PROVIDER_ID $SECOND_INSERTED_ID 1> /dev/null
 
     test_log "6. Check that all instances have same state"
