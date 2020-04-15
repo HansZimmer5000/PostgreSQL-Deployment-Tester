@@ -237,7 +237,7 @@ test_4(){
 # $1 = Node, $2 = Container ID
 upgrade(){
     # TODO: Breaks! Files needs to be in Container and Executable!
-    $SSH_CMD root@$1 "docker exec -t -u root $2 /etc/upgrade_to_v10.sh" 1> /dev/null
+    $SSH_CMD root@$1 "docker exec -t -u root $2 /etc/upgrade_to_v10.sh" 
 }
 
 upgrade_test_1(){
@@ -287,9 +287,10 @@ upgrade_test_1(){
 
     test_log "6. Check that all instances have same state"
     result=$(check_tables true)
-    if [[ $result != true ]]; then
+    if [[ $result == true ]]; then
+        echo "Upgrade Test 1 was successfull"
+    else
         >&2 echo "$result"
-        exit 1
     fi
 }
 
