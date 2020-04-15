@@ -1,5 +1,4 @@
 #!/bin/sh
-set +x
 
 # Loop with Old_versions and New_versions and dynamic creation of the log files and checking these is not so hard but not worth the effort as not so much test are be done.
 
@@ -9,7 +8,7 @@ GREEN='\033[1;32m'
 BLANK='\033[0m'
 
 clean_up_logs() {
-    rm *.log
+    rm -f *.log
 }
 
 test() {

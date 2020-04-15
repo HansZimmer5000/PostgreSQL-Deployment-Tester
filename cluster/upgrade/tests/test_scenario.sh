@@ -11,10 +11,10 @@ pre_cleanup() {
 	docker rm -f $(docker ps -aq) 
 
 	echo "--> Clean up volumes"
-	rm -r $VOLUME_DIR
+	rm -rf $VOLUME_DIR
 	mkdir -p $VOLUME_DIR
 
-	rm .env
+	rm -f .env
 }
 
 post_cleanup() {
@@ -66,6 +66,7 @@ upgradevol() {
 	cd ../tests
 
 	docker run \
+		--rm \
 		-v "$PWD/$VOLUME_DIR":/var/lib/postgresql \
 		pg_vol_upgrader:$OLD-$NEW \
 		--link
