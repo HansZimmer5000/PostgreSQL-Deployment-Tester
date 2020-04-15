@@ -15,6 +15,9 @@ configs:
     sub_setup:
         external: true
 
+    upgrade:
+        external: true
+
 volumes:
     data_9.5.18:
         external: true
@@ -47,6 +50,8 @@ services:
               target: /usr/share/postgresql/postgresql.conf.sample
             - source: sub_setup
               target: /docker-entrypoint-initdb.d/sub_setup.sh
+            - source: upgrade
+              target: /etc/upgrade_to_v10.sh
         ports:
             - target: 5432
               published: 5433
