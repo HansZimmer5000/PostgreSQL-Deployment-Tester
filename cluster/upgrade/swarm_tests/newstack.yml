@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  db:
+    container_name: postgres-upgrade-testing
+    environment:
+      POSTGRES_PASSWORD: pass
+    image: postgres:$NEW
+    volumes:
+      - './$VOLUME_DIR/$NEW/data:/var/lib/postgresql/data'

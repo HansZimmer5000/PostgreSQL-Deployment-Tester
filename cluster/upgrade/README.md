@@ -15,11 +15,12 @@ This folder contains following contents:
 Lower/Default Version: 9.5.18
 Higher Major Version: 10.12
 
-0. Major Upgrade of Postgres (in /upgrade/tests/simple_test.sh)
-1. Major Upgrade of running Subscriber
-2. Higher Provider, lower Subscriber, execute normal tests again? 
-3. Lower Provider, higher Subscriber, execute normal tests again?
-4. Major Update of Cluster (How much downtime?)
+0. Done - Major Upgrade of Postgres (in /tests/simple_test.sh)
+1. TODO - Major Upgrade of Postgres in Swarm
+2. TODO - Major Upgrade of running Subscriber
+3. TODO - Higher Provider, lower Subscriber, execute normal tests again? 
+4. TODO - Lower Provider, higher Subscriber, execute normal tests again?
+5. TODO - Major Update of Cluster (How much downtime?)
     - Update Subscriber
     - Promote Subscriber
     - Update Provider
