@@ -22,8 +22,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV PGBINOLD /usr/lib/postgresql/${PG_OLD_MAJOR_VERSION}/bin
 ENV PGBINNEW /usr/lib/postgresql/${PG_NEW_MAJOR_VERSION}/bin
 
-ENV PGDATAOLD /var/lib/postgresql/${PG_OLD_MAJOR_VERSION}/data
-ENV PGDATANEW /var/lib/postgresql/${PG_NEW_MAJOR_VERSION}/data
+# TODO changed from .../data to .../! Compose test will break!
+ENV PGDATAOLD /var/lib/postgresql/${PG_OLD_MAJOR_VERSION}/
+ENV PGDATANEW /var/lib/postgresql/${PG_NEW_MAJOR_VERSION}/
 
 RUN mkdir -p "$PGDATAOLD" "$PGDATANEW" \
 	&& chown -R postgres:postgres /var/lib/postgresql
