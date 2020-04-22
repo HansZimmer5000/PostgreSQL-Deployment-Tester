@@ -155,12 +155,12 @@ wait_for_vm() {
 # Contains Echos
 ################
 
-prune_docker() {
+clean_docker() {
     $SSH_CMD root@$MANAGER_NODE "docker stack rm pg"
     sleep 10s #Wait till everything is deleted
 
     SSH_CMD_FOR_EACH_NODE "docker rm $(docker ps -aq) -f"
-    SSH_CMD_FOR_EACH_NODE "docker system prune --volumes -f"
+    SSH_CMD_FOR_EACH_NODE "docker volumes prune -f"
 }
 
 prepare_machines() {
@@ -279,7 +279,7 @@ fi
 if $postgres_is_not_running; then
     # CleanUp
     echo "-- Cleaning Up Old Stuff"
-    prune_docker
+    clean_docker
 
     # Prepare 
     echo "-- Preparing Machines and Swarm"
