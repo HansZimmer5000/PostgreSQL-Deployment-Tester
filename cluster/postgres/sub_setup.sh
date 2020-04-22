@@ -43,8 +43,6 @@ init_this_subscriber() {
 
     echo "Using IP ($SUBSCRIBER_IP) and ID ($SUBSCRIPTION_ID)"
 
-    echo "host  replication  all  0.0.0.0/0  md5" >> /var/lib/postgresql/data/pg_hba.conf
-
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
         -- PG LOGICAL
         CREATE EXTENSION pglogical;
@@ -70,7 +68,8 @@ init_this_subscriber() {
     echo "Init Sub Done"
 }
 
-echo "host  replication  all  0.0.0.0/0  md5" >> /var/lib/postgresql/data/pg_hba.conf
+echo "Current PGDATA: $PGDATA"
+echo "host  replication  all  0.0.0.0/0  md5" >> $PGDATA/pg_hba.conf
 
 init_this_subscriber &
 
