@@ -1,0 +1,13 @@
+version: '3'
+
+volumes:
+  data_10.12:
+    external: true
+
+services:
+  db:
+    image: postgres:10.12
+    environment:
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - data_10.12:/var/lib/postgresql/data 
