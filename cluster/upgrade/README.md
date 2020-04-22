@@ -28,9 +28,8 @@ Higher Major Version: 10.12
 
 ## In-Place
 
-Start Docker container
+Start the Docker container.
 ```shell
-# Start Docker
 docker run \
     --rm \
     -it \
@@ -39,7 +38,8 @@ docker run \
     postgres:9.5 bash
 ```
 
-In Docker:
+Execute inside the Docker container to upgrade:
+
 ```shell
 # Start PostgreSQL
 su - postgres -c "
