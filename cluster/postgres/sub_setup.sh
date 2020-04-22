@@ -45,19 +45,7 @@ init_this_subscriber() {
 
     set -e
 
-    echo "Updating $PGDATA/pg_hba.conf"
-    echo "
-host  replication  all  0.0.0.0/0  md5
 
-local   replication   primaryuser                              trust
-host    replication   primaryuser      0.0.0.0/0            trust
-host    replication   primaryuser      0.0.0.0/0          trust
-
-local   repmgr        primaryuser                              trust
-host    repmgr        primaryuser      0.0.0.0/0            trust
-host    repmgr        primaryuser      0.0.0.0/0          trust
-
-" > $PGDATA/pg_hba.conf
 
     unused_hba_config="
 # Read with SELECT pg_read_file('pg_hba.conf');
@@ -96,5 +84,19 @@ host    repmgr        repmgr      192.168.1.0/24          trust
         SELECT pglogical.show_subscription_status();"
     echo "Init Sub Done"
 }
+
+echo "Updating $PGDATA/pg_hba.conf"
+echo "
+host  replication  all  0.0.0.0/0  md5
+
+local   replication   primaryuser                              trust
+host    replication   primaryuser      0.0.0.0/0            trust
+host    replication   primaryuser      0.0.0.0/0          trust
+
+local   repmgr        primaryuser                              trust
+host    repmgr        primaryuser      0.0.0.0/0            trust
+host    repmgr        primaryuser      0.0.0.0/0          trust
+
+" > $PGDATA/pg_hba.conf
 
 init_this_subscriber &
