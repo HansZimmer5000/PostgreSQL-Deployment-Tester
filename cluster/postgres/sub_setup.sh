@@ -1,5 +1,6 @@
 #!/bin/bash
 wait_till_reachable() {
+    # TODO Doesnt work right anymore, since "provider" ip (== name of old, deprecated docker pg service) is not longer with us.
     refused=true
     while $refused; do
         sleep 1
@@ -43,20 +44,6 @@ init_this_subscriber() {
 
     echo "Using IP ($SUBSCRIBER_IP) and ID ($SUBSCRIPTION_ID)"
 
-    set -e
-
-
-
-    unused_hba_config="
-# Read with SELECT pg_read_file('pg_hba.conf');
-local   replication   repmgr                              trust
-host    replication   repmgr      127.0.0.1/32            trust
-host    replication   repmgr      192.168.1.0/24          trust
-
-local   repmgr        repmgr                              trust
-host    repmgr        repmgr      127.0.0.1/32            trust
-host    repmgr        repmgr      192.168.1.0/24          trust
-"
     echo "--PRINTING pg_hba.conf"
     cat $PGDATA/pg_hba.conf
     echo "--------end pb_hba.conf---------"
@@ -85,18 +72,14 @@ host    repmgr        repmgr      192.168.1.0/24          trust
     echo "Init Sub Done"
 }
 
+echo "--PRINTING pg_hba.conf"
+cat $PGDATA/pg_hba.conf
+echo "--------end pb_hba.conf---------"
+
 echo "Updating $PGDATA/pg_hba.conf"
 echo "
 host  replication  all  0.0.0.0/0  md5
-
-local   replication   primaryuser                              trust
-host    replication   primaryuser      0.0.0.0/0            trust
-host    replication   primaryuser      0.0.0.0/0          trust
-
-local   repmgr        primaryuser                              trust
-host    repmgr        primaryuser      0.0.0.0/0            trust
-host    repmgr        primaryuser      0.0.0.0/0          trust
-
+local all all  trust
 " > $PGDATA/pg_hba.conf
 
 init_this_subscriber &
