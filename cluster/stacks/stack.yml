@@ -15,6 +15,10 @@ configs:
     sub_setup:
         external: true
 
+volumes:
+    pgdata:
+        external: true
+
 services:
 
     #adminer:
@@ -36,7 +40,9 @@ services:
             - POSTGRES_PASSWORD=pass
             - POSTGRES_USER=primaryuser
             - POSTGRES_DB=testdb
-            #- PGDATA=/var/lib/postgresql/9.5/data
+            - PGDATA=/var/lib/postgresql/9.5/data #Already set in Image, here just again to make it clear and reader friendly.
+        volumes:
+            - pgdata:/var/lib/postgresql/9.5/data
         configs:
             - source: tables
               target: /docker-entrypoint-initdb.d/init.sql
