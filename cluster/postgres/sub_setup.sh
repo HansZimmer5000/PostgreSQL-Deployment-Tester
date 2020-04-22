@@ -45,7 +45,33 @@ init_this_subscriber() {
 
     set -e
 
-    echo "host  replication  all  0.0.0.0/0  md5" >> /var/lib/postgresql/data/pg_hba.conf
+    echo "Updating $PGDATA/pg_hba.conf"
+    echo "
+host  replication  all  0.0.0.0/0  md5
+
+local   replication   primaryuser                              trust
+host    replication   primaryuser      0.0.0.0/0            trust
+host    replication   primaryuser      0.0.0.0/0          trust
+
+local   repmgr        primaryuser                              trust
+host    repmgr        primaryuser      0.0.0.0/0            trust
+host    repmgr        primaryuser      0.0.0.0/0          trust
+
+" > $PGDATA/pg_hba.conf
+
+    unused_hba_config="
+# Read with SELECT pg_read_file('pg_hba.conf');
+local   replication   repmgr                              trust
+host    replication   repmgr      127.0.0.1/32            trust
+host    replication   repmgr      192.168.1.0/24          trust
+
+local   repmgr        repmgr                              trust
+host    repmgr        repmgr      127.0.0.1/32            trust
+host    repmgr        repmgr      192.168.1.0/24          trust
+"
+    echo "--PRINTING pg_hba.conf"
+    cat $PGDATA/pg_hba.conf
+    echo "--------end pb_hba.conf---------"
 
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
         -- PG LOGICAL
@@ -58,7 +84,6 @@ init_this_subscriber() {
     echo "First third done"
 
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
-        -- user Docker Service Name as host url
         SELECT pglogical.create_subscription(
             subscription_name := 'subscription$SUBSCRIPTION_ID',
             provider_dsn := 'host=192.168.1.149 port=5433 dbname=testdb password=pass user=primaryuser'
@@ -72,7 +97,4 @@ init_this_subscriber() {
     echo "Init Sub Done"
 }
 
-echo "host  replication  all  0.0.0.0/0  md5" >> /var/lib/postgresql/data/pg_hba.conf
-
 init_this_subscriber &
-

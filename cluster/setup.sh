@@ -126,7 +126,8 @@ build_images() {
     SCP_CMD_FOR_EACH_NODE "../customimage/10.12.dockerfile" /etc/
 
     SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5-raw" 
-    SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/10.12.dockerfile -t mypglog:10-raw" 
+    # TODO not needed in current upgrade version
+    # SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/10.12.dockerfile -t mypglog:10-raw" 
 }
 
 set_scripts(){
@@ -161,12 +162,12 @@ wait_for_vm() {
 # Contains Echos
 ################
 
-prune_docker() {
+clean_up_docker() {
     $SSH_CMD root@$MANAGER_NODE "docker stack rm pg"
-    sleep 10s #Wait till everything is deleted
+    sleep 5s #Wait till everything is deleted
 
     SSH_CMD_FOR_EACH_NODE "docker rm $(docker ps -aq) -f"
-    SSH_CMD_FOR_EACH_NODE "docker system prune --volumes -f"
+    SSH_CMD_FOR_EACH_NODE "docker volume prune -f"
 }
 
 prepare_machines() {
@@ -188,7 +189,7 @@ prepare_swarm() {
 deploy_stack() {
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack.yml pg"
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c portainer-agent-stack.yml portainer"
-    sleep 15s #Wait till everything has started 
+    sleep 7s #Wait till everything has started 
     
     echo "-- Connect to Portainer at: http://$dsn1_node:9000/"
 }
@@ -285,7 +286,7 @@ fi
 if $postgres_is_not_running; then
     # CleanUp
     echo "-- Cleaning Up Old Stuff"
-    prune_docker
+    clean_up_docker
 
     # Prepare 
     echo "-- Preparing Machines and Swarm"
