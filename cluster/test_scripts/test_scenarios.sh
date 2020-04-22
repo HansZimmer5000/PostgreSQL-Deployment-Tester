@@ -237,7 +237,6 @@ test_4(){
 
 # $1 = Node, $2 = Container ID
 upgrade(){
-    # TODO: Breaks! Files needs to be in Container and Executable!
     $SSH_CMD root@$1 "docker exec -t -u root $2 /etc/upgrade_to_v10.sh" 
 }
 
