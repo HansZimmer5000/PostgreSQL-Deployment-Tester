@@ -17,6 +17,12 @@ RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-
 RUN a=$(curl https://access.2ndquadrant.com/api/repository/dl/default/release/deb); bash -c "$a"
 RUN apt-get install postgresql-9.5-pglogical
 
+# Give Postgres permission to use the volume
+RUN mkdir -p /var/lib/postgresql/9.5/data
+RUN chown -R postgres /var/lib/postgresql/9.5/data
+VOLUME [ "/var/lib/postgresql/9.5/data" ]
+ENV PGDATA="/var/lib/postgresql/9.5/data"
+
 # Change to user postgres (see https://github.com/docker-library/postgres/blob/master/9.5/Dockerfile)
 USER 999
 
