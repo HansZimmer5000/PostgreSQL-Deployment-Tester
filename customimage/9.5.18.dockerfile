@@ -27,3 +27,6 @@ ENV PGDATA="/var/lib/postgresql/9.5/data"
 USER 999
 
 EXPOSE 5432
+COPY entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]

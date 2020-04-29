@@ -123,6 +123,9 @@ $(get_current_node_ips)
 
 build_images() {
     SCP_CMD_FOR_EACH_NODE "../customimage/9.5.18.dockerfile" /etc/
+    SCP_CMD_FOR_EACH_NODE "../customimage/entrypoint.sh" /etc/
+    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/entrypoint.sh"
+
     SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5-raw" 
 }
 
