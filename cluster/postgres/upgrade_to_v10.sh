@@ -1,11 +1,14 @@
 #!/bin/sh
 
 echo "-- Install new Major Version"
+# TODO Some of the installed packages needs READLINE, I guess to select wheter version to install.
+
 echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main 10" > /etc/apt/sources.list.d/pgdg.list
 apt-get update 1>/dev/null
 apt-get install -y --no-install-recommends --no-install-suggests postgresql-10 1>/dev/null
 
 echo "-- Upgrade"
+# TODO postgres exists in Container, but not in Database (Role). Either set primaryuser or change all to postgres user.
 mkdir -p /var/lib/postgresql/9.5/data /var/lib/postgresql/10/data
 chown -R postgres:postgres /var/lib/postgresql
 
