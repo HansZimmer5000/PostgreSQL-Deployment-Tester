@@ -273,6 +273,7 @@ upgrade_test_1(){
     sub_container_id=$(get_id "$sub")
     sub_node=$(get_node "$sub")
     upgrade "$sub_node" "$sub_container_id"
+    sleep 10s
 
     test_log "4. Check that Subscriber still has old data"
     result=$(check_tables true)
