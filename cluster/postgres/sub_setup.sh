@@ -49,7 +49,7 @@ init_this_subscriber() {
 
         SELECT pglogical.create_node(
             node_name := 'subscriber95',
-            dsn := 'host=$SUBSCRIBER_IP port=5432 dbname=testdb password=pass user=primaryuser'
+            dsn := 'host=$SUBSCRIBER_IP port=5432 dbname=testdb password=pass user=postgres'
         );"
     echo "First third done"
 
@@ -57,7 +57,7 @@ init_this_subscriber() {
         -- user Docker Service Name as host url
         SELECT pglogical.create_subscription(
             subscription_name := 'subscription$SUBSCRIPTION_ID',
-            provider_dsn := 'host=192.168.1.149 port=5433 dbname=testdb password=pass user=primaryuser'
+            provider_dsn := 'host=192.168.1.149 port=5433 dbname=testdb password=pass user=postgres'
         );"
     echo "Second third done"
 

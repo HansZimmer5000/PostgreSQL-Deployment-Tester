@@ -5,7 +5,7 @@ log(){
 }
 
 get_pg_status(){
-	(docker exec $1 psql -v ON_ERROR_STOP=1 --username primaryuser --dbname testdb -c 'SELECT * FROM pglogical.pglogical_node_info();') 1> /dev/null
+	(docker exec $1 psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c 'SELECT * FROM pglogical.pglogical_node_info();') 1> /dev/null
 }
 
 pg_is_ready(){
@@ -35,7 +35,7 @@ gather_running_containers(){
 }
 
 role_sql(){
-    docker exec $1 psql -v ON_ERROR_STOP=1 --username primaryuser --dbname testdb -c 'SELECT * FROM pglogical.pglogical_node_info();'
+    docker exec $1 psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c 'SELECT * FROM pglogical.pglogical_node_info();'
 }
 
 determine_role(){

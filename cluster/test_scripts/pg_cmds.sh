@@ -4,12 +4,12 @@
 # POSTGRESQL
 ################
 
-POSTGRES_USER="primaryuser"
+POSTGRES_USER="postgres"
 POSTGRES_DB="testdb"
 
 # $1 = node // $2 = Container ID // $3 = Sql command
 execute_sql() {
-    $SSH_CMD root@$1 docker exec $2 "psql -v ON_ERROR_STOP=1 --username primaryuser --dbname testdb -c '$3'"
+    $SSH_CMD root@$1 docker exec $2 "psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c '$3'"
 }
 
 # $1 = node // $2 = Container ID
