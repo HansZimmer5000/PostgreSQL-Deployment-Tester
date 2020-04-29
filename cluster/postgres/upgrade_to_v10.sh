@@ -25,11 +25,11 @@ PGDATA=/var/lib/postgresql/10/data /usr/lib/postgresql/10/bin/initdb -E 'UTF-8' 
 cp /var/lib/postgresql/9.5/data/postgresql.conf /var/lib/postgresql/10/data/postgresql.conf
 
 /usr/lib/postgresql/10/bin/pg_upgrade
-
-#TODO setup pglogical again as before (via sub_setup. Does this need updating to fit to v10?)
 "
 
 echo "-- Start new Postgres"
 su - postgres -c "
 PGDATA=/var/lib/postgresql/10/data /usr/lib/postgresql/10/bin/pg_ctl start
 " 
+
+#TODO setup pglogical again as before (via sub_setup. Does this need updating to fit to v10?)
