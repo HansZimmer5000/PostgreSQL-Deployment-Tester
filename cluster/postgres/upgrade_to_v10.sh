@@ -18,8 +18,9 @@ export PGBINNEW=/usr/lib/postgresql/10/bin
 export PGDATAOLD=/var/lib/postgresql/9.5/data
 export PGDATANEW=/var/lib/postgresql/10/data
 
-PGDATA=/var/lib/postgresql/9.5/data /usr/lib/postgresql/9.5/bin/pg_ctl stop # TODO this will kill container PID 1 == Container stops, how to work around?
-PGDATA=/var/lib/postgresql/10/data /usr/lib/postgresql/10/bin/pg_ctl init
+PGDATA=/var/lib/postgresql/9.5/data /usr/lib/postgresql/9.5/bin/pg_ctl stop 
+PGDATA=/var/lib/postgresql/10/data /usr/lib/postgresql/10/bin/initdb -E 'UTF-8' --locale=en_US.utf8
+#TODO install pglogical in v10, reuse configuration from older version and setup pglogical again as before (via sub_setup. Does this need updating to fit to v10?)
 /usr/lib/postgresql/10/bin/pg_upgrade
 "
 
