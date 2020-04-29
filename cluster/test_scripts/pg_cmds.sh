@@ -4,12 +4,12 @@
 # POSTGRESQL
 ################
 
-POSTGRES_USER="primaryuser"
+POSTGRES_USER="postgres"
 POSTGRES_DB="testdb"
 
 # $1 = node // $2 = Container ID // $3 = Sql command
 execute_sql() {
-    $SSH_CMD root@$1 docker exec $2 "psql -v ON_ERROR_STOP=1 --username primaryuser --dbname testdb -c '$3'"
+    $SSH_CMD root@$1 docker exec $2 "psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c '$3'"
 }
 
 # $1 = node // $2 = Container ID
@@ -44,6 +44,7 @@ get_table(){
         echo "Container $1 was not found, is it really active?"
     else
         IFS=',' read CURRENT_NODE CURRENT_ID <<< "${CURRENT_INFO}"
+        echo "Getting Table with: $CURRENT_INFO"
         get_local_table $CURRENT_NODE $CURRENT_ID
     fi
 }
@@ -144,7 +145,7 @@ check_provider(){
     echo "-- Checking Provider"
     add_entry $1 $2 7 1> /dev/null
     add_entry $1 $2 49 1> /dev/null
-    sleep 1s
+    sleep 2s
     check_tables_and_clean_up true
 }
 
@@ -152,8 +153,8 @@ check_subscriber(){
     # Insert something into subscriber -> no one should receive this entry
     echo "-- Checking $1"
     add_entry $2 $3 3 1> /dev/null
-    sleep 1s
-    check_tables_and_clean_up false
+    sleep 2s
+    check_tables_and_clean_up false #can be false if sync works correct
 }
 
 check_roles() {

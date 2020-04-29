@@ -44,24 +44,20 @@ init_this_subscriber() {
 
     echo "Using IP ($SUBSCRIBER_IP) and ID ($SUBSCRIPTION_ID)"
 
-    echo "--PRINTING pg_hba.conf"
-    cat $PGDATA/pg_hba.conf
-    echo "--------end pb_hba.conf---------"
-
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
         -- PG LOGICAL
         CREATE EXTENSION pglogical;
 
         SELECT pglogical.create_node(
             node_name := 'subscriber95',
-            dsn := 'host=$SUBSCRIBER_IP port=5432 dbname=testdb password=pass user=primaryuser'
+            dsn := 'host=$SUBSCRIBER_IP port=5432 dbname=testdb password=pass user=postgres'
         );"
     echo "First third done"
 
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
         SELECT pglogical.create_subscription(
             subscription_name := 'subscription$SUBSCRIPTION_ID',
-            provider_dsn := 'host=192.168.1.149 port=5433 dbname=testdb password=pass user=primaryuser'
+            provider_dsn := 'host=192.168.1.149 port=5433 dbname=testdb password=pass user=postgres'
         );"
     echo "Second third done"
 
@@ -72,9 +68,8 @@ init_this_subscriber() {
     echo "Init Sub Done"
 }
 
-echo "--PRINTING pg_hba.conf"
-cat $PGDATA/pg_hba.conf
-echo "--------end pb_hba.conf---------"
+echo "Current PGDATA: $PGDATA"
+echo "host  replication  all  0.0.0.0/0  md5" >> $PGDATA/pg_hba.conf
 
 echo "Updating $PGDATA/pg_hba.conf"
 echo "

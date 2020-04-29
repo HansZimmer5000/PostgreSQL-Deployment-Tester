@@ -123,11 +123,10 @@ $(get_current_node_ips)
 
 build_images() {
     SCP_CMD_FOR_EACH_NODE "../customimage/9.5.18.dockerfile" /etc/
-    SCP_CMD_FOR_EACH_NODE "../customimage/10.12.dockerfile" /etc/
+    SCP_CMD_FOR_EACH_NODE "../customimage/entrypoint.sh" /etc/
+    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/entrypoint.sh"
 
     SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5-raw" 
-    # TODO not needed in current upgrade version
-    # SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/10.12.dockerfile -t mypglog:10-raw" 
 }
 
 set_scripts(){
@@ -162,7 +161,7 @@ wait_for_vm() {
 # Contains Echos
 ################
 
-clean_up_docker() {
+clean_docker() {
     $SSH_CMD root@$MANAGER_NODE "docker stack rm pg"
     sleep 5s #Wait till everything is deleted
 
@@ -207,6 +206,19 @@ start_swarm() {
     read -p "-- Please enter Token: " TOKEN
     $SSH_CMD root@$dsn2_node "docker swarm join --token $TOKEN $dsn1_node:2377"
     #ADJUSTMENT: $SSH_CMD root@dsn3 "docker swarm join --token $TOKEN $dsn1_node:2377"
+}
+
+check_swarm(){
+    nodes=$($SSH_CMD root@$MANAGER_NODE "docker node ls")
+    if [ -z "$nodes" ]; then
+        echo "Is Manager Node ready? Aborting"
+        exit 1
+    elif [[ "$nodes" != *"docker-swarm-node2"* ]]; then
+        echo "Is Node 2 ready? Aborting"
+        exit 1
+    else 
+        echo "Both Nodes are up!"
+    fi
 }
 
 start_machines(){
@@ -279,6 +291,8 @@ if $swarm_is_not_initialized; then
     echo "-- Starting Docker"
     echo "$ALL_NODES"
     start_swarm
+    echo "-- Check if both nodes are in swarm"
+    check_swarm
 else
     echo "-- Skipping Docker Swarm and Keepalived setup"
 fi
@@ -286,7 +300,7 @@ fi
 if $postgres_is_not_running; then
     # CleanUp
     echo "-- Cleaning Up Old Stuff"
-    clean_up_docker
+    clean_docker
 
     # Prepare 
     echo "-- Preparing Machines and Swarm"

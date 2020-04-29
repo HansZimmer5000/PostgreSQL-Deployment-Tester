@@ -1,6 +1,14 @@
 # !/bin/sh
 # This is meant to be 'sourced' from test_client_lib.sh!
 
+test_log(){
+    echo "$(date) $1"
+}
+
+# TESTSCENARIOS
+# Expecting 1 Provider 1 and  Subscriber with name "subscriber.1"
+################
+
 # Expecting Subscriber count as Param1, default is 1
 reset_cluster(){
     sub_count=1
@@ -10,7 +18,7 @@ reset_cluster(){
         fi
     fi
 
-    echo "Reseting Cluster with $sub_count Subscriber"
+    test_log "Reseting Cluster with $sub_count Subscriber"
     update_id_ip_nodes
 
     # check if provider exists
@@ -23,14 +31,14 @@ reset_cluster(){
         if [[ $current_role == "prov" ]] && ! $provider_exists; then
             provider_exists=true
         elif [[ $current_role == "prov" ]] && $provider_exists; then
-            echo "There are multiple providers in the cluster!"
+            test_log "There are multiple providers in the cluster!"
             exit 1
         elif [[ $current_role == "sub" ]] && [ $sub_exists_count -lt $sub_count ]; then
             sub_exists_count=$((sub_exists_count+1))
         else
             current_name=$(get_name "$tuple")
             current_number=${current_name:3:1}
-            echo "removing db.$current_number"
+            test_log "removing db.$current_number"
             kill_subscriber "$current_number" 1> /dev/null
         fi
     done
@@ -114,9 +122,9 @@ test_2(){
     test_log "4. Check if subscriber has both datasets"
     result=$(check_tables true)
     if [[ $result == true ]]; then
-        echo "Test 2 was successfull"
+        test_log "Test 2 was successfull"
     else
-        >&2 echo "$result"
+        >&2 test_log "$result"
     fi
 }
 
@@ -145,7 +153,7 @@ test_3(){
     test_log "2. Check that all instances have same state"
     result=$(check_tables true)
     if [[ $result != true ]]; then
-        >&2 echo "$result"
+        >&2 test_log "$result"
         exit 1
     fi
 
@@ -172,9 +180,9 @@ test_3(){
     test_log "7. Check that all instances have the new data"
     result=$(check_tables true)
     if [[ $result == true ]]; then
-        echo "Test 3 was successfull"
+        test_log "Test 3 was successfull"
     else
-        >&2 echo "$result"
+        >&2 test_log "$result"
     fi
 }
 
@@ -202,7 +210,7 @@ test_4(){
     test_log "2. Check that all instances have same state"
     result=$(check_tables true)
     if [[ $result != true ]]; then
-        >&2 echo "$result"
+        >&2 test_log "$result"
         exit 1
     fi
 
@@ -226,17 +234,17 @@ test_4(){
     test_log "6. Check that all instances have the new data"
     result=$(check_tables true)
     if [[ $result == true ]]; then
-        echo "Test 4 was successfull"
+        test_log "Test 4 was successfull"
     else
-        >&2 echo "$result"
+        >&2 test_log "$result"
     fi
 }
 
 ####### UPGRADE_TESTS
 
+
 # $1 = Node, $2 = Container ID
 upgrade(){
-    # TODO: Breaks! Files needs to be in Container and Executable!
     $SSH_CMD root@$1 "docker exec -t -u root $2 /etc/upgrade_to_v10.sh" 
 }
 
@@ -257,7 +265,6 @@ upgrade_test_1(){
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
-    
     FIRST_INSERTED_ID=1
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
@@ -273,6 +280,7 @@ upgrade_test_1(){
     sub_container_id=$(get_id "$sub")
     sub_node=$(get_node "$sub")
     upgrade "$sub_node" "$sub_container_id"
+    sleep 10s
 
     test_log "4. Check that Subscriber still has old data"
     result=$(check_tables true)
