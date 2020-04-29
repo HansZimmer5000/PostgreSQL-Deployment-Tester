@@ -5,7 +5,7 @@ echo "-- Install new Major Version"
 
 echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main 10" > /etc/apt/sources.list.d/pgdg.list
 apt-get update 1>/dev/null
-apt-get install -y --no-install-recommends --no-install-suggests postgresql-10 1>/dev/null
+apt-get install -y --no-install-recommends --no-install-suggests postgresql-10 postgresql-10-pglogical 1>/dev/null
 
 echo "-- Upgrade"
 # TODO postgres exists in Container, but not in Database (Role). Either set postgres or change all to postgres user.
@@ -20,8 +20,13 @@ export PGDATANEW=/var/lib/postgresql/10/data
 
 PGDATA=/var/lib/postgresql/9.5/data /usr/lib/postgresql/9.5/bin/pg_ctl stop 
 PGDATA=/var/lib/postgresql/10/data /usr/lib/postgresql/10/bin/initdb -E 'UTF-8' --locale=en_US.utf8
-#TODO install pglogical in v10, reuse configuration from older version and setup pglogical again as before (via sub_setup. Does this need updating to fit to v10?)
+
+# Reuse old configuratoin file
+cp /var/lib/postgresql/9.5/data/postgresql.conf /var/lib/postgresql/10/data/postgresql.conf
+
 /usr/lib/postgresql/10/bin/pg_upgrade
+
+#TODO setup pglogical again as before (via sub_setup. Does this need updating to fit to v10?)
 "
 
 echo "-- Start new Postgres"
