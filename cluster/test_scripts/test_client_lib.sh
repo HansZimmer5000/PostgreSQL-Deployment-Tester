@@ -151,14 +151,15 @@ running_loop() {
             fi
             ;;
         "up_test")
-            if [[ $PARAM1 -gt 0 && $PARAM1 -le 1 ]]; then
+            max_number=4
+            if [[ $PARAM1 -gt 0 && $PARAM1 -le $max_number ]]; then
                 echo "-- Executing Upgrade Test $PARAM1"
                 upgrade_test_$PARAM1
             elif [[ -z $PARAM1 ]]; then
-                echo "-- Executing all Upgrade Tests: Next Test 1 of 1"
+                echo "-- Executing all Upgrade Tests: Next Test 1 of $max_number"
                 upgrade_test_1
             else
-                echo "$PARAM1 was not between 1 and 1!"
+                echo "$PARAM1 was not between 1 and $max_number!"
             fi
             ;;
         "end")
@@ -179,7 +180,7 @@ running_loop() {
         table: [0=provider,1=sub1,...]
         reconnect
         test: [1-4]
-        up_test: [1-1]
+        up_test: [1,4]
     ]"
             echo "
     PARAM2=[
