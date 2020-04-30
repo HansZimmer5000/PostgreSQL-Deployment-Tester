@@ -318,6 +318,73 @@ upgrade_test_4(){
     #   - Promote Subscriber
     #   - Update Provider
     #   - Degrade Provider
-    echo "0"
+
+
+    test_log "0. Reset Cluster"
+    reset_cluster 1 1> /dev/null
+
+    test_log "1. Add Data via provider"
+    provider_tuple="$(get_all_provider)"
+    PROVIDER_NODE=$(get_node "$provider_tuple")
+    PROVIDER_ID=$(get_id "$provider_tuple")
+
+    FIRST_INSERTED_ID=1
+    add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
+
+    test_log "2. Check that all instances have same state"
+    result=$(check_tables true)
+    if [[ $result != true ]]; then
+        >&2 echo "$result"
+        exit 1
+    fi
+
+    test_log "3. Upgrade Subscriber"
+    sub=$(get_all_subscriber)
+    sub_container_id=$(get_id "$sub")
+    sub_node=$(get_node "$sub")
+    upgrade "$sub_node" "$sub_container_id"
+    sleep 10s
+
+    test_log "4. Check that Subscriber still has old data"
+    result=$(check_tables true)
+    if [[ $result != true ]]; then
+        >&2 echo "$result"
+        exit 1
+    fi
+
+
+    test_log "5. Failover"  
+    
+    node=$(get_node $provider_tuple)
+    $SSH_CMD root@$PROVIDER_NODE systemctl stop keepalived
+    sleep 60s # In the between time, Keepalived Master (and VIP) switch over to Subscriber which will be promoted to the new provider. 
+    # Pro: Easy, Negative: No idea how current transactions are handled (are they executed and send to subscriber or hard cut since Provider has no longer VIP (=not reachable)?)
+    provider_ip=$(get_ip "$provider_tuple")
+    $SSH_CMD root@$PROVIDER_NODE /etc/demote.sh $PROVIDER_ID $provider_ip
+    $SSH_CMD root@$PROVIDER_NODE systemctl start keepalived
+
+    test_log "6. Upgrade old Provider" # Which also transforms him to a subscriber due to "reconnect"
+    upgrade "$PROVIDER_NODE" "$PROVIDER_ID"
+    sleep 10s
+
+    # TODO Hotfix
+    update_id_ip_nodes
+    reconnect_all_subscriber
+
+    test_log "7. Add Sample data via new provider"
+    provider_tuple="$(get_all_provider)"
+    PROVIDER_NODE=$(get_node "$provider_tuple")
+    PROVIDER_ID=$(get_id "$provider_tuple")
+
+    FIRST_INSERTED_ID=2
+    add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
+
+    test_log "8. Check that all instances have same state"
+    result=$(check_tables true)
+    if [[ $result == true ]]; then
+        echo "Upgrade Test 4 was successfull"
+    else
+        >&2 echo "$result"
+    fi
 }
 

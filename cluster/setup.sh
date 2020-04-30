@@ -131,9 +131,11 @@ build_images() {
 
 set_scripts(){
     SCP_CMD_FOR_EACH_NODE "./postgres/reconnect.sh" /etc/
+    SCP_CMD_FOR_EACH_NODE "./postgres/demote.sh" /etc/
     SCP_CMD_FOR_EACH_NODE "./postgres/upgrade_to_v10.sh" /etc/
 
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/reconnect.sh"
+    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/demote.sh"
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/upgrade_to_v10.sh"
 }
 

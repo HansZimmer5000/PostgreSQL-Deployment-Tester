@@ -1,6 +1,7 @@
 #!/bin/sh
 # This script is meant to be "sourced"
 
+# TODO add database version!
 # id,ip,nodes are not allowed to have spaces in their names!
 # Example: "db1(prov):containerid,containerip,vmnode db2(sub):..."
 ID_IP_NODEs="" 
