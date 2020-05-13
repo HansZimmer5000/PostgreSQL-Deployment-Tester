@@ -90,23 +90,27 @@ get_all_subscriber() {
 }
 
 determine_role() {
-    res="$(execute_sql $1 $2 'SELECT * FROM pglogical.pglogical_node_info();')"
-    rows=$(echo "$res"  | grep "provider")
-    if [[ "$rows" == *provider* ]]; then
-        echo "prov"
-    else
-        echo "sub"
+    result_raw="$(execute_sql $1 $2 'SELECT * FROM pglogical.pglogical_node_info();' 2>/dev/null)"
+    result="sub"
+    if [ -z "$result_raw" ]; then
+        result="err"
+    elif [[ "$result_raw" == *provider* ]]; then
+        result="prov"
     fi
+    echo $result
 }
 
-extract_db_version(){
+extract_db_version() {
     arr=($1)
     echo "${arr[3]}"
 }
 
 determine_db_version() {
-    result_raw="$(execute_sql $1 $2 'SELECT version();')"
+    result_raw="$(execute_sql $1 $2 'SELECT version();' 2>/dev/null)"
     result=$(extract_db_version "$result_raw")
+    if [ -z "$result" ]; then
+        result="err"
+    fi
     echo $result
 }
 
