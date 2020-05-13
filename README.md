@@ -1,8 +1,8 @@
 # PostgreSQL-Deployment-Tester
 
 This program does two things:
-1. The program deploys a PostgreSQL cluster via Docker Swarm onto VirtualBox VMs.
-2. The program can interact with the deployed cluster. 
+- The program deploys a PostgreSQL cluster via Docker Swarm onto VirtualBox VMs.
+- The program can interact with the deployed cluster. 
   - To manually force failure and see how the deployment reacts to that
   - To execute the pre defined automated tests
   
