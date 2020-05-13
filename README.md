@@ -15,11 +15,14 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
   - (NICE) Only works fully with VirtualBox
   - (NICE) Only works with Docker Swarm
 - Testing
-  - (MUST) There are only four pre defined tests
+  - (MUST) There are only five pre defined integration tests
+  - (MUST) There are no Unit Tests
   - (SHOULD) Only can interact and test with current configuration
 - Implementations
-  - (SHOULD) There are alot of fixed IPs, hostname and magic numbers
+  - (SHOULD) There are alot of fixed IPs (see .env), hostnames and magic numbers
   - (SHOULD) The code is in a bad shape in terms of test coverage (none), readability and flakiness
+- Setup
+  - (NICE) Setup the VMs via Ansible or similar.
 
 ## VM Setup
 
