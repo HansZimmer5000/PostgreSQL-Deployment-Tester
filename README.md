@@ -4,7 +4,7 @@ This program does two things:
 - The program deploys a PostgreSQL cluster via Docker Swarm onto VirtualBox VMs.
 - The program can interact with the deployed cluster. 
   - To manually force failure and see how the deployment reacts to that
-  - To execute the pre defined automated tests
+  - To execute the pre defined tests
   
 ## TODO
 
@@ -12,17 +12,17 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
 
 - Deployment
   - (SHOULD) Research Docker Swarm Health checks and their use for this project
-  - (NICE) Only works fully with VirtualBox
+  - (NICE) Only is used and tested with VirtualBox
   - (NICE) Only works with Docker Swarm
 - Testing
-  - (MUST) There are only five pre defined integration tests
-  - (MUST) There are no Unit Tests
+  - (MUST) There are hardly any Unit Tests
+  - (SHOULD) There are only six pre defined integration tests
   - (SHOULD) Only can interact and test with current configuration
 - Implementations
   - (SHOULD) There are alot of fixed IPs (see .env), hostnames and magic numbers
   - (SHOULD) The code is in a bad shape in terms of test coverage (none), readability and flakiness
 - Setup
-  - (NICE) Setup the VMs via Ansible or similar.
+  - (NICE) Setup (see following section) the VMs via Ansible or similar.
 
 ## VM Setup
 
