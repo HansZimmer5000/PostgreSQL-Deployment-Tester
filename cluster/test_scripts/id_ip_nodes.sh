@@ -1,72 +1,75 @@
 #!/bin/sh
 # This script is meant to be "sourced"
 
-# TODO add database version!
 # id,ip,nodes are not allowed to have spaces in their names!
-# Example: "db1(prov):containerid,containerip,vmnode db2(sub):..."
-ID_IP_NODEs="" 
+# Example: "db1(prov):containerid,containerip,vmnode,version db2(sub):..."
+ID_IP_NODEs=""
 
-get_name(){
+get_name() {
     id_ip_node_tuple="$1"
-    IFS=':' read CURRENT_NAME CURRENT_INFO <<< "${id_ip_node_tuple}"
-    echo $CURRENT_NAME
+    IFS=':' read current_name current_info <<<"${id_ip_node_tuple}"
+    echo $current_name
 }
 
-get_role(){
+get_role() {
     id_ip_node_tuple="$1"
-    IFS=':' read CURRENT_NAME CURRENT_INFO <<< "${id_ip_node_tuple}"
-    IFS=',' read CURRENT_ROLE CURRENT_ID CURRENT_IP CURRENT_NODE <<< "${CURRENT_INFO}"
-    echo $CURRENT_ROLE
+    IFS=':' read current_name current_info <<<"${id_ip_node_tuple}"
+    IFS=',' read current_role current_id current_ip current_node current_version <<<"${current_info}"
+    echo $current_role
 }
 
-get_id(){
+get_id() {
     id_ip_node_tuple="$1"
-    IFS=':' read CURRENT_NAME CURRENT_INFO <<< "${id_ip_node_tuple}"
-    IFS=',' read CURRENT_ROLE CURRENT_ID CURRENT_IP CURRENT_NODE <<< "${CURRENT_INFO}"
-    echo $CURRENT_ID
+    IFS=':' read current_name current_info <<<"${id_ip_node_tuple}"
+    IFS=',' read current_role current_id current_ip current_node current_version <<<"${current_info}"
+    echo $current_id
 }
 
-get_ip(){
+get_ip() {
     id_ip_node_tuple="$1"
-    IFS=':' read CURRENT_NAME CURRENT_INFO <<< "${id_ip_node_tuple}"
-    IFS=',' read CURRENT_ROLE CURRENT_ID CURRENT_IP CURRENT_NODE <<< "${CURRENT_INFO}"
-    echo $CURRENT_IP
+    IFS=':' read current_name current_info <<<"${id_ip_node_tuple}"
+    IFS=',' read current_role current_id current_ip current_node current_version <<<"${current_info}"
+    echo $current_ip
 }
 
-get_node(){
+get_node() {
     id_ip_node_tuple="$1"
-    IFS=':' read CURRENT_NAME CURRENT_INFO <<< "${id_ip_node_tuple}"
-    IFS=',' read CURRENT_ROLE CURRENT_ID CURRENT_IP CURRENT_NODE <<< "${CURRENT_INFO}"
-    echo $CURRENT_NODE
+    IFS=':' read current_name current_info <<<"${id_ip_node_tuple}"
+    IFS=',' read current_role current_id current_ip current_node current_version <<<"${current_info}"
+    echo $current_node
 }
 
-get_tuple_from_name(){
-    for tuple in $ID_IP_NODEs 
-    do
-        CURRENT_NAME=$(get_name "$tuple")
-        if [[ $CURRENT_NAME == $1 ]]; then
+get_version() {
+    id_ip_node_tuple="$1"
+    IFS=':' read current_name current_info <<<"${id_ip_node_tuple}"
+    IFS=',' read current_role current_id current_ip current_node current_version <<<"${current_info}"
+    echo $current_version
+}
+
+get_tuple_from_name() {
+    for tuple in $ID_IP_NODEs; do
+        current_name=$(get_name "$tuple")
+        if [[ $current_name == $1 ]]; then
             echo $tuple
         fi
     done
 }
 
-get_node_and_id_from_name(){
-    for tuple in $ID_IP_NODEs 
-    do
-        CURRENT_NAME=$(get_name "$tuple")
-        if [[ $CURRENT_NAME == $1 ]]; then
-            CURRENT_NODE=$(get_node "$tuple")
-            CURRENT_ID=$(get_id "$tuple")
-            echo "$CURRENT_NODE,$CURRENT_ID"
+get_node_and_id_from_name() {
+    for tuple in $ID_IP_NODEs; do
+        current_name=$(get_name "$tuple")
+        if [[ $current_name == $1 ]]; then
+            current_node=$(get_node "$tuple")
+            current_id=$(get_id "$tuple")
+            echo "$current_node,$current_id"
             break
         fi
     done
 }
 
-get_all_provider(){
+get_all_provider() {
     result=""
-    for tuple in $ID_IP_NODEs 
-    do
+    for tuple in $ID_IP_NODEs; do
         current_role=$(get_role "$tuple")
         if [[ $current_role == "prov" ]]; then
             result="$result $tuple"
@@ -75,10 +78,9 @@ get_all_provider(){
     echo $result
 }
 
-get_all_subscriber(){
+get_all_subscriber() {
     result=""
-    for tuple in $ID_IP_NODEs 
-    do
+    for tuple in $ID_IP_NODEs; do
         current_role=$(get_role "$tuple")
         if [[ $current_role == "sub" ]]; then
             result="$result $tuple"
@@ -87,60 +89,72 @@ get_all_subscriber(){
     echo $result
 }
 
-determine_role(){
+determine_role() {
     res="$(execute_sql $1 $2 'SELECT * FROM pglogical.pglogical_node_info();')"
-    rows=$( echo "$res" | grep "provider")
+    rows=$(echo "$res"  | grep "provider")
     if [[ "$rows" == *provider* ]]; then
         echo "prov"
-    else 
+    else
         echo "sub"
     fi
 }
 
-update_id_ip_nodes(){
+extract_db_version(){
+    arr=($1)
+    echo "${arr[3]}"
+}
+
+determine_db_version() {
+    result_raw="$(execute_sql $1 $2 'SELECT version();')"
+    result=$(extract_db_version "$result_raw")
+    echo $result
+}
+
+update_id_ip_nodes() {
     ID_IP_NODEs=""
-    for node in $ALL_NODES; do 
-        INFO_NO=0
-        RUNNING_CONTAINERS=$(gather_running_containers root@$node)
-        for info in $RUNNING_CONTAINERS; do
-            if [ "$INFO_NO" -gt "2" ]; then
-                if [ $((INFO_NO % 2)) == 1 ]; then
-                    CURRENT_ID=$info
-                else 
+    for node in $ALL_NODES; do
+        info_no=0
+        running_containers=$(gather_running_containers root@$node)
+        for info in $running_containers; do
+            if [ "$info_no" -gt "2" ]; then
+                if [ $((info_no % 2)) == 1 ]; then
+                    current_id=$info
+                else
                     if [[ $info == pg_db* ]]; then
-                        CURRENT_NAME=${info:3:4}
-                        CURRENT_IP=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg_pgnet.IPAddress}}' $CURRENT_ID)
-                        if [ "$CURRENT_IP" == "<no value>" ]; then
+                        current_name=${info:3:4}
+                        current_ip=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg_pgnet.IPAddress}}' $current_id)
+                        if [ "$current_ip" == "<no value>" ]; then
                             # This happens only for the init_helper instance as it has no ingress port! And init_helper must be provider so, set the Virtual IP.
-                            CURRENT_IP="192.168.1.149"
+                            current_ip="192.168.1.149"
                         fi
-                        CURRENT_ROLE=$(determine_role $node $CURRENT_ID)
-                        ID_IP_NODEs="$ID_IP_NODEs $CURRENT_NAME:$CURRENT_ROLE,$CURRENT_ID,$CURRENT_IP,$node"
+                        current_role=$(determine_role $node $current_id)
+                        current_db_version="$(determine_db_version $node $current_id)"
+                        ID_IP_NODEs="$ID_IP_NODEs $current_name:$current_role,$current_id,'$current_ip',$node,$current_db_version"
                     fi
                 fi
             fi
-            INFO_NO=$((INFO_NO+1))
+            info_no=$((info_no + 1))
         done
     done
 }
 
-print_id_ip_nodes(){
+print_id_ip_nodes() {
     # Print Container IP, IP and Node of Provider and Subscribers
     # Test: To Confirm which Containers are running where.
 
-    CURRENT_SUB_COUNT=0 # Adjust Count, maybe this is executed in a new ./setup.sh process than the one before.
+    current_sub_count=0 # Adjust Count, maybe this is executed in a new ./setup.sh process than the one before.
 
-    for tuple in $ID_IP_NODEs 
-    do
-        CURRENT_NAME=$(get_name "$tuple")
-        if [[ $CURRENT_NAME == db.* ]]; then
-            CURRENT_SUB_COUNT=$(($CURRENT_SUB_COUNT + 1))
+    for tuple in $ID_IP_NODEs; do
+        current_name=$(get_name "$tuple")
+        if [[ $current_name == db.* ]]; then
+            current_sub_count=$(($current_sub_count + 1))
         fi
-        CURRENT_ROLE=$(get_role "$tuple")
-        CURRENT_ID=$(get_id "$tuple")
-        CURRENT_IP=$(get_ip "$tuple")
-        CURRENT_NODE=$(get_node "$tuple")
-        echo "$CURRENT_NAME: Role($CURRENT_ROLE) ID($CURRENT_ID) IP($CURRENT_IP) Node($CURRENT_NODE)"
+        current_role=$(get_role "$tuple")
+        current_id=$(get_id "$tuple")
+        current_ip=$(get_ip "$tuple")
+        current_node=$(get_node "$tuple")
+        current_version=$(get_version "$tuple")
+        echo "$current_name: Role($current_role) ID($current_id) IP($current_ip) Node($current_node) Version($current_version)"
     done
-    echo "Current subscriber count: $CURRENT_SUB_COUNT"
+    echo "Current subscriber count: $current_sub_count"
 }
