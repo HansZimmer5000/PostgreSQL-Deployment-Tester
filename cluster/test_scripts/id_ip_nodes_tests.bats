@@ -3,7 +3,7 @@
 source ./id_ip_nodes.sh
 
 @test 'Test extract_db_version' {
-    expected="v9.5.18"
+    expected="9.5.18"
     result=$(extract_db_version "                                                  version                    
                                             
 --------------------------------------------------------------------------------------------------------------------------------------
