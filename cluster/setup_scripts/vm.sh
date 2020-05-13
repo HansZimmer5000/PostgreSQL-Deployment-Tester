@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Depends on (will be sourced by using script):
+# - docker.sh
+# - keepalived.sh
+# - ssh_scp.sh
+
 get_current_node_ips(){
     echo "$(SSH_CMD_FOR_EACH_NODE 'hostname -I')"
 }
@@ -33,6 +38,12 @@ set_scripts(){
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/upgrade_to_v10.sh"
 }
 
+prepare_swarm() {
+    build_images 1> /dev/null
+    set_configs > /dev/null
+    set_scripts > /dev/null
+}
+
 prepare_machines() {
     INIT_NODE_DSN_NO=2
     set_init_label $INIT_NODE_DSN_NO 1 2 3
@@ -41,6 +52,9 @@ prepare_machines() {
 
     # Make sure dsn2 = INIT_NODE gets the VIP
     give_vip_to_init_node
+    echo "Current IPs (each line is a different node):
+$(get_current_node_ips)
+"
 }
 
 

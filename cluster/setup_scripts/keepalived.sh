@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Depends on (will be sourced by using script):
+# - ssh_scp.sh
+
 allow_keepalived_selinux() {
     # Additionally in current configuration: 
     # in "/etc/sysconfig/selinux" is: SELINUX=disabled (needed restart)
@@ -22,17 +25,12 @@ update_keepalived_basics(){
     SSH_CMD_FOR_EACH_NODE "systemctl restart keepalived"
 }
 
-
 give_vip_to_init_node() {
     SSH_CMD_FOR_EACH_NODE "systemctl stop keepalived"
 
     $SSH_CMD root@$INIT_NODE systemctl start keepalived
     sleep 5s #Wait for the INIT_NODEs keepalived to grap the VIP
     SSH_CMD_FOR_EACH_NODE "systemctl start keepalived"
-
-    echo "Current IPs (each line is a different node):
-$(get_current_node_ips)
-"
 }
 
 start_keepalived() {

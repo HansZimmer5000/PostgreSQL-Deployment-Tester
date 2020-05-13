@@ -1,8 +1,7 @@
 #!/bin/sh
 
-# To be somewhere sourced files:
+# Depends on (will be sourced by using script):
 # - ssh_scp.sh
-# - vm.sh
 
 EXTRACT_TOKEN_FAILURE_RESULT="NOT FOUND"
 
@@ -71,12 +70,6 @@ clean_docker() {
 
     SSH_CMD_FOR_EACH_NODE "docker rm $(docker ps -aq) -f"
     SSH_CMD_FOR_EACH_NODE "docker volume prune -f"
-}
-
-prepare_swarm() {
-    build_images 1> /dev/null
-    set_configs > /dev/null
-    set_scripts > /dev/null
 }
 
 deploy_stack() {
