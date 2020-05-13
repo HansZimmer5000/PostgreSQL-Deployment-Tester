@@ -1,22 +1,18 @@
 #!/bin/sh
 
 remove_old_provider(){
-    echo "Delete Subscription"
-    docker exec $1 psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.drop_subscription('subscription$2');"
+    docker exec $1 psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.drop_subscription('$2');"
 
-    echo "Delete Node"
     docker exec $1 psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.drop_node('provider95');"
 }
 
 create_subscriber(){
-    echo "Create Node"
     docker exec $1 psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "
     SELECT pglogical.create_node(
             node_name := 'subscriber95',
             dsn := 'host=$2 port=5432 dbname=testdb password=pass user=postgres'
         );"
 
-    echo "Create Subscription"
     docker exec $1 psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "
     SELECT pglogical.create_subscription(
             subscription_name := 'subscription$3',
@@ -36,7 +32,7 @@ create_subscriber(){
 
 container_id=$1
 subscriber_ip=$2
-subscription_id="${subscriber_ip//./}"
+subscription_id="subscription${subscriber_ip//./}"
 virtual_ip="192.168.1.149"
 
 echo "Demoting with:
