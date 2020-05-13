@@ -4,17 +4,17 @@
 # - ssh_scp.sh
 
 allow_keepalived_selinux() {
-    # Additionally in current configuration: 
+    # Additionally in current configuration:
     # in "/etc/sysconfig/selinux" is: SELINUX=disabled (needed restart)
     SSH_CMD_FOR_EACH_NODE "setenforce 0"
 }
 
-update_keepalived_basics(){
+update_keepalived_basics() {
     allow_keepalived_selinux
 
     SCP_CMD_FOR_EACH_NODE ./keepalived/check.sh /etc/keepalived/
     SCP_CMD_FOR_EACH_NODE ./keepalived/promote.sh /etc/keepalived/
-    
+
     SCP_CMD_FOR_EACH_NODE ./keepalived/notify.sh /etc/keepalived/
     SCP_CMD_FOR_EACH_NODE ./keepalived/keepalived.conf /etc/keepalived/keepalived.conf
 
