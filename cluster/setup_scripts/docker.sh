@@ -8,13 +8,12 @@ EXTRACT_TOKEN_FAILURE_RESULT="NOT FOUND"
 
 extract_token(){
     result="$EXTRACT_TOKEN_FAILURE_RESULT"    
-    format='[ ]docker swarm join --token [0-9a-zA-Z -.:]'
-    if [[ "$1" =~ $fomat ]]; then
-        param1_arr=($1)
-        if [ ${#param1_arr[@]} -gt 4 ]; then
-            result="${param1_arr[4]}"
-        fi
+    
+    token_raw=($(echo $1 | grep -o "SWMTKN.*"))
+    if [ "${#token_raw[@]}" -gt 0 ]; then
+        result=${token_raw[0]}
     fi
+
     echo $result
 }
 
@@ -88,15 +87,12 @@ deploy_stack() {
     echo "-- Connect to Portainer at: http://$dsn1_node:9000/"
 }
 
-
 start_swarm() {
     SSH_CMD_FOR_EACH_NODE "systemctl start docker"
     SSH_CMD_FOR_EACH_NODE "docker swarm leave -f"
     
     full_init_msg=$($SSH_CMD root@$MANAGER_NODE "docker swarm init --advertise-addr $dsn1_node")
-    token_line=$(echo "$full_init_msg" | grep "SWMTKN")
-    #read -p "-- Please enter Token: " TOKEN
-    TOKEN=$(extract_token "$token_line")
+    TOKEN=$(extract_token "$full_init_msg")
     
     $SSH_CMD root@$dsn2_node "docker swarm join --token $TOKEN $dsn1_node:2377"
     #ADJUSTMENT: $SSH_CMD root@dsn3 "docker swarm join --token $TOKEN $dsn1_node:2377"
