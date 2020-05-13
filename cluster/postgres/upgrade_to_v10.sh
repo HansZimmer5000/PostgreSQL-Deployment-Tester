@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "-- Install new Major Version"
-# TODO Some of the installed packages needs READLINE, I guess to select wheter version to install.
+# Some of the installed packages needs READLINE, I guess to select wheter version to install, but this doesn't make it unsuccessfull, so OK.
 
 echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main 10" > /etc/apt/sources.list.d/pgdg.list
 apt-get update 1>/dev/null
@@ -31,7 +31,6 @@ cp /var/lib/postgresql/9.5/data/pg_hba.conf /var/lib/postgresql/10/data/pg_hba.c
 echo "-- Setup Postgres (PGLogical)"
 
 get_ip() {
-    #IPs=($(hostname -I)) # Konvertiert Leerzeichen getrennten Text direkt zu Array, TODO Überall einführen wo sinnvoll & leerzeichen Listen genutzt!
     IPs=($(ifconfig eth1 | grep "inet"))
     echo ${IPs[1]}
 }
