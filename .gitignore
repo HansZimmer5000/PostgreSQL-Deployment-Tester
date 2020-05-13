@@ -1,3 +1,4 @@
 vdi/
 cluster/upgrade/tests/vol/
 cluster/upgrade/tests/*.log 
+sandbox/*
