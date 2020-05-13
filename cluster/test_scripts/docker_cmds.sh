@@ -7,7 +7,6 @@
 CURRENT_SUB_COUNT=1
 
 kill_postgres(){
-    # TODO Test if this is really working!
     CURRENT_INFO=$(get_node_and_id_from_name "$1")
     IFS=',' read CURRENT_NODE CURRENT_ID <<< "${CURRENT_INFO}"
 
@@ -105,6 +104,6 @@ observe_container_status(){
         get_current_node_ips
         echo ""
         print_id_ip_nodes
-        sleep 4s #TODO Additional Time ontop of whatever cmds before need!
+        sleep 4s 
     done
 }

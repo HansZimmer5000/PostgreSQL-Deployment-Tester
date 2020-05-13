@@ -30,7 +30,6 @@ wait_for_startup() {
 }
 
 get_ip() {
-    #IPs=($(hostname -I)) # Konvertiert Leerzeichen getrennten Text direkt zu Array, TODO Überall einführen wo sinnvoll & leerzeichen Listen genutzt!
     IPs=($(ifconfig eth1 | grep "inet"))
     echo ${IPs[1]}
 }
