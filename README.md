@@ -10,10 +10,6 @@ This program does two things:
 The main logic is implemented in cluster/setup.sh.
 See cluster/REAMDE.md for more info.
 
-## Testing
-
-Tests are written in [bats](https://github.com/sstephenson/bats).
-
 ## TODO
 
 As this is a Work in Progress there are currently alot of limitations. Each of them will be addressed if there is time according to their priority (MUST > SHOULD > NICE-to-have)
