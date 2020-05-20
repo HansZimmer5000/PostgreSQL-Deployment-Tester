@@ -2,12 +2,17 @@
 
 This program does two things:
 - The program deploys a PostgreSQL cluster via Docker Swarm onto VirtualBox VMs.
-- The program can interact with the deployed cluster. 
+- The program can interact with the deployed cluster:
   - To manually force failure and see how the deployment reacts to that
   - To execute the pre defined tests
+  - To get current logs and stats
   
 The main logic is implemented in cluster/setup.sh.
 See cluster/REAMDE.md for more info.
+
+## Testing
+
+Tests are written in [bats](https://github.com/sstephenson/bats).
 
 ## TODO
 
@@ -25,7 +30,7 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
   - (SHOULD) There are alot of fixed IPs (see .env), hostnames and magic numbers
   - (SHOULD) The code is in a bad shape in terms of test coverage (none), readability and flakiness
 - Setup
-  - (NICE) Setup (see following section) the VMs via Ansible or similar.
+  - (NICE) Setup / configure (see following section) the VMs via Ansible or similar.
 
 ## VM Setup
 
