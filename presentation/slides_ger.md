@@ -59,10 +59,11 @@ _class: lead
 
 # **Problem - Context (6 Minuten)**
 
-- Vorhandenes HA Cluster
+- (Verbessertes) HA Cluster in Docker Swarm 
+- PostgreSQL v9.5
 - Upgrade in HA Environments:
     - Zero Downtime
-    - Rolling Upgrade
+    - **Rolling Upgrade**
     - Blue/Green Deployment
 
 <!--
@@ -121,22 +122,29 @@ Maintainer = Wir / Nachtblau
 -->
 ---
 
-# **Solution - Überlegte Lösungen (10 Minuten)**
+# **Solution - Überlegte Lösungen (5 Minuten)**
 - Generell
+    - Rolling Upgrade
+    - Zuerst nach und nach Subscriber upgraden
+    - Zuletzt Master Upgrade
     - pglogical2 für Logische Replikation in v9.5
     - Externes Rolling Upgrade Skript
-- Logiken
-    - Mount Upgrader
-    - InPlace Upgrade (Variation vom Mount Upgrader), TODO Sequenz Diagramm 
+---
+# **Solution - Überlegte Lösungen (5 Minuten)**
+- Implementationen
+    - InPlace Upgrade, TODO Sequenz Diagramm 
     - Seperate Services, TODO Sequenz Diagramm
+
+<!--
+Nur Vorstellen, noch nicht vergleichen!
+-->
+
 ---
 
 # **Vergleich der Lösungen (10 Minuten)**
 
-- **Externer Mount Upgrader** (Eingestellt um für InPlace Platz zu machen)
-    - Nicht erfüllte Anfoderungen: A3, A6, A8, A9
 - **InPlace** (Done & Tested)
-    - Nicht erfüllte Anfoderungen: A6, A7, A8, A9, ggf. A10
+    - Nicht erfüllte Anfoderungen: A6, A7, A8, A9
 - **Seperate Services** (Wird implementiert)
     - Nicht erfüllte Anfoderungen: ggf. A10
 
@@ -183,6 +191,7 @@ Maintainer = Wir / Nachtblau
 - Dokumentation in Confluence, Aktuell noch auf meiner "privaten" Seite.
 ---
 # **Zukünftige Arbeit**
+- Implementation fertigstellen
 - Ausprobieren von Bucardo
 - Eigene Lösung verbessern: Refactoring, mehr Tests (Unit & Integration)
 - Upgrade Dauer und Downtime implementierter Lösungen messen & vergleichen
