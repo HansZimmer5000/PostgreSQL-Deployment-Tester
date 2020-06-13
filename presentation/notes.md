@@ -188,4 +188,23 @@
 
 ## TODO
 - Eingangsstory?
+  - Brainstorming Zuhörer
+    - Aus der Stadt
+    - INformatiker = Bastler?
+    - Debugging, Stress Bug Fix und andere Lagerfeuer Geschichten
+    - Sehr viel Kopfarbeit, kaum/kein Körper
+    - HomeOffice
+    - Internet
+    - PCs
+    - Studium / Quereinsteiger
+  - HotSwarp HDDs
+    - Intro
+      - Professor erzählte eine Geschichte von IBM
+    - Kern
+      - Massiver HDD Ausfall
+      - Viel geschraube, sehr viel Arbeit
+      - Danach Umstellung auf HotSwap
+    - Ende / Übergang Präsentation
+      - HotSwap könnte auch zum Upgrade verwendet werden
+      - wir machen heute Software Zero Downtime Upgrading
 - Folieninhalt innerhalb von 10 Sek überblickbar
