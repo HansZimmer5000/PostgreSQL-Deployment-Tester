@@ -7,10 +7,14 @@ backgroundImage: url('./res/heroBG.jpg')
 
 ---
 <style>
-  header {
+    header {
       position: absolute;
       left: 1180px;
-  }
+    }
+
+    footer {
+        text-align: center;
+    }
 </style>
 
 <!-- 
@@ -34,33 +38,46 @@ _class: lead
 *Zero Downtime Upgrade*
 
 ---
+<style scoped>
+    section {
+        text-align: center;
+    }
+</style>
+![width:900px](res/hotswap.jpg)
+
+---
 <!-- _footer: "![image height:25px](res/mlLogo.png) | **Michael Müller** - _Zero Downtime Upgrading_ // Quelle oder Hinweis" -->
 
-# **Intro (2 Minuten)**
+# **Aufgabenstellung (+Intro 2 Minuten)**
 
 - TODO Alle Folien in 10 Sekunden verständlich?
-- TODO Storytime?
-- Was war die Aufgabe?
+- PostgreSQL HA Environment
+- Zero Downtime Upgrading 
+
 
 ---
 
-# **Problem - Context (11 Minuten)**
+# **Problem - Context (6 Minuten)**
 
 - Vorhandenes HA Cluster
 - Upgrade in HA Environments:
-    - Zerodown time
+    - Zero Downtime
     - Rolling Upgrade
     - Blue/Green Deployment
 
+<!--
+Vergleich Rolling <-> Blue/Green
+    - Blue/Green braucht mehr Resourcen
+-->
+
 ---
 
-# **Problem - Existierende Lösungen (10 Minuten)**
+# **Problem - Existierende Lösungen (5 Minuten)**
 
 - **Spilo/Patroni/Stolon/Zalando PO**: Nur mit Kubernetes
 - **CrunchyData Container**: Keine Logische Replikation
 - **ClusterControl**: PostgreSQL v9.6 oder höher
-- **Bucardo**: Interessant, aber zu spät gesehen 
-- **Citus**: Keine Info zu PostgreSQL v9.5 läuft
+- **Bucardo**: Interessant, aber zu spät gesehen
 
 <!-- 
 - CrunchyData Container: Bereits in Verwendung für normales HA Deployment, allerdings keine Logische Replikation!
@@ -104,17 +121,19 @@ Maintainer = Wir / Nachtblau
 -->
 ---
 
-# **Solution - Überlegte Lösungen (5 Minuten)**
-- Externer Mount Upgrader
-- InPlace Upgrade (Nachfolger zum Externen Mount Upgrader)
-    - TODO Sequenz Diagramm (oder lieber nur bei Sep. Services?)
-- Seperate Services
-    - TODO Sequenz Diagramm
+# **Solution - Überlegte Lösungen (10 Minuten)**
+- Generell
+    - pglogical2 für Logische Replikation in v9.5
+    - Externes Rolling Upgrade Skript
+- Logiken
+    - Mount Upgrader
+    - InPlace Upgrade (Variation vom Mount Upgrader), TODO Sequenz Diagramm 
+    - Seperate Services, TODO Sequenz Diagramm
 ---
 
-# **Vergleich zu existierenden Lösungen (5 Minuten)**
+# **Vergleich der Lösungen (10 Minuten)**
 
-- **Externer Mount Upgrader** (Nicht vollständig machbar)
+- **Externer Mount Upgrader** (Eingestellt um für InPlace Platz zu machen)
     - Nicht erfüllte Anfoderungen: A3, A6, A8, A9
 - **InPlace** (Done & Tested)
     - Nicht erfüllte Anfoderungen: A6, A7, A8, A9, ggf. A10
@@ -125,12 +144,10 @@ Maintainer = Wir / Nachtblau
 - Welche Lösung wird nun implementiert & getestet?
     - Externer: Scheiterte an Machbarkeit wegen Docker Limitationen (Neustart nach Upgrade mit altem Container -> nutzt alte Binarys und Daten)
     - Sep Services: Kam vor 2 Wochen als Idee auf, als InPlace schon fertig war
-- Warum eine eigene Lösung statt eine existierende?
-    - TODO Nehme die Folie von Related Work, jetzt aber inklusive Gründe warum die nicht genommenwurden.
 -->
 ---
 # **Testbed (5 Minuten)**
-- 2 VirtualBox VM (1Core, 1GB Ram)
+- 2 VirtualBox VM (1 Core, 1GB Ram)
     - CentOS 7
     - Docker v19.03.8
     - PostgreSQL v9.5.18 & v10.13
