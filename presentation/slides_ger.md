@@ -52,10 +52,10 @@ _class: lead
 
 - TODO Alle Folien in 10 Sekunden verständlich?
 - TODO Insgesamt 60 Minuten? 
-- TODO Wenn Final, Zeiten in Kommentare
+- TODO Wenn Final, Zeiten in Kommentare und Gruppierung (Wort vor "-") streichen.
 - PostgreSQL HA Environment
 - Zero Downtime Upgrading 
-
+- IT-Security nicht im Mittelpunkt
 
 ---
 
@@ -98,7 +98,7 @@ Vergleich Rolling <-> Blue/Green
         margin-left: 10%;
     }
 </style>
-# **Problem - Unsere Anforderungen (7 Min)**
+# **Problem - Anforderungen (7 Min)**
 
 |ID|Blickwinkel|Must-Have Anforderung              |
 |--|-----------|-----------------------------------|
@@ -138,8 +138,10 @@ Maintainer = Wir / Nachtblau
 
 # **Solution - Lösungen**
 
-- InPlace (2,5 Minuten)
-- Seperate Services (2,5 Minuten)
+- TODO Folie nicht zeigen, nur für Organisation
+- InPlace (5 Minuten)
+- Seperate Services (5 Minuten)
+
 ---
 
 <style scoped>
@@ -179,12 +181,13 @@ Nur Vorstellen, noch nicht vergleichen!
 
 ---
 
-# **Vergleich der Lösungen (10 Minuten)**
+# **Vergleich der Lösungen (8 Minuten)**
 
 - **InPlace** (Done & Tested)
     - Nicht erfüllte Anfoderungen: A6, A7, A8, A9
 - **Seperate Services** (Wird implementiert)
     - Nicht erfüllte Anfoderungen: ggf. A10
+- TODO Sind die Lösungen wirklich valide?
 
 <!--
 - Welche Lösung wird nun implementiert & getestet?
@@ -192,7 +195,7 @@ Nur Vorstellen, noch nicht vergleichen!
     - Sep Services: Kam vor 2 Wochen als Idee auf, als InPlace schon fertig war
 -->
 ---
-# **Testbed (5 Minuten)**
+# **Testbed (2 Minuten)**
 - 2 VirtualBox VM (1 Core, 1GB Ram)
     - CentOS 7
     - Docker v19.03.8
@@ -224,11 +227,20 @@ Nur Vorstellen, noch nicht vergleichen!
 - Live Vorführung?
 -->
 ---
-# **Conclusion (5 Minuten)**
-- Erfüllte Anforderungen, TODO
-- Dokumentation in Confluence, Aktuell noch auf meiner "privaten" Seite.
+# **Conclusion (3 Minuten)**
+- Tolles und facettenreiches Thema
+- Valide Lösungen gefunden
+- Detailierte Infos in Confluence
+- IT-Security teilweise einfach nachrüstbar
+
+<!--
+Nach Research und etwas Trial & Error valide Lösungen gefunden
+
+IT-Security nachrüstbar z.b. mit Postgres Passwörtern
+-->
+
 ---
-# **Zukünftige Arbeit**
+# **Zukünftige Arbeit (2 Minuten)**
 - Implementation fertigstellen
 - Ausprobieren von Bucardo
 - Eigene Lösung verbessern: Refactoring, mehr Tests (Unit & Integration)
@@ -247,6 +259,12 @@ _footer: ""
       font-size: 100px;
       padding-bottom: 0px;
       padding-top: 60px;
+  }
+
+  section {
+      text-align: center;
+      padding-right: 150px;
+      padding-left: 0px;
   }
 </style>
 
