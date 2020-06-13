@@ -122,18 +122,52 @@ Maintainer = Wir / Nachtblau
 -->
 ---
 
-# **Solution - Überlegte Lösungen (5 Minuten)**
-- Generell
-    - Rolling Upgrade
+# **Solution - Lösungen (5 Minuten)**
+- Rolling Upgrade
     - Zuerst nach und nach Subscriber upgraden
-    - Zuletzt Master Upgrade
+    - Zuletzt Provider Upgrade
+        - Provider v9.5 upgraden -> Subscriber v10
+        - Subscriber v10 befördern -> Provider v10
     - pglogical2 für Logische Replikation in v9.5
-    - Externes Rolling Upgrade Skript
+- Externes "Upgrader" Skript
 ---
-# **Solution - Überlegte Lösungen (5 Minuten)**
-- Implementationen
-    - InPlace Upgrade, TODO Sequenz Diagramm 
-    - Seperate Services, TODO Sequenz Diagramm
+
+# **Solution - Lösungen**
+
+- InPlace (2,5 Minuten)
+- Seperate Services (2,5 Minuten)
+---
+
+<style scoped>
+    footer {
+        text-align: left;
+    }
+
+    section {
+        text-align: center;
+        padding-top: 10px;
+    }
+</style>
+
+![h:700px](./res/InPlaceInstanz.png)
+
+
+<!--
+Nur Vorstellen, noch nicht vergleichen!
+-->
+
+---
+<style scoped>
+    footer {
+        text-align: left;
+    }
+
+    section {
+        text-align: center;
+        padding-top: 10px;
+    }
+</style>
+![h:700px](./res/SepSvcInstanz.png)
 
 <!--
 Nur Vorstellen, noch nicht vergleichen!
