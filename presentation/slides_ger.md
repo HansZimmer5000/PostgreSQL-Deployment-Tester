@@ -1,0 +1,195 @@
+---
+marp: true
+theme: gaia
+paginate: true
+footer: "![image height:25px](res/mlLogo.png) | **Michael Müller** - _Zero Downtime Upgrading_"
+backgroundImage: url('./res/heroBG.jpg')
+
+---
+<style>
+  header {
+      position: absolute;
+      left: 1180px;
+  }
+</style>
+
+<!-- 
+_header: ""
+_footer: ""  
+_paginate: false
+_class: lead
+-->
+
+<style scoped>
+    section {
+        font-size: 45px;
+        padding-left: 0px;
+    }
+</style>
+
+![bg left:40% contain](./res/LogoKombi.png)
+# **Zero Downtime**
+
+**PostgreSQL High Availability**
+*Zero Downtime Upgrade*
+
+---
+<!-- _footer: "![image height:25px](res/mlLogo.png) | **Michael Müller** - _Zero Downtime Upgrading_ // Quelle oder Hinweis" -->
+
+# **Intro (2 Minuten)**
+
+- TODO Alle Folien in 10 Sekunden verständlich?
+- TODO Storytime?
+- Was war die Aufgabe?
+
+---
+
+# **Problem - Context (11 Minuten)**
+
+- Vorhandenes HA Cluster
+- Upgrade in HA Environments:
+    - Zerodown time
+    - Rolling Upgrade
+    - Blue/Green Deployment
+
+---
+
+# **Problem - Existierende Lösungen (10 Minuten)**
+
+- **Spilo/Patroni/Stolon/Zalando PO**: Nur mit Kubernetes
+- **CrunchyData Container**: Keine Logische Replikation
+- **ClusterControl**: PostgreSQL v9.6 oder höher
+- **Bucardo**: Interessant, aber zu spät gesehen 
+- **Citus**: Keine Info zu PostgreSQL v9.5 läuft
+
+<!-- 
+- CrunchyData Container: Bereits in Verwendung für normales HA Deployment, allerdings keine Logische Replikation!
+- ClusterControl: Only works with v9.6 or higher.
+- Bucardo (Keine Info zu Upgrade Prozess aber sieht interessant aus, leider zu spät gesehen: https://bucardo.org/Bucardo/index.html)
+- BDR (Kostenpflichtig)
+- Citus (No Info if workes with V9.5)
+- Zalando PO=PostgresOperator/Spilo/Patroni/Stolon (only works with Kubernetes/Helm)
+-->
+---
+<style scoped>
+    table {
+        font-size: 35px; /* normal size */
+    }
+</style>
+# **Problem - Unsere Anforderungen (7 Min)**
+
+|ID|Blickwinkel|Must-Have Anforderung              |
+|--|-----------|-----------------------------------|
+|A1|Aufgabe    |Zero Downtime Upgrade              |
+|A2|Tech       |PostgreSQL limitationen            |
+|A3|Tech       |Docker (Swarm) limitationen        |
+|A4|Kunde      |Keine Schwächung der HA-Eigenschaft|
+|A5|Kunde      |Kein Datenverlust                  |
+
+<!--
+Maintainer = Wir / Nachtblau
+
+- Nicht berücksichtigt:
+    - (Kunde) Ein wenig Downtime OK, aber soll dann auch laufen. (Konträr zur Aufgabenstellung)
+    - (Kunde) Neue Version soll möglichst lange laufen, Performanter sein, oder weitere Vorteile bringen.
+- Must-Have
+    - Siehe Tabelle
+- Should-Have
+    - A6 (Kunde) Keine Internet Connection während Update
+    - A7 (Kunde) Unmodifizierte PostgreSQL Container
+    - A8 (Maintainer) PostgreSQL Version je Container transparent
+    - A9 (Maintainer) Möglichst leicht umzusetzen / zu warten.
+- Nice-To-Have
+    - A10 (Kunde) Möglichst geringe Upgradedauer
+-->
+---
+
+# **Solution - Überlegte Lösungen (5 Minuten)**
+- Externer Mount Upgrader
+- InPlace Upgrade (Nachfolger zum Externen Mount Upgrader)
+    - TODO Sequenz Diagramm (oder lieber nur bei Sep. Services?)
+- Seperate Services
+    - TODO Sequenz Diagramm
+---
+
+# **Vergleich zu existierenden Lösungen (5 Minuten)**
+
+- **Externer Mount Upgrader** (Nicht vollständig machbar)
+    - Nicht erfüllte Anfoderungen: A3, A6, A8, A9
+- **InPlace** (Done & Tested)
+    - Nicht erfüllte Anfoderungen: A6, A7, A8, A9, ggf. A10
+- **Seperate Services** (Wird implementiert)
+    - Nicht erfüllte Anfoderungen: ggf. A10
+
+<!--
+- Welche Lösung wird nun implementiert & getestet?
+    - Externer: Scheiterte an Machbarkeit wegen Docker Limitationen (Neustart nach Upgrade mit altem Container -> nutzt alte Binarys und Daten)
+    - Sep Services: Kam vor 2 Wochen als Idee auf, als InPlace schon fertig war
+- Warum eine eigene Lösung statt eine existierende?
+    - TODO Nehme die Folie von Related Work, jetzt aber inklusive Gründe warum die nicht genommenwurden.
+-->
+---
+# **Testbed (5 Minuten)**
+- 2 VirtualBox VM (1Core, 1GB Ram)
+    - CentOS 7
+    - Docker v19.03.8
+    - PostgreSQL v9.5.18 & v10.13
+- 1 Provider / 1 Subscriber
+---
+# **Testszenarios (5 Minuten)**
+
+- Test 1: Major Upgrade eines Subscribers 
+- Test 2: Major Upgrade des Clusters
+
+<!--
+- Alle Tests starten mit einem Provider und einem Subscriber inklusive Check ob Replikation so funktioniert wie sie soll.
+- Test_1: Prüfe, ob die vom Testtool erkannten Rollen auch die realen Rollen (Provider/Subscriber) sind.
+- Test_2: Prüfe, ob nach Subscriber Crash, neuer Subscriber auch die alten Daten erhält.
+- Test_3: Prüfe, ob nach Provider Crash, neuer Provider tatsächlich von dem Subscriber als Provider erkannt wird.
+- Test_4: Prüfe, ob nach Provider Crash, neuer Provider die alten Daten hat.
+- Up_Test1: Prüfe, ob Major Upgrade eines Subscribers Probleme verursacht (z.b. Crash, Verlust alter Daten)
+- Up_Test2: Prüfe, ob Major Upgrade des Clusters Probleme verursacht (z.b. Crash, Verlust alter Daten)
+-->
+---
+# **Testtool (5 Minuten)**
+- in Bash
+- Hilft beim hoch- / herunterfahren des Testbeds in 3 Stufen (VMs, Docker, Postgres)
+- Vereinfacht häufig genutzte Interaktion mit VMs, Docker, Postgres, Keepalived (z.b. lesen von Logs)
+- Startet Testszenarios
+
+<!--
+- Live Vorführung?
+-->
+---
+# **Conclusion (5 Minuten)**
+- Erfüllte Anforderungen, TODO
+- Dokumentation in Confluence, Aktuell noch auf meiner "privaten" Seite.
+---
+# **Zukünftige Arbeit**
+- Ausprobieren von Bucardo
+- Eigene Lösung verbessern: Refactoring, mehr Tests (Unit & Integration)
+- Upgrade Dauer und Downtime implementierter Lösungen messen & vergleichen
+--- 
+<!--  
+_header: ""
+_paginate: false 
+_footer: ""
+-->
+
+![bg left:40% contain](./res/LogoKombi.png)
+
+<style scoped>
+  h1 {
+      font-size: 100px;
+      padding-bottom: 0px;
+      padding-top: 60px;
+  }
+</style>
+
+
+# **Thanks for Listening**
+
+**Michael Müller**
+_Zero Downtime Upgrading_
+
+<!--The End-->
