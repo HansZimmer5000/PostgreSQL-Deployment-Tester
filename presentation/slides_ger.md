@@ -51,6 +51,8 @@ _class: lead
 # **Aufgabenstellung (+Intro 2 Minuten)**
 
 - TODO Alle Folien in 10 Sekunden verständlich?
+- TODO Insgesamt 60 Minuten? 
+- TODO Wenn Final, Zeiten in Kommentare
 - PostgreSQL HA Environment
 - Zero Downtime Upgrading 
 
@@ -91,7 +93,9 @@ Vergleich Rolling <-> Blue/Green
 ---
 <style scoped>
     table {
-        font-size: 35px; /* normal size */
+        font-size: 35px; /* normal size is 35 */
+        text-align: center;
+        margin-left: 10%;
     }
 </style>
 # **Problem - Unsere Anforderungen (7 Min)**
