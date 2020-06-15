@@ -95,45 +95,68 @@ Vergleich Rolling <-> Blue/Green
     table {
         font-size: 35px; /* normal size is 35 */
         text-align: center;
-        margin-left: 10%;
+        margin-left: 5%;
     }
 </style>
 # **Problem - Anforderungen (7 Min)**
 
 |ID|Blickwinkel|Must-Have Anforderung              |
 |--|-----------|-----------------------------------|
-|A1|Aufgabe    |Zero Downtime Upgrade              |
-|A2|Tech       |PostgreSQL limitationen            |
-|A3|Tech       |Docker (Swarm) limitationen        |
-|A4|Kunde      |Keine Schwächung der HA-Eigenschaft|
-|A5|Kunde      |Kein Datenverlust                  |
+|M1|Aufgabe    |Zero Downtime Upgrade              |
+|M2|Tech       |PostgreSQL limitationen            |
+|M3|Tech       |Docker (Swarm) limitationen        |
+|M4|Kunde      |Keine Schwächung der HA-Eigenschaft|
+|M5|Kunde      |Kein Datenverlust                  |
+
+---
+<style scoped>
+    table {
+        font-size: 35px; /* normal size is 35 */
+        text-align: center;
+        margin-left: 0%;
+    }
+</style>
+# **Problem - Anforderungen (7 Min)**
+
+|ID|Blickwinkel|Should- & Nice-To-Have Anforderung                    |
+|--|-----------|-------------------------------------------|
+|S1|Kunde      |Keine Internet Connection während Upgrade  |
+|S2|Kunde      |Unmodifiziertes PostgreSQL Image           |
+|S3|Maintainer |PostgreSQL Version je Container transparent|
+|S4|Maintainer |Möglichst leicht umzusetzen / zu warten    |
+|N1|Kunde     |Möglichst geringe Upgradedauer             |
 
 <!--
 Maintainer = Wir / Nachtblau
-
-- Nicht berücksichtigt:
-    - (Kunde) Ein wenig Downtime OK, aber soll dann auch laufen. (Konträr zur Aufgabenstellung)
-    - (Kunde) Neue Version soll möglichst lange laufen, Performanter sein, oder weitere Vorteile bringen.
-- Must-Have
-    - Siehe Tabelle
-- Should-Have
-    - A6 (Kunde) Keine Internet Connection während Update
-    - A7 (Kunde) Unmodifizierte PostgreSQL Container
-    - A8 (Maintainer) PostgreSQL Version je Container transparent
-    - A9 (Maintainer) Möglichst leicht umzusetzen / zu warten.
-- Nice-To-Have
-    - A10 (Kunde) Möglichst geringe Upgradedauer
 -->
+
 ---
 
 # **Solution - Lösungen (5 Minuten)**
 - Rolling Upgrade
-    - Zuerst nach und nach Subscriber upgraden
-    - Zuletzt Provider Upgrade
-        - Provider v9.5 upgraden -> Subscriber v10
-        - Subscriber v10 befördern -> Provider v10
-    - pglogical2 für Logische Replikation in v9.5
 - Externes "Upgrader" Skript
+
+<!--
+- Zuerst nach und nach Subscriber upgraden
+- Zuletzt Provider Upgrade
+    - Provider v9.5 upgraden -> Subscriber v10
+    - Subscriber v10 befördern -> Provider v10
+- pglogical2 für Logische Replikation in v9.5
+-->
+
+---
+
+<!--
+_footer: ""
+-->
+![bg contain](res/AbstraktesUpgradeSequenzdiagramm1.png)
+
+---
+<!--
+_footer: ""
+-->
+![bg contain](res/AbstraktesUpgradeSequenzdiagramm2.png)
+
 ---
 
 # **Solution - Lösungen**
@@ -184,9 +207,9 @@ Nur Vorstellen, noch nicht vergleichen!
 # **Vergleich der Lösungen (8 Minuten)**
 
 - **InPlace** (Done & Tested)
-    - Nicht erfüllte Anfoderungen: A6, A7, A8, A9
+    - Nicht erfüllte Anfoderungen: S1, S2, S3, S4
 - **Seperate Services** (Wird implementiert)
-    - Nicht erfüllte Anfoderungen: ggf. A10
+    - Nicht erfüllte Anfoderungen: ggf. N1
 - TODO Sind die Lösungen wirklich valide?
 
 <!--
