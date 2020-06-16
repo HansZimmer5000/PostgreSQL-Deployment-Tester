@@ -9,7 +9,6 @@ backgroundImage: url('./res/heroBG.jpg')
 
 <!--
 Testrunde 1, ca 30 Minuten:
-TODO Abstrakt Prov Upgrade SubVersion falsch!
 Existierende Lösung:  3:12
 Anforderungen1: 1:08
 Anforderungen2: 2:39
@@ -65,6 +64,12 @@ _class: lead
 ---
 
 # **Gliederung**
+- Problem
+- Lösung 
+- Zusammenfassung 
+- Zukünftige Arbeit
+
+<!--
 - Problem (20 Min)
     - Kontext (6 Min)
     - Existierende Lösungen (7 Min)
@@ -74,6 +79,7 @@ _class: lead
     - Testing (10 Min)
 - Zusammenfassung (5 Minuten)
 - Zukünftige Arbeit (2 Minuten)
+-->
 
 ---
 
@@ -288,7 +294,7 @@ Nur Vorstellen, noch nicht vergleichen!
 # **Zusammenfassung**
 - InPlace (Done & Tested)
     - Nicht erfüllte Anfoderungen: Internet (S1), 
-      Modifizikationen (S2), Intransparenz (S3), Workarounds (S4)
+      Modifikationen (S2), Intransparenz (S3), Workarounds (S4)
 - Seperate Services (Wird implementiert)
     - Nicht erfüllte Anfoderungen: ggf. Langsam (N1)
 - Confluence
@@ -297,11 +303,7 @@ Nur Vorstellen, noch nicht vergleichen!
 - Welche Lösung wird nun implementiert & getestet?
     - Externer: Scheiterte an Machbarkeit wegen Docker Limitationen (Neustart nach Upgrade mit altem Container -> nutzt alte Binarys und Daten)
     - Sep Services: Kam vor 2 Wochen als Idee auf, als InPlace schon fertig war
-- TODO wirklich valide Lösungen?
--->
-
-<!--
-Nach Research und etwas Trial & Error valide Lösungen gefunden
+- wirklich valide Lösungen?
 -->
 
 ---
