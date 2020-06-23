@@ -38,7 +38,7 @@ sophisticated_test(){
     container_id=$(get_pg_container_id)
     has_vip=false
 
-    if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
+    if [[ "$(hostname -I)" == *"192.168.99.149"* ]]; then
         has_vip=true
     fi
 
@@ -73,7 +73,7 @@ advanced_test(){
     container_id=$(get_pg_container_id)
     has_vip=false
 
-    if [[ "$(hostname -I)" == *"192.168.1.149"* ]]; then
+    if [[ "$(hostname -I)" == *"192.168.99.149"* ]]; then
         has_vip=true
     fi
 
