@@ -40,7 +40,7 @@ reconnect() {
 
     psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.drop_subscription('$1');"
 
-    psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.create_subscription(subscription_name := '$1',provider_dsn := 'host=192.168.1.149 port=5433 dbname=testdb password=pass user=postgres');"
+    psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.create_subscription(subscription_name := '$1',provider_dsn := 'host=192.168.99.149 port=5433 dbname=testdb password=pass user=postgres');"
 
     psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.wait_for_subscription_sync_complete('$1');"
 

@@ -51,8 +51,8 @@ set_init_label() {
 
 build_images() {
     SCP_CMD_FOR_EACH_NODE "../custom_image/9.5.18.dockerfile" /etc/
-    SCP_CMD_FOR_EACH_NODE "../custom_image/entrypoint.sh" /etc/
-    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/entrypoint.sh"
+    SCP_CMD_FOR_EACH_NODE "../custom_image/docker-entrypoint.sh" /etc/
+    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/docker-entrypoint.sh"
 
     SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5-raw"
 }
@@ -61,7 +61,6 @@ set_configs() {
     reset_config "tables" "./postgres/table_setup.sql" "/etc/table_setup.sql"
 
     reset_config "sub_config" "./postgres/sub_postgresql.conf" "/etc/sub_postgresql.conf"
-    reset_config "sub_setup" "./postgres/sub_setup.sh" "/etc/sub_setup.sh"
 }
 
 clean_docker() {

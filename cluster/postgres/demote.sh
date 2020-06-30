@@ -33,7 +33,7 @@ create_subscriber(){
 container_id=$1
 subscriber_ip=$2
 subscription_id="subscription${subscriber_ip//./}"
-virtual_ip="192.168.1.149"
+virtual_ip="192.168.99.149"
 
 echo "Demoting with:
 container_id($container_id)

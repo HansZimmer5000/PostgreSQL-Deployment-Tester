@@ -6,6 +6,22 @@ footer: "![image height:25px](res/mlLogo.png) | **Michael Müller** - _Zero Down
 backgroundImage: url('./res/heroBG.jpg')
 
 ---
+
+<!--
+Testrunde 1, ca 30 Minuten:
+Existierende Lösung:  3:12
+Anforderungen1: 1:08
+Anforderungen2: 2:39
+Lösungen: 2:15
+Sub Upgrade: 2:32
+Prov Upgrade: 5:09
+InPlace: 2:31
+Services: 2:55
+Testbed 1:22
+Testszenario & tool 3:07
+Zusammenfassung + Zukunft: 2:33
+-->
+
 <style>
     header {
       position: absolute;
@@ -46,20 +62,28 @@ _class: lead
 ![width:900px](res/hotswap.jpg)
 
 ---
-<!-- _footer: "![image height:25px](res/mlLogo.png) | **Michael Müller** - _Zero Downtime Upgrading_ // Quelle oder Hinweis" -->
 
-# **Aufgabenstellung (+Intro 2 Minuten)**
+# **Gliederung**
+- Problem
+- Lösung 
+- Zusammenfassung 
+- Zukünftige Arbeit
 
-- TODO Alle Folien in 10 Sekunden verständlich?
-- TODO Insgesamt 60 Minuten? 
-- TODO Wenn Final, Zeiten in Kommentare und Gruppierung (Wort vor "-") streichen.
-- PostgreSQL HA Environment
-- Zero Downtime Upgrading 
-- IT-Security nicht im Mittelpunkt
+<!--
+- Problem (20 Min)
+    - Kontext (6 Min)
+    - Existierende Lösungen (7 Min)
+    - Anforderungen (7 Min)
+- Lösung (33 Min)
+    - Lösungen (23 Min)
+    - Testing (10 Min)
+- Zusammenfassung (5 Minuten)
+- Zukünftige Arbeit (2 Minuten)
+-->
 
 ---
 
-# **Problem - Context (6 Minuten)**
+# **Kontext**
 
 - (Verbessertes) HA Cluster in Docker Swarm 
 - PostgreSQL v9.5
@@ -75,7 +99,7 @@ Vergleich Rolling <-> Blue/Green
 
 ---
 
-# **Problem - Existierende Lösungen (5 Minuten)**
+# **Existierende Lösungen**
 
 - **Spilo/Patroni/Stolon/Zalando PO**: Nur mit Kubernetes
 - **CrunchyData Container**: Keine Logische Replikation
@@ -98,7 +122,7 @@ Vergleich Rolling <-> Blue/Green
         margin-left: 5%;
     }
 </style>
-# **Problem - Anforderungen (7 Min)**
+# **Anforderungen**
 
 |ID|Blickwinkel|Must-Have Anforderung              |
 |--|-----------|-----------------------------------|
@@ -116,7 +140,7 @@ Vergleich Rolling <-> Blue/Green
         margin-left: 0%;
     }
 </style>
-# **Problem - Anforderungen (7 Min)**
+# **Anforderungen**
 
 |ID|Blickwinkel|Should- & Nice-To-Have Anforderung                    |
 |--|-----------|-------------------------------------------|
@@ -132,7 +156,7 @@ Maintainer = Wir / Nachtblau
 
 ---
 
-# **Solution - Lösungen (5 Minuten)**
+# **Lösungen**
 - Rolling Upgrade
 - Externes "Upgrader" Skript
 
@@ -159,25 +183,26 @@ _footer: ""
 
 ---
 
-# **Solution - Lösungen**
-
-- TODO Folie nicht zeigen, nur für Organisation
-- InPlace (5 Minuten)
-- Seperate Services (5 Minuten)
-
----
-
+<!--
+_header: "**InPlace**"
+-->
 <style scoped>
     footer {
         text-align: left;
     }
+    
+    header {
+        text-align: left;
+        left: 0px;
+        font-size: 50px;
+    }
 
     section {
-        text-align: center;
+        text-align: right;
         padding-top: 10px;
     }
-</style>
 
+</style>
 ![h:700px](./res/InPlaceInstanz.png)
 
 
@@ -186,47 +211,57 @@ Nur Vorstellen, noch nicht vergleichen!
 -->
 
 ---
+<!--
+_header: "**Services**"
+-->
 <style scoped>
     footer {
         text-align: left;
     }
+    
+    header {
+        text-align: left;
+        left: 0px;
+        font-size: 50px;
+    }
 
     section {
-        text-align: center;
+        text-align: right;
         padding-top: 10px;
+        padding-right: 0px;
     }
+
 </style>
-![h:700px](./res/SepSvcInstanz.png)
+![h:600px](./res/SepSvcInstanz.png)
 
 <!--
 Nur Vorstellen, noch nicht vergleichen!
 -->
 
 ---
+# **Testbed**
+<style scoped>
+    section {
+        text-align: center;
+    }
 
-# **Vergleich der Lösungen (8 Minuten)**
-
-- **InPlace** (Done & Tested)
-    - Nicht erfüllte Anfoderungen: S1, S2, S3, S4
-- **Seperate Services** (Wird implementiert)
-    - Nicht erfüllte Anfoderungen: ggf. N1
-- TODO Sind die Lösungen wirklich valide?
+    h1 {
+        text-align: left;
+    }
+</style>
+![h:450px](./res/Testbed.png)
 
 <!--
-- Welche Lösung wird nun implementiert & getestet?
-    - Externer: Scheiterte an Machbarkeit wegen Docker Limitationen (Neustart nach Upgrade mit altem Container -> nutzt alte Binarys und Daten)
-    - Sep Services: Kam vor 2 Wochen als Idee auf, als InPlace schon fertig war
--->
----
-# **Testbed (2 Minuten)**
 - 2 VirtualBox VM (1 Core, 1GB Ram)
     - CentOS 7
     - Docker v19.03.8
     - PostgreSQL v9.5.18 & v10.13
-- 1 Provider / 1 Subscriber
----
-# **Testszenarios (5 Minuten)**
+-->
 
+---
+# **Testszenarios**
+
+- 1 Provider & 1 Subscriber
 - Test 1: Major Upgrade eines Subscribers 
 - Test 2: Major Upgrade des Clusters
 
@@ -239,34 +274,43 @@ Nur Vorstellen, noch nicht vergleichen!
 - Up_Test1: Prüfe, ob Major Upgrade eines Subscribers Probleme verursacht (z.b. Crash, Verlust alter Daten)
 - Up_Test2: Prüfe, ob Major Upgrade des Clusters Probleme verursacht (z.b. Crash, Verlust alter Daten)
 -->
+
 ---
-# **Testtool (5 Minuten)**
+# **Testtool**
 - in Bash
-- Hilft beim hoch- / herunterfahren des Testbeds in 3 Stufen (VMs, Docker, Postgres)
-- Vereinfacht häufig genutzte Interaktion mit VMs, Docker, Postgres, Keepalived (z.b. lesen von Logs)
-- Startet Testszenarios
+- Vereinfacht & Automatisiert
+    - Setup / Teardown
+    - Testszenarios
+    - Provozieren von Fehlern
+    - ...
 
 <!--
 - Live Vorführung?
+- VMs, Docker, Postgres, Keepalived (z.b. starten & stoppen, lesen von Logs, updaten der Dateien & Konfigurationen)
 -->
+
 ---
-# **Conclusion (3 Minuten)**
-- Tolles und facettenreiches Thema
-- Valide Lösungen gefunden
-- Detailierte Infos in Confluence
-- IT-Security teilweise einfach nachrüstbar
+
+# **Zusammenfassung**
+- InPlace (Done & Tested)
+    - Nicht erfüllte Anfoderungen: Internet (S1), 
+      Modifikationen (S2), Intransparenz (S3), Workarounds (S4)
+- Seperate Services (Wird implementiert)
+    - Nicht erfüllte Anfoderungen: ggf. Langsam (N1)
+- Confluence
 
 <!--
-Nach Research und etwas Trial & Error valide Lösungen gefunden
-
-IT-Security nachrüstbar z.b. mit Postgres Passwörtern
+- Welche Lösung wird nun implementiert & getestet?
+    - Externer: Scheiterte an Machbarkeit wegen Docker Limitationen (Neustart nach Upgrade mit altem Container -> nutzt alte Binarys und Daten)
+    - Sep Services: Kam vor 2 Wochen als Idee auf, als InPlace schon fertig war
+- wirklich valide Lösungen?
 -->
 
 ---
-# **Zukünftige Arbeit (2 Minuten)**
+# **Zukünftige Arbeit**
 - Implementation fertigstellen
-- Ausprobieren von Bucardo
 - Eigene Lösung verbessern: Refactoring, mehr Tests (Unit & Integration)
+- Ausprobieren von Bucardo
 - Upgrade Dauer und Downtime implementierter Lösungen messen & vergleichen
 --- 
 <!--  

@@ -9,9 +9,9 @@ get_virtualip_owner(){
     ping -c 1 $dsn1_node 1> /dev/null
     ping -c 1 $dsn2_node 1> /dev/null
     ping -c 1 $dsn3_node 1> /dev/null
-    ping -c 1 192.168.1.149 1> /dev/null
+    ping -c 1 192.168.99.149 1> /dev/null
 
-    virtualip_entry=($(arp -n 192.168.1.149))
+    virtualip_entry=($(arp -n 192.168.99.149))
     IFS=', ' read -r -a array <<< "$virtualip_entry"
     virtualip_mac="${array[3]}"
 

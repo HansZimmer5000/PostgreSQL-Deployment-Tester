@@ -129,7 +129,7 @@ update_id_ip_nodes() {
                         current_ip=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg_pgnet.IPAddress}}' $current_id)
                         if [ "$current_ip" == "<no value>" ]; then
                             # This happens only for the init_helper instance as it has no ingress port! And init_helper must be provider so, set the Virtual IP.
-                            current_ip="192.168.1.149"
+                            current_ip="192.168.99.149"
                         fi
                         current_role=$(determine_role $node $current_id)
                         current_db_version="$(determine_db_version $node $current_id)"

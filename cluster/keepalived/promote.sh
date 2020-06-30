@@ -14,7 +14,7 @@ enable_providing(){
 
 container_id=$1
 subscription_id=$2
-virtual_ip="192.168.1.149"
+virtual_ip="192.168.99.149"
 
 echo "Promoting with:
 container_id($container_id)
