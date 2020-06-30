@@ -25,8 +25,8 @@ ENV PGDATA="/var/lib/postgresql/9.5/data"
 
 # Change to user postgres (see https://github.com/docker-library/postgres/blob/master/9.5/Dockerfile)
 USER 999
-
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 EXPOSE 5432
-COPY entrypoint.sh /entrypoint.sh
 
-ENTRYPOINT [ "/entrypoint.sh" ]
+ENTRYPOINT [ "docker-entrypoint.sh" ]
+CMD [ "postgres" ]
