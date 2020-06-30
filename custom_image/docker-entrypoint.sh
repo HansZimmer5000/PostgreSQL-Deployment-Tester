@@ -168,15 +168,6 @@ EOSQL
                         echo
                 done
 
-                # Modification from the normal script to get the current state via pg_basebackup
-                # If given PROVIDER_IP is not empty.
-                if ! [ -z "$PROVIDER_IP" ] ; then
-                        echo "-- executing pg_basebackup"
-                        # --no-password = read from PGDATA/.pgpass
-                        pg_basebackup -c fast -X stream -h $PROVIDER_IP -U postgres -v --no-password -D /var/lib/postgresql/pgbackuped
-                fi
-                # Modification End
-
                 PGUSER="${PGUSER:-$POSTGRES_USER}" \
                 pg_ctl -D "$PGDATA" -m fast -w stop
 
@@ -188,5 +179,28 @@ EOSQL
         fi
 fi
 
-echo "Got Input: $@"
+# Modification from the normal script to get the current state via pg_basebackup
+# If given PROVIDER_IP is not empty.
+
+#TODO call sub_setup.sh somwhere here, so all our modifications are at one place and we can reuse the information if the provider is up for the sub_setup.sh (its Step 2 and 3).
+
+# Info: pg_basebackup does not need a running postgres, but replication setup does!
+provider_is_reachable=false
+
+if ! [ -z "$PROVIDER_IP" ] ; then
+        echo "Try to reach $PROVIDER_IP"
+        echo $(curl -s $PROVIDER_IP:5433) >> /dev/null # todo currently 5433 is the host port
+        return_code=$?
+        if [ "$return_code" == "52" ] || [ "$return_code" == "0" ] ; then
+                # 52 = Empty Reply from Server means its up, otherwise there is no answer at all (Connect refused)
+                provider_is_reachable=true
+        else
+                echo "Error: Provider is not reachable. Curl exit code: $return_code"
+        fi
+fi
+
+/etc/sub_setup.sh $provider_is_reachable $PROVIDER_IP
+
+# Modification End
+
 exec "$@"
