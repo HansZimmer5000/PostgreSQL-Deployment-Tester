@@ -1,32 +1,18 @@
 #!/bin/bash
-wait_till_reachable() {
-    refused=true
-    while $refused; do
-        sleep 1
-        echo "Try to reach $1"
-
-        echo $(curl -s $1) >> /dev/null
-
-        if [ "$?" != "0" ]; then
-            refused=true
-            echo "Not Successfull: $?"
-        else
-            refused=false
-        fi
-    done
-    echo "Success"
-}
-
-wait_for_primary() {
-    wait_till_reachable provider
-
-    echo "Waiting for provider to finalize setup, sleeping 5s"
-    sleep 5s
-}
 
 wait_for_startup() {
-    echo "Waiting for this subscriber to startup, sleeping 10s"
-    sleep 10s
+    echo "Waiting for this subscriber to startup, sleeping 1s each:"
+
+    pg_is_starting=true
+    while $pg_is_starting; do
+        printf "."
+        sleep 1s
+
+        status=$(pg_ctl status)
+        if [[ "$status" == *"pg_ctl: server is running (PID:"* ]]; then
+            pg_is_starting=false
+        fi
+    done
 }
 
 get_ip() {
@@ -35,13 +21,13 @@ get_ip() {
 }
 
 init_this_subscriber() {
-    wait_for_primary
     wait_for_startup 
     SUBSCRIBER_IP=$(get_ip)
     SUBSCRIPTION_ID="${SUBSCRIBER_IP//./}"
 
     echo "Using IP ($SUBSCRIBER_IP) and ID ($SUBSCRIPTION_ID)"
 
+    echo "1/3 Creating local pglogical node"
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
         -- PG LOGICAL
         CREATE EXTENSION pglogical;
@@ -50,24 +36,26 @@ init_this_subscriber() {
             node_name := 'subscriber95',
             dsn := 'host=$SUBSCRIBER_IP port=5432 dbname=testdb password=pass user=postgres'
         );"
-    echo "First third done"
 
+    echo "2/3 Creating subscription"
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
         -- user Docker Service Name as host url
         SELECT pglogical.create_subscription(
             subscription_name := 'subscription$SUBSCRIPTION_ID',
             provider_dsn := 'host=192.168.99.149 port=5433 dbname=testdb password=pass user=postgres'
         );"
-    echo "Second third done"
-
+        
+    echo "3/3 Starting subscription and wait till synchronization is complete"
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
         SELECT pglogical.wait_for_subscription_sync_complete('subscription$SUBSCRIPTION_ID');
 
         SELECT pglogical.show_subscription_status();"
-    echo "Init Sub Done"
+
+    echo "Pglogical init done"
 }
 
-echo "Current PGDATA: $PGDATA"
+# This script will be executed during "docker-entrypoint.sh". When it either executes or sources all *.sh files in the /docker-entrypoint-initdb.d/ directory.
+
 echo "host  replication  all  0.0.0.0/0  md5" >> $PGDATA/pg_hba.conf
 
 init_this_subscriber &
