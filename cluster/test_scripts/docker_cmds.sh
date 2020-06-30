@@ -96,7 +96,13 @@ start_new_subscriber(){
     wait_for_all_pg_to_boot
 }
 
+return_from_trap(){
+    trap - SIGINT
+    running_loop
+}
+
 observe_container_status(){
+    trap return_from_trap SIGINT
     while true; 
     do
         echo "----------- $(date) ----------"
