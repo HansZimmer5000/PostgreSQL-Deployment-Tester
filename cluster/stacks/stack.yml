@@ -53,10 +53,9 @@ services:
               target: /usr/share/postgresql/postgresql.conf.sample
         ports:
             - target: 5432
-              published: 5433
+              published: 5432
               protocol: tcp
               mode: host
-            - "5432:5432"
         networks:
             - pgnet
         volumes:

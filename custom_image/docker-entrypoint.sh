@@ -189,7 +189,7 @@ provider_is_reachable=false
 
 if ! [ -z "$PROVIDER_IP" ] ; then
         echo "Try to reach $PROVIDER_IP"
-        echo $(curl -s $PROVIDER_IP:5433) >> /dev/null # todo currently 5433 is the host port
+        echo $(curl -s $PROVIDER_IP:5432) >> /dev/null 
         return_code=$?
         if [ "$return_code" == "52" ] || [ "$return_code" == "0" ] ; then
                 # 52 = Empty Reply from Server means its up, otherwise there is no answer at all (Connect refused)
