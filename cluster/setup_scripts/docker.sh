@@ -58,6 +58,8 @@ build_images() {
 }
 
 set_configs() {
+    reset_config "bench" "./postgres/custom_benchmark.sql" "/etc/custom_benchmark.sql"
+
     reset_config "tables" "./postgres/table_setup.sql" "/etc/table_setup.sql"
 
     reset_config "sub_config" "./postgres/sub_postgresql.conf" "/etc/sub_postgresql.conf"
