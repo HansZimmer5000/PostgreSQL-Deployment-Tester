@@ -321,6 +321,7 @@ upgrade_test_4(){
     #       - Let Docker handle the replica start
     #       - Reconnect all other subscribers <Skipped in this environment since we only have 1 Subscriber that became the provider and other replica already starting as subscriber with up-to-date connection>
     #       - Change the Keepalivd Dominate-Cluster-Version file to V10.
+    echo "NIPY"
 }
 
 upgrade_test_4_old(){
