@@ -306,6 +306,24 @@ upgrade_test_3(){
 }
 
 upgrade_test_4(){
+    # Major Update of Cluster
+    #   - Phase 1
+    #       - Decrease V9.5 service replica by one
+    #       - Change a nodes label to "PG-V10-Node"
+    #       - Insert new V10 Cluster Stack Service with 1 Replicas
+    #       - Check if new V10 Instance in ready
+    #   - Phase 2 <Skipped in this environment since we only have 1 Subscriber that is already V10>
+    #   - Phase 3 
+    #       - Decrease V9.5 service replica by one
+    #       - Increase V10 service replicy by one
+    #       - Change a nodes label to "PG-V10-Node"
+    #       - Let Keepalived handle the failover
+    #       - Let Docker handle the replica start
+    #       - Reconnect all other subscribers <Skipped in this environment since we only have 1 Subscriber that became the provider and other replica already starting as subscriber with up-to-date connection>
+    #       - Change the Keepalivd Dominate-Cluster-Version file to V10.
+}
+
+upgrade_test_4_old(){
     # Major Update of Cluster (How much downtime?)
     #   - Update Subscriber
     #   - Promote Subscriber
