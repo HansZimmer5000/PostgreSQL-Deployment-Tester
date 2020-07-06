@@ -16,22 +16,37 @@ wait_for_startup() {
 }
 
 get_ip() {
-    IPs=($(ifconfig eth1 | grep "inet"))
+    #TODO Used interface may change when network is changed!!
+    IPs=($(ifconfig eth0 | grep "inet"))
     echo ${IPs[1]}
 }
 
-init_this_subscriber() {
+# $1 = Bool, Provider is Reachable
+# $2 = Text, Provider IP
+init_replication() {
     wait_for_startup 
     SUBSCRIBER_IP=$(get_ip)
     SUBSCRIPTION_ID="${SUBSCRIBER_IP//./}"
+
+    if $3; then
+            echo "Setup Replication from Scratch"
+            psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
+            -- PG LOGICAL
+            CREATE EXTENSION pglogical;
+            "
+    else
+            echo "Setup Replication by demoting"
+            psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
+            -- PG LOGICAL
+            DROP EXTENSION pglogical;
+            CREATE EXTENSION pglogical;
+            "
+    fi
 
     echo "Using IP ($SUBSCRIBER_IP) and ID ($SUBSCRIPTION_ID)"
 
     echo "1/3 Creating local pglogical node"
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
-        -- PG LOGICAL
-        CREATE EXTENSION pglogical;
-
         SELECT pglogical.create_node(
             node_name := 'subscriber95',
             dsn := 'host=$SUBSCRIBER_IP port=5432 dbname=testdb password=pass user=postgres'
@@ -43,7 +58,7 @@ init_this_subscriber() {
             -- user Docker Service Name as host url
             SELECT pglogical.create_subscription(
                 subscription_name := 'subscription$SUBSCRIPTION_ID',
-                provider_dsn := 'host=192.168.99.149 port=5432 dbname=testdb password=pass user=postgres'
+                provider_dsn := 'host=$2 port=5432 dbname=testdb password=pass user=postgres'
             );"
             
         echo "3/3 Starting subscription and wait till synchronization is complete"
@@ -61,15 +76,9 @@ init_this_subscriber() {
 # This script will be executed at the end of "docker-entrypoint.sh". 
 # $1 = Provider is reachable
 # $2 = Provider IP
+# $3 = init new Database
+echo "Setting up Replica from Scratch ($3) with Reachable Provider ($1) and its (V)IP ($2)"
 
-echo "host  replication  all  0.0.0.0/0  md5" >> $PGDATA/pg_hba.conf
-
-if $1; then
-        echo "-- executing pg_basebackup"
-        # --no-password = read from PGDATA/.pgpass?
-        pg_basebackup -c fast -X stream -h $2 -U postgres -v --no-password -D /var/lib/postgresql/pgbackuped  
-fi
-
-init_this_subscriber $1 &
+init_replication $1 $2 $3 &
 
 init_this_subscriber &
