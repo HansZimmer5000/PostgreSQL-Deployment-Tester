@@ -183,6 +183,11 @@ fi
 # If given PROVIDER_IP is not empty.
 
 # Info: pg_basebackup does not need a running postgres, but replication setup does!
+
+# This is neccessary as it would otherwise fail if a replica would like to get pg_basebackup from itself.
+# The normal flags will be set again after our modification.
+set --
+
 provider_is_reachable=false
 
 if ! [ -z "$PROVIDER_IP" ] ; then
@@ -192,13 +197,14 @@ if ! [ -z "$PROVIDER_IP" ] ; then
         if [ "$return_code" == "52" ] || [ "$return_code" == "0" ] ; then
                 # 52 = Empty Reply from Server means its up, otherwise there is no answer at all (Connect refused)
                 provider_is_reachable=true
+                echo "Provider is reachable."
         else
                 echo "Error: Provider is not reachable. Curl exit code: $return_code"
         fi
 fi
 
 /etc/sub_setup.sh $provider_is_reachable $PROVIDER_IP
-
+set -Eeo pipefail
 # Modification End
 
 exec "$@"
