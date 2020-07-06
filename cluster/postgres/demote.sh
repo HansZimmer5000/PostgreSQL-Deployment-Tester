@@ -16,7 +16,7 @@ create_subscriber(){
     docker exec $1 psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "
     SELECT pglogical.create_subscription(
             subscription_name := 'subscription$3',
-            provider_dsn := 'host=$4 port=5433 dbname=testdb password=pass user=postgres'
+            provider_dsn := 'host=$4 port=5432 dbname=testdb password=pass user=postgres'
         );"
 
     #echo "Wait for sync"

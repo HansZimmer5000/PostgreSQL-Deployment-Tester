@@ -45,7 +45,7 @@ init_replication() {
             -- user Docker Service Name as host url
             SELECT pglogical.create_subscription(
                 subscription_name := 'subscription$SUBSCRIPTION_ID',
-                provider_dsn := 'host=$2 port=5433 dbname=testdb password=pass user=postgres'
+                provider_dsn := 'host=$2 port=5432 dbname=testdb password=pass user=postgres'
             );"
             
         echo "3/3 Starting subscription and wait till synchronization is complete"
