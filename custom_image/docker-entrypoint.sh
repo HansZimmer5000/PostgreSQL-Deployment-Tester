@@ -48,13 +48,58 @@ if [ "$1" = 'postgres' ] && [ "$(id -u)" = '0' ]; then
         exec gosu postgres "$BASH_SOURCE" "$@"
 fi
 
+
+# Modification from the normal script to get the current state via pg_basebackup
+# If given PROVIDER_IP is not empty.
+
+# This is neccessary as it would otherwise fail if a replica would like to get pg_basebackup from itself.
+# The normal flags will be set again after our modification.
+set +Eeo pipefail
+
+provider_is_reachable=false
+
+if ! [ -z "$PROVIDER_IP" ] ; then
+        echo "Try to reach $PROVIDER_IP:5432"
+        echo $(curl -s $PROVIDER_IP:5432) >> /dev/null 
+        return_code=$?
+        echo "Got Curl Exit Code $return_code"
+        if [ "$return_code" == "52" ] || [ "$return_code" == "0" ] ; then
+                # 52 = Empty Reply from Server means its up, otherwise there is no answer at all (Connect refused)
+                provider_is_reachable=true
+                echo "Provider is reachable."
+        else
+                echo "Error: Provider is not reachable. Curl exit code: $return_code"
+        fi
+fi
+
+# $1 = Bool, Provider is Reachable
+# $2 = Text, Provider IP
+init_basebackup(){
+    echo "*:*:*:$POSTGRES_USER:$POSTGRES_PASSWORD" > ~/.pgpass
+    chmod 0600 ~/.pgpass
+
+    if $1; then
+            echo "-- executing pg_basebackup"
+            pg_basebackup -c fast -X stream -h $2 -U postgres -v --no-password -D $PGDATA 
+    fi
+}
+
+init_basebackup $provider_is_reachable $PROVIDER_IP
+init_new_db=true
+if [ "$(ls -A $PGDATA)" ]; then
+        init_new_db=false
+fi
+
+set -Eeo pipefail
+# Modification End
+
 if [ "$1" = 'postgres' ]; then
         mkdir -p "$PGDATA"
         chown -R "$(id -u)" "$PGDATA" 2>/dev/null || :
         chmod 700 "$PGDATA" 2>/dev/null || :
 
         # look specifically for PG_VERSION, as it is expected in the DB dir
-        if [ ! -s "$PGDATA/PG_VERSION" ]; then
+        if [ ! -s "$PGDATA/PG_VERSION" ] && $init_new_db; then
                 # "initdb" is particular about the current user existing in "/etc/passwd", so we use "nss_wrapper" to fake that if necessary
                 # see https://github.com/docker-library/postgres/pull/253, https://github.com/docker-library/postgres/issues/359, https://cwrap.org/nss_wrapper.html
                 if ! getent passwd "$(id -u)" &> /dev/null && [ -e /usr/lib/libnss_wrapper.so ]; then
@@ -64,7 +109,7 @@ if [ "$1" = 'postgres' ]; then
                         echo "postgres:x:$(id -u):$(id -g):PostgreSQL:$PGDATA:/bin/false" > "$NSS_WRAPPER_PASSWD"
                         echo "postgres:x:$(id -g):" > "$NSS_WRAPPER_GROUP"
                 fi
-
+                
                 file_env 'POSTGRES_USER' 'postgres'
                 file_env 'POSTGRES_PASSWORD'
 
@@ -73,7 +118,7 @@ if [ "$1" = 'postgres' ]; then
                         export POSTGRES_INITDB_ARGS="$POSTGRES_INITDB_ARGS --xlogdir $POSTGRES_INITDB_XLOGDIR"
                 fi
                 eval 'initdb --username="$POSTGRES_USER" --pwfile=<(echo "$POSTGRES_PASSWORD") '"$POSTGRES_INITDB_ARGS"
-
+                
                 # unset/cleanup "nss_wrapper" bits
                 if [ "${LD_PRELOAD:-}" = '/usr/lib/libnss_wrapper.so' ]; then
                         rm -f "$NSS_WRAPPER_PASSWD" "$NSS_WRAPPER_GROUP"
@@ -116,6 +161,7 @@ EOWARN
                         authMethod=trust
                 fi
 
+                # TODO is this normal?
                 {
                         echo
                         echo "hostnossl all postgres 0.0.0.0/0 trust"  
@@ -176,35 +222,15 @@ EOSQL
                 echo
                 echo 'PostgreSQL init process complete; ready for start up.'
                 echo
+
+                # Modification
+                echo "host  replication  all  0.0.0.0/0  md5" >> $PGDATA/pg_hba.conf
+                # End of Modification
         fi
 fi
 
-# Modification from the normal script to get the current state via pg_basebackup
-# If given PROVIDER_IP is not empty.
-
-# Info: pg_basebackup does not need a running postgres, but replication setup does!
-
-# This is neccessary as it would otherwise fail if a replica would like to get pg_basebackup from itself.
-# The normal flags will be set again after our modification.
-set --
-
-provider_is_reachable=false
-
-if ! [ -z "$PROVIDER_IP" ] ; then
-        echo "Try to reach $PROVIDER_IP"
-        echo $(curl -s $PROVIDER_IP:5432) >> /dev/null 
-        return_code=$?
-        if [ "$return_code" == "52" ] || [ "$return_code" == "0" ] ; then
-                # 52 = Empty Reply from Server means its up, otherwise there is no answer at all (Connect refused)
-                provider_is_reachable=true
-                echo "Provider is reachable."
-        else
-                echo "Error: Provider is not reachable. Curl exit code: $return_code"
-        fi
-fi
-
-/etc/sub_setup.sh $provider_is_reachable $PROVIDER_IP
-set -Eeo pipefail
-# Modification End
+# Modification
+/etc/sub_setup.sh $provider_is_reachable $PROVIDER_IP $init_new_db
+# End of Modification
 
 exec "$@"
