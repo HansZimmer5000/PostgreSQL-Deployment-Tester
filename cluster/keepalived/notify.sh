@@ -76,6 +76,17 @@ set_ids(){
 	done
 }
 
+# TODO adjusted copy from id_ip_nodes.sh
+determine_db_version() {
+	result_raw=$(docker exec $1 "psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c 'SELECT version();'" 2>/dev/null)
+    arr=($result_raw)
+    result="${arr[3]}"
+    if [ -z "$result" ]; then
+        result="err"
+    fi
+    echo $result
+}
+
 state=$3
 echo "$state $(date)" > /etc/keepalived/current_state.txt
 
@@ -113,7 +124,16 @@ case $state in
 
 							log "Waiting for Postgres to be ready"
 							wait_for_all_pg_to_boot $container_id
-							log "$(/etc/keepalived/promote.sh $container_id $subscription_id)"
+							
+							# TODO must it fit exactly (major + minor Version) or just major?
+							cluster_pg_version=$(cat cluster_version.txt)
+							local_pg_version=$(determine_db_version $container_id)
+							if [ "$local_pg_version" == "$cluster_pg_version" ]; then
+								log "$(/etc/keepalived/promote.sh $container_id $subscription_id)"
+							else
+								log "Cluster version was different (File=$cluster_pg_version//Local=$local_pg_version), cannot promote! Restarting keepalived"
+								systemctl restart keepalived
+							fi
 						fi
 					fi
 				fi

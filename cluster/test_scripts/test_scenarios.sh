@@ -305,6 +305,10 @@ upgrade_test_3(){
     echo "0"
 }
 
+update_cluster_version(){
+    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
+}
+
 upgrade_test_4(){
     # Major Update of Cluster
     #   - Phase 1
