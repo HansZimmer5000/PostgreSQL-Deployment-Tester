@@ -22,7 +22,7 @@ get_ip() {
 
 # $1 = Bool, Provider is Reachable
 # $2 = Text, Provider IP
-init_this_subscriber() {
+init_replication() {
     wait_for_startup 
     SUBSCRIBER_IP=$(get_ip)
     SUBSCRIPTION_ID="${SUBSCRIBER_IP//./}"
@@ -66,11 +66,13 @@ init_this_subscriber() {
 
 echo "host  replication  all  0.0.0.0/0  md5" >> $PGDATA/pg_hba.conf
 
+# TODO Do not backup from yourself.
 if $1; then
         echo "-- executing pg_basebackup"
         # --no-password = read from PGDATA/.pgpass?
         pg_basebackup -c fast -X stream -h $2 -U postgres -v --no-password -D /var/lib/postgresql/pgbackuped  
 fi
 
-init_this_subscriber $1 $2 &
+#init_basebackup $1 $2 TODO Implement
+#init_replication $1 $2 &
 

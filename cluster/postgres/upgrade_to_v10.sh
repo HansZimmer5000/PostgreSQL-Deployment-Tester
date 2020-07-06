@@ -57,7 +57,7 @@ su - postgres -c "
 PGDATA=/var/lib/postgresql/10/data /usr/lib/postgresql/10/bin/pg_ctl start
 "
 
-#init_this_subscriber
+#init_replication
 SUBSCRIBER_IP=$(get_ip)
 SUBSCRIPTION_ID="${SUBSCRIBER_IP//./}"
 reconnect "subscription$SUBSCRIPTION_ID"
