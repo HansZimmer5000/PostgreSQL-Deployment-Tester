@@ -20,6 +20,8 @@ get_ip() {
     echo ${IPs[1]}
 }
 
+# $1 = Bool, Provider is Reachable
+# $2 = Text, Provider IP
 init_this_subscriber() {
     wait_for_startup 
     SUBSCRIBER_IP=$(get_ip)
@@ -43,7 +45,7 @@ init_this_subscriber() {
             -- user Docker Service Name as host url
             SELECT pglogical.create_subscription(
                 subscription_name := 'subscription$SUBSCRIPTION_ID',
-                provider_dsn := 'host=192.168.99.149 port=5433 dbname=testdb password=pass user=postgres'
+                provider_dsn := 'host=$2 port=5433 dbname=testdb password=pass user=postgres'
             );"
             
         echo "3/3 Starting subscription and wait till synchronization is complete"
@@ -70,5 +72,5 @@ if $1; then
         pg_basebackup -c fast -X stream -h $2 -U postgres -v --no-password -D /var/lib/postgresql/pgbackuped  
 fi
 
-init_this_subscriber $1 &
+init_this_subscriber $1 $2 &
 

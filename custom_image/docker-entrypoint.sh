@@ -182,8 +182,6 @@ fi
 # Modification from the normal script to get the current state via pg_basebackup
 # If given PROVIDER_IP is not empty.
 
-#TODO call sub_setup.sh somwhere here, so all our modifications are at one place and we can reuse the information if the provider is up for the sub_setup.sh (its Step 2 and 3).
-
 # Info: pg_basebackup does not need a running postgres, but replication setup does!
 provider_is_reachable=false
 
