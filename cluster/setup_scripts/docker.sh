@@ -76,7 +76,7 @@ clean_docker() {
 
 deploy_stack() {
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack95.yml pg95"
-    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack95.yml pg10"
+    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack10.yml pg10"
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c portainer-agent-stack.yml portainer"
     sleep 15s #Wait till everything has started
 
