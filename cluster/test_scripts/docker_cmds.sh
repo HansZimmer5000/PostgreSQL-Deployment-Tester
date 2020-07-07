@@ -4,7 +4,8 @@
 # CONTAINER
 ################
 
-CURRENT_SUB_COUNT=1
+# TODO This variable is intentionally the same as in id_ip_nodes.sh, but this seems very ugly!
+current_sub_count=1
 
 kill_postgres(){
     CURRENT_INFO=$(get_node_and_id_from_name "$1")
@@ -28,15 +29,15 @@ kill_provider(){
 
             if [[ $CURRENT_NAME == "db_i" ]]; then
                 # Killing Init_helper, so better make sure we have one more sub that can take over as provider
-                CURRENT_SUB_COUNT=$(($CURRENT_SUB_COUNT + 1))
+                current_sub_count=$(($current_sub_count + 1))
             else
                 if [ "$1" != "-c" ]; then
-                    CURRENT_SUB_COUNT=$(($CURRENT_SUB_COUNT - 1))
+                    current_sub_count=$(($current_sub_count - 1))
                 fi
             fi
 
             if [ $CURRENT_NAME == "db_i" ] || [ "$1" != "-c" ]; then
-                $SSH_CMD root@$MANAGER_NODE "docker service scale pg_db=$CURRENT_SUB_COUNT" 1> /dev/null
+                $SSH_CMD root@$MANAGER_NODE "docker service scale pg_db=$current_sub_count" 1> /dev/null
                 break
             fi
         fi
@@ -48,11 +49,12 @@ kill_subscriber(){
     # Test: Should cause no Problems.
     # Test: Provider can work on its own.
 
-    kill_postgres "db.$1" #Execute in Background to quickly decrease service replica before Swarms starts a new replica.
+    kill_postgres "db.$1" 
+    echo Current Count = $current_sub_count
     
     if [ "$2" != "-c" ]; then
-        CURRENT_SUB_COUNT=$(($CURRENT_SUB_COUNT - 1))
-        $SSH_CMD root@$MANAGER_NODE "docker service scale pg_db=$CURRENT_SUB_COUNT"
+        current_sub_count=$(($current_sub_count - 1))
+        $SSH_CMD root@$MANAGER_NODE "docker service scale pg_db=$current_sub_count"
     fi
 }
 
@@ -91,8 +93,8 @@ start_new_subscriber(){
     # Test: (Re-) Start of Subscribers that creates subscription
     # Test: Subscriber also receives als data before start.
     echo "This may take a few moments and consider deployment-constraints / ports usage which could prevent a success!"
-    CURRENT_SUB_COUNT=$(($CURRENT_SUB_COUNT + 1))
-    $SSH_CMD root@$MANAGER_NODE "docker service scale pg_db=$CURRENT_SUB_COUNT" # 1> /dev/null"
+    current_sub_count=$(($current_sub_count + 1))
+    $SSH_CMD root@$MANAGER_NODE "docker service scale pg_db=$current_sub_count" # 1> /dev/null"
     wait_for_all_pg_to_boot
 }
 
