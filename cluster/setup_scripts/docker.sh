@@ -18,6 +18,7 @@ extract_token() {
 
 update_stacks() {
     SCP_CMD_FOR_EACH_NODE ./stacks/stack95.yml /root/
+    SCP_CMD_FOR_EACH_NODE ./stacks/stack10.yml /root/
     SCP_CMD_FOR_EACH_NODE ./stacks/portainer-agent-stack.yml /root/
 }
 
