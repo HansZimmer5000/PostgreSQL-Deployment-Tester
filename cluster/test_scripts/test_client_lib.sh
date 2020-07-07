@@ -5,6 +5,13 @@ ssh_into_vm(){
     $SSH_CMD root@$1
 }
 
+set_cluster_version(){
+    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
+}
+get_cluster_version(){
+    SSH_CMD_FOR_EACH_NODE "cat /etc/keepalived/cluster_version.txt"
+}
+
 get_virtualip_owner(){    
     ping -c 1 $dsn1_node 1> /dev/null
     ping -c 1 $dsn2_node 1> /dev/null
@@ -118,6 +125,13 @@ running_loop() {
                 ssh_into_vm $dsn3_node
             fi
             ;;
+        "cl_vr")
+            if ! [ -z "$PARAM1" ]; then
+                set_cluster_version $PARAM1
+            fi
+            echo "Current Cluster Versions:"
+            get_cluster_version
+            ;;
         "table") 
             if [ -z $PARAM1 ]; then
                 echo "-- Missing Number"
@@ -186,7 +200,9 @@ reconnect:  []
 
 ssh:    [1=dsn1, 2=dsn2, ...]
         will ssh into the given node by its name which was set in the ../.env file.
-        
+
+cl_vr:  [number]
+        will set the Cluster Version according to input which is mandatory!        
 
 -- Get Info about VMs & Containers
 
