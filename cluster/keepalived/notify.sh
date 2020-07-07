@@ -76,7 +76,7 @@ set_ids(){
 				CURRENT_NAME=$info
 
 				# Implicitly set ids
-				if [[ ($CURRENT_NAME == pg_db*) ]]; then
+				if [[ ($CURRENT_NAME == pg95_db*) ]]; then
 					CURRENT_NAME=${CURRENT_NAME:3:12}
 					CURRENT_IP=$(docker inspect -f '{{.NetworkSettings.Networks.pg_pgnet.IPAddress}}' $CURRENT_ID)
 					
@@ -111,10 +111,10 @@ log "ContainerID: $container_id SubscriptionID: $subscription_id"
 
 case $state in
 	"MASTER") 	log "Enter MASTER" 
-				grep_res=$(docker ps | grep "pg_db")
+				grep_res=$(docker ps | grep "pg95_db")
 				if [ -z "$grep_res" ]; then 
 					log "Finite State Machine State 4 - VIP but no PG"
-					log "Restarting keepalived with notify.sh: $(docker ps | grep "pg_db")" 
+					log "Restarting keepalived with notify.sh: $(docker ps | grep "pg95_db")" 
 					systemctl restart keepalived
 				else
 					# Differentiate State 5 and 6
@@ -142,7 +142,7 @@ case $state in
 				fi
  				;;
 	"BACKUP") 	log "Enter BACKUP" 
-				if [ -z $(docker ps | grep "pg_db") ]; then
+				if [ -z $(docker ps | grep "pg95_db") ]; then
 					log "Finite State Machine State 1 - no VIP, no PG"
 				else
 					if [ -z "$container_id" ]; then

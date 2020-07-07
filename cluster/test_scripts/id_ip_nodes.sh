@@ -124,7 +124,7 @@ update_id_ip_nodes() {
                 if [ $((info_no % 2)) == 1 ]; then
                     current_id=$info
                 else
-                    if [[ $info == pg_db* ]]; then
+                    if [[ $info == pg95_db* ]]; then
                         current_name=${info:3:4}
                         current_ip=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg_pgnet.IPAddress}}' $current_id)
                         if [ "$current_ip" == "<no value>" ]; then

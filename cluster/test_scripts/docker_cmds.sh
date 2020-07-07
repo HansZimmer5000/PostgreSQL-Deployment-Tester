@@ -37,7 +37,7 @@ kill_provider(){
             fi
 
             if [ $CURRENT_NAME == "db_i" ] || [ "$1" != "-c" ]; then
-                $SSH_CMD root@$MANAGER_NODE "docker service scale pg_db=$current_sub_count" 1> /dev/null
+                $SSH_CMD root@$MANAGER_NODE "docker service scale pg95_db=$current_sub_count" 1> /dev/null
                 break
             fi
         fi
@@ -54,7 +54,7 @@ kill_subscriber(){
     
     if [ "$2" != "-c" ]; then
         current_sub_count=$(($current_sub_count - 1))
-        $SSH_CMD root@$MANAGER_NODE "docker service scale pg_db=$current_sub_count"
+        $SSH_CMD root@$MANAGER_NODE "docker service scale pg95_db=$current_sub_count"
     fi
 }
 
@@ -94,7 +94,7 @@ start_new_subscriber(){
     # Test: Subscriber also receives als data before start.
     echo "This may take a few moments and consider deployment-constraints / ports usage which could prevent a success!"
     current_sub_count=$(($current_sub_count + 1))
-    $SSH_CMD root@$MANAGER_NODE "docker service scale pg_db=$current_sub_count" # 1> /dev/null"
+    $SSH_CMD root@$MANAGER_NODE "docker service scale pg95_db=$current_sub_count" # 1> /dev/null"
     wait_for_all_pg_to_boot
 }
 
