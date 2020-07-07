@@ -2,7 +2,7 @@
 # This is meant to be 'sourced' from test_client_lib.sh!
 
 test_log(){
-    echo "$(date) $1"
+    echo "$(date) $@"
 }
 
 # TESTSCENARIOS
@@ -29,17 +29,19 @@ reset_cluster(){
     do
         current_role=$(get_role "$tuple")
         if [[ $current_role == "prov" ]] && ! $provider_exists; then
+            test_log Found Provider $(get_name "$tuple")
             provider_exists=true
         elif [[ $current_role == "prov" ]] && $provider_exists; then
             test_log "There are multiple providers in the cluster!"
             exit 1
         elif [[ $current_role == "sub" ]] && [ $sub_exists_count -lt $sub_count ]; then
+            test_log Found Subscriber $(get_name "$tuple")
             sub_exists_count=$((sub_exists_count+1))
         else
             current_name=$(get_name "$tuple")
             current_number=${current_name:3:1}
             test_log "removing db.$current_number"
-            kill_subscriber "$current_number" 1> /dev/null
+            kill_subscriber "$current_number" #1> /dev/null
         fi
     done
 
@@ -69,11 +71,11 @@ test_1(){
     #   2. Check that only this subscriber has new data
 
     # 0.
-    test_log "$(date) 0. Reset Cluster"
+    test_log "0. Reset Cluster"
     reset_cluster 1 1> /dev/null
 
     # 1. - 4.
-    test_log "$(date) 1.-4. Check instance roles"
+    test_log "1.-4. Check instance roles"
     check_roles
 }
 
@@ -86,11 +88,11 @@ test_2(){
     # 4. Check if subscriber has both datasets
 
     # 0.
-    test_log "$(date) 0. Reset Cluster"
+    test_log "0. Reset Cluster"
     reset_cluster 0 1> /dev/null
 
     # 1.
-    test_log "$(date) 1. Add Data via provider"
+    test_log "1. Add Data via provider"
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
@@ -99,19 +101,19 @@ test_2(){
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
     # 2.
-    test_log "$(date) 2. Start new subscriber"
+    test_log "2. Start new subscriber"
     start_new_subscriber 1> /dev/null
     sleep 15s # For older Hardware
     update_id_ip_nodes
 
     # 3.
-    test_log "$(date) 3. Add Data via provider"
+    test_log "3. Add Data via provider"
     SECOND_INSERTED_ID=2
     add_entry $PROVIDER_NODE $PROVIDER_ID $SECOND_INSERTED_ID 1> /dev/null
     sleep 5s # For older hardware
 
     # 4.
-    test_log "$(date) 4. Check if subscriber has both datasets"
+    test_log "4. Check if subscriber has both datasets"
     result=$(check_tables true)
     if [[ $result == true ]]; then
         test_log "Test 2 was successfull"
@@ -131,10 +133,10 @@ test_3(){
     # 6. Add Data via provider
     # 7. Check that all instances have the new data
 
-    test_log "$(date) 0. Reset Cluster"
+    test_log "0. Reset Cluster"
     reset_cluster 1 1> /dev/null
 
-    test_log "$(date) 1. Add Data via provider"
+    test_log "1. Add Data via provider"
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
@@ -142,26 +144,26 @@ test_3(){
 
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
-    test_log "$(date) 2. Check that all instances have same state"
+    test_log "2. Check that all instances have same state"
     result=$(check_tables true)
     if [[ $result != true ]]; then
         >&2 test_log "$result"
         exit 1
     fi
 
-    test_log "$(date) 3. Remove all data from subscribers"
+    test_log "3. Remove all data from subscribers"
     clear_all_local_tables 1> /dev/null
 
-    test_log "$(date) 4. Kill Provider"
+    test_log "4. Kill Provider"
     kill_provider -c
     sleep 75s #Let slow hardware handle the "killing" and give time to docker & keepalived reevalute 
     update_id_ip_nodes 
 
-    test_log "$(date) 5. Let Docker Swarm start new provider"
+    test_log "5. Let Docker Swarm start new provider"
     wait_for_all_pg_to_boot
     reconnect_all_subscriber
 
-    test_log "$(date) 6. Add Data via provider"
+    test_log "6. Add Data via provider"
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
@@ -169,7 +171,7 @@ test_3(){
     SECOND_INSERTED_ID=2
     add_entry $PROVIDER_NODE $PROVIDER_ID $SECOND_INSERTED_ID 1> /dev/null
 
-    test_log "$(date) 7. Check that all instances have the new data"
+    test_log "7. Check that all instances have the new data"
     result=$(check_tables true)
     if [[ $result == true ]]; then
         test_log "Test 3 was successfull"
@@ -188,10 +190,10 @@ test_4(){
     # 5. Add Data via provider
     # 6. Check that all instances have same state
 
-    test_log "$(date) 0. Reset Cluster"
+    test_log "0. Reset Cluster"
     reset_cluster 1 1> /dev/null
 
-    test_log "$(date) 1. Add Data via provider"
+    test_log "1. Add Data via provider"
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
@@ -199,23 +201,23 @@ test_4(){
     FIRST_INSERTED_ID=1
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
-    test_log "$(date) 2. Check that all instances have same state"
+    test_log "2. Check that all instances have same state"
     result=$(check_tables true)
     if [[ $result != true ]]; then
         >&2 test_log "$result"
         exit 1
     fi
 
-    test_log "$(date) 3. Kill Provider"
+    test_log "3. Kill Provider"
     kill_provider -c
     sleep 75s #Let slow hardware handle the "killing" and give time to docker & keepalived reevalute 
     update_id_ip_nodes
 
-    test_log "$(date) 4. Let Docker Swarm start new provider"
+    test_log "4. Let Docker Swarm start new provider"
     wait_for_all_pg_to_boot
     reconnect_all_subscriber 
 
-    test_log "$(date) 5. Add Data via provider"
+    test_log "5. Add Data via provider"
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
@@ -223,7 +225,7 @@ test_4(){
     SECOND_INSERTED_ID=2
     add_entry $PROVIDER_NODE $PROVIDER_ID $SECOND_INSERTED_ID 1> /dev/null
 
-    test_log "$(date) 6. Check that all instances have the new data"
+    test_log "6. Check that all instances have the new data"
     result=$(check_tables true)
     if [[ $result == true ]]; then
         test_log "Test 4 was successfull"
