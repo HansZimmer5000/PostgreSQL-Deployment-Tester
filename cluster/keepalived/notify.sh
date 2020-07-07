@@ -80,7 +80,7 @@ set_ids(){
 					CURRENT_NAME=${CURRENT_NAME:3:12}
 					CURRENT_IP="$(docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $CURRENT_ID)"
 					
-					if [ -z "$CURRENT_IP" ] || [[ "$CURRENT_IP" == *"<no value>"* ]];
+					if [ -z "$CURRENT_IP" ] || [[ "$CURRENT_IP" == *"<no value>"* ]]; then
 						CURRENT_IP="$(docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $CURRENT_ID)"
 					fi
 

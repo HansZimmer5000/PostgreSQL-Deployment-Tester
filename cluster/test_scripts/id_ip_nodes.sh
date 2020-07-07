@@ -128,7 +128,7 @@ update_id_ip_nodes() {
                         current_name=${info:5:4}
                         current_ip=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $current_id)
 
-                        if [ -z "$current_ip" ] || [[ "$current_ip" == *"<no value>"* ]];
+                        if [ -z "$current_ip" ] || [[ "$current_ip" == *"<no value>"* ]]; then
                             current_ip="$(docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $current_id)"
                         fi
 
