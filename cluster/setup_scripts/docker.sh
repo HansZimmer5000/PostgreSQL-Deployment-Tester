@@ -51,10 +51,12 @@ set_init_label() {
 
 build_images() {
     SCP_CMD_FOR_EACH_NODE "../custom_image/9.5.18.dockerfile" /etc/
+    SCP_CMD_FOR_EACH_NODE "../custom_image/10.13.dockerfile" /etc/
     SCP_CMD_FOR_EACH_NODE "../custom_image/docker-entrypoint.sh" /etc/
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/docker-entrypoint.sh"
 
     SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5-raw"
+    SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/10.13.dockerfile -t mypglog:10-raw"
 }
 
 set_configs() {
