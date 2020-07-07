@@ -58,7 +58,7 @@ running_loop() {
             ;;
         "reset") 
             echo "-- Reseting Cluster"
-            reset_cluster 1
+            reset_cluster "$PARAM1"
             update_id_ip_nodes
             ;;
         "status") 
