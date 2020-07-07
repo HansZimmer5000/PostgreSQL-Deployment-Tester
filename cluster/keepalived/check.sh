@@ -8,7 +8,9 @@ log(){
 }
 
 gather_running_pg_container(){
-    docker ps --format "table {{.ID}}\t{{.Names}}" | grep "pg9.5_db"
+    output95=$(docker ps --format "table {{.ID}}\t{{.Names}}" | grep "pg95_db")
+    output10=$(docker ps --format "table {{.ID}}\t{{.Names}}" | grep "pg10_db")
+    echo "$output95 $output10"
 }
 
 get_pg_container_id(){

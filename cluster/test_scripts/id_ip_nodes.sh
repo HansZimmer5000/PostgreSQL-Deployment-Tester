@@ -125,8 +125,8 @@ update_id_ip_nodes() {
                     current_id=$info
                 else
                     if [[ $info == pg95_db* ]]; then
-                        current_name=${info:3:4}
-                        current_ip=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg_pgnet.IPAddress}}' $current_id)
+                        current_name=${info:5:4}
+                        current_ip=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $current_id)
                         if [ "$current_ip" == "<no value>" ]; then
                             # This happens only for the init_helper instance as it has no ingress port! And init_helper must be provider so, set the Virtual IP.
                             current_ip="192.168.99.149"
