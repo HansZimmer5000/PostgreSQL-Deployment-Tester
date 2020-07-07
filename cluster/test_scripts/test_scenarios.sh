@@ -328,6 +328,8 @@ upgrade_test_4(){
     #       - Reconnect all other subscribers <Skipped in this environment since we only have 1 Subscriber that became the provider and other replica already starting as subscriber with up-to-date connection>
     #       - Change the Keepalivd Dominate-Cluster-Version file to V10.
     echo "NIPY"
+
+    #set_cluster_version "TODO which version is in use? 10.12?"
 }
 
 upgrade_test_4_old(){
