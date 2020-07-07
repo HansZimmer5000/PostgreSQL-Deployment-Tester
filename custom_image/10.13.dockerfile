@@ -5,16 +5,15 @@ USER 0
 
 # Prepare OS
 RUN apt-get update
-RUN apt-get -y install curl
-RUN apt-get -y install apt-utils
-RUN apt-get -y install net-tools
+RUN apt-get -y install curl apt-utils net-tools lsb-core
 
 RUN apt-get -y install curl ca-certificates gnupg
 RUN curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 
 # Does not work with "curl ... | bash"
-RUN a=$(curl https://access.2ndquadrant.com/api/repository/dl/default/release/deb); bash -c "$a"
+#v1 RUN a=$(curl https://access.2ndquadrant.com/api/repository/dl/default/release/deb); bash -c "$a"
+RUN curl https://access.2ndquadrant.com/api/repository/dl/default/release/deb | bash
 RUN apt-get install postgresql-10-pglogical
 
 # Give Postgres permission to use the volume
