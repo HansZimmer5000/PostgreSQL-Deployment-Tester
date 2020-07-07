@@ -78,7 +78,7 @@ set_ids(){
 				# Implicitly set ids
 				if [[ ($CURRENT_NAME == pg95_db*) ]]; then
 					CURRENT_NAME=${CURRENT_NAME:3:12}
-					CURRENT_IP=$(docker inspect -f '{{.NetworkSettings.Networks.pg_pgnet.IPAddress}}' $CURRENT_ID)
+					CURRENT_IP=$(docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $CURRENT_ID)
 					
 					# It is only possible to have one postgres instance running!
 					container_id="$CURRENT_ID"
