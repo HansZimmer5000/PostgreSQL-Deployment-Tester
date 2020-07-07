@@ -14,37 +14,8 @@ kill_postgres(){
     $SSH_CMD root@$CURRENT_NODE "docker rm -f $CURRENT_ID"
 }
 
-kill_provider(){
-    # Kill the Provider
-    # Test: Swarm creates new Provider
-    # Test: Provider takes over old subscriptions (does it work that way?
-
-    for tuple in $ID_IP_NODEs 
-    do
-        CURRENT_ROLE=$(get_role "$tuple")
-        if [[ $CURRENT_ROLE == "prov" ]]; then
-            CURRENT_NAME=$(get_name "$tuple")
-            kill_postgres "$CURRENT_NAME"
-            CURRENT_NODE=$(get_node "$tuple")
-
-            if [[ $CURRENT_NAME == "db_i" ]]; then
-                # Killing Init_helper, so better make sure we have one more sub that can take over as provider
-                current_sub_count=$(($current_sub_count + 1))
-            else
-                if [ "$1" != "-c" ]; then
-                    current_sub_count=$(($current_sub_count - 1))
-                fi
-            fi
-
-            if [ $CURRENT_NAME == "db_i" ] || [ "$1" != "-c" ]; then
-                $SSH_CMD root@$MANAGER_NODE "docker service scale pg95_db=$current_sub_count" 1> /dev/null
-                break
-            fi
-        fi
-    done
-}
-
 kill_subscriber(){
+    # TODO make compatible to V10 stack?
     # Kill Subscriber (as harsh as possible) and immediately Scale the subscriber service down by one so Swarm doesn't directly start a new subscriber
     # Test: Should cause no Problems.
     # Test: Provider can work on its own.
@@ -89,6 +60,7 @@ wait_for_all_pg_to_boot(){
 }
 
 start_new_subscriber(){
+    # TODO make compatible to V10 stack?
     # Scale the subscriber service up by one
     # Test: (Re-) Start of Subscribers that creates subscription
     # Test: Subscriber also receives als data before start.

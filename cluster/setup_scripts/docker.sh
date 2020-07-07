@@ -67,6 +67,7 @@ set_configs() {
 
 clean_docker() {
     $SSH_CMD root@$MANAGER_NODE "docker stack rm pg95"
+    $SSH_CMD root@$MANAGER_NODE "docker stack rm pg10"
     sleep 10s #Wait till everything is deleted
 
     SSH_CMD_FOR_EACH_NODE "docker rm $(docker ps -aq) -f"
@@ -75,6 +76,7 @@ clean_docker() {
 
 deploy_stack() {
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack95.yml pg95"
+    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack95.yml pg10"
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c portainer-agent-stack.yml portainer"
     sleep 15s #Wait till everything has started
 

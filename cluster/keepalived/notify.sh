@@ -76,10 +76,14 @@ set_ids(){
 				CURRENT_NAME=$info
 
 				# Implicitly set ids
-				if [[ ($CURRENT_NAME == pg95_db*) ]]; then
+				if [[ ($CURRENT_NAME == pg95_db*) ]] || [[ ($CURRENT_NAME == pg10_db*) ]]; then
 					CURRENT_NAME=${CURRENT_NAME:3:12}
-					CURRENT_IP=$(docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $CURRENT_ID)
+					CURRENT_IP="$(docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $CURRENT_ID)"
 					
+					if [ -z "$CURRENT_IP" ] || [[ "$CURRENT_IP" == *"<no value>"* ]];
+						CURRENT_IP="$(docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $CURRENT_ID)"
+					fi
+
 					# It is only possible to have one postgres instance running!
 					container_id="$CURRENT_ID"
 					subscription_id="subscription${CURRENT_IP//./}"
@@ -111,10 +115,11 @@ log "ContainerID: $container_id SubscriptionID: $subscription_id"
 
 case $state in
 	"MASTER") 	log "Enter MASTER" 
-				grep_res=$(docker ps | grep "pg95_db")
-				if [ -z "$grep_res" ]; then 
+				grep_res_v95=$(docker ps | grep "pg95_db")
+				grep_res_v10=$(docker ps | grep "pg10_db")
+				if [ -z "$grep_res_v95" ] && [ -z "$grep_res_v10"] ; then 
 					log "Finite State Machine State 4 - VIP but no PG"
-					log "Restarting keepalived with notify.sh: $(docker ps | grep "pg95_db")" 
+					log "Restarting keepalived with notify.sh" 
 					systemctl restart keepalived
 				else
 					# Differentiate State 5 and 6
@@ -142,7 +147,7 @@ case $state in
 				fi
  				;;
 	"BACKUP") 	log "Enter BACKUP" 
-				if [ -z $(docker ps | grep "pg95_db") ]; then
+				if [ -z $(docker ps | grep "pg95_db") ] && [ -z $(docker ps | grep "pg10_db") ]; then
 					log "Finite State Machine State 1 - no VIP, no PG"
 				else
 					if [ -z "$container_id" ]; then

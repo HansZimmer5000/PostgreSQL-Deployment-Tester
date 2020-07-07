@@ -48,4 +48,4 @@ services:
             - pgnet
         deploy:
             mode: replicated
-            replicas: 1
+            replicas: 0
