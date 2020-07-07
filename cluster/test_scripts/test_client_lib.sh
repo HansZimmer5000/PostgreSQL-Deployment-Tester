@@ -12,6 +12,16 @@ get_cluster_version(){
     SSH_CMD_FOR_EACH_NODE "cat /etc/keepalived/cluster_version.txt"
 }
 
+set_label_version() {
+    # TODO May refactor with similar commands (--label-add) in docker.sh
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=$2 docker-swarm-node$1.localdomain
+}
+
+get_label_version(){
+    # TODO For each node and todo finalize
+    $SSH_CMD root@$MANAGER_NODE docker inspect --format '{{ index .Config.Labels "pg.ver"}}' todo_container_id
+}
+
 get_virtualip_owner(){    
     ping -c 1 $dsn1_node 1> /dev/null
     ping -c 1 $dsn2_node 1> /dev/null
@@ -132,6 +142,13 @@ running_loop() {
             echo "Current Cluster Versions:"
             get_cluster_version
             ;;
+        "lb_vr")
+            if ! [ -z "$PARAM1" ] && ! [ -z "$PARAM2" ]; then
+                set_label_version $PARAM1 $PARAM2
+            else
+                echo "Please Enter Node number AND new Version number"
+            fi
+            ;;
         "table") 
             if [ -z $PARAM1 ]; then
                 echo "-- Missing Number"
@@ -203,6 +220,9 @@ ssh:    [1=dsn1, 2=dsn2, ...]
 
 cl_vr:  [number]
         will set the Cluster Version according to input which is mandatory!        
+
+lb_vr:  [number (1=dsn1, 2=dsn2, ...)] [number (version)]
+        will set the version number to the specified node as a docker swarm node label.
 
 -- Get Info about VMs & Containers
 
