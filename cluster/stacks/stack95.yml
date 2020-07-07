@@ -59,5 +59,8 @@ services:
         networks:
             - pgnet
         deploy:
+            placement:
+              constraints:
+                - "node.labels.pg.ver==9.5"
             mode: replicated
             replicas: 1

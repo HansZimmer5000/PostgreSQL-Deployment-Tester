@@ -16,6 +16,17 @@ extract_token() {
     echo $result
 }
 
+update_labels(){
+    # TODO refactor with set_init_label
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm pg.ver docker-swarm-node1.localdomain
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm pg.ver docker-swarm-node2.localdomain
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm pg.ver docker-swarm-node3.localdomain
+
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=9.5 docker-swarm-node1.localdomain
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=9.5 docker-swarm-node2.localdomain
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=9.5 docker-swarm-node3.localdomain
+}
+
 update_stacks() {
     SCP_CMD_FOR_EACH_NODE ./stacks/stack95.yml /root/
     SCP_CMD_FOR_EACH_NODE ./stacks/stack10.yml /root/
