@@ -184,14 +184,14 @@ running_loop() {
             echo "' $COMMAND $PARAM1 ' is not a valid command:"
             echo "
 -- Interact with Container 
-start:      will start a new postgres container. 
+start:      will start a new postgres container (TODO V9.5 or V10 Stack?). 
             BEWARE as container expose ports via host mode which limits the container per VM to one!
         
 kill:       [0=provider,1=db.1,2=db.2,...] 
-            will reduce the replica count of the swarm stack and kill a given container by its number in its name 'db.X'. Also set '-c' to crash-kill a container and not adjust the replica count.
+            will reduce the replica count of the swarm stack (TODO V9.5 or V10 Stack?) and kill a given container by its number in its name 'db.X'. Also set '-c' to crash-kill a container and not adjust the replica count.
         
 reset:      [number]
-            will reset the cluster to one provider and a given number of subscribers (default 1)
+            will reset the cluster (TODO V9.5 or V10 Stack?) to one provider and a given number of subscribers (default 1)
   
 reconnect:  []
             will reconnect all subscriber to the virtual IP (more info about that in ../keepalived/).

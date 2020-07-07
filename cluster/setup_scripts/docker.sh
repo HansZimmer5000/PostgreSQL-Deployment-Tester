@@ -17,7 +17,7 @@ extract_token() {
 }
 
 update_stacks() {
-    SCP_CMD_FOR_EACH_NODE ./stacks/stack.yml /root/
+    SCP_CMD_FOR_EACH_NODE ./stacks/stack95.yml /root/
     SCP_CMD_FOR_EACH_NODE ./stacks/portainer-agent-stack.yml /root/
 }
 
@@ -72,7 +72,7 @@ clean_docker() {
 }
 
 deploy_stack() {
-    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack.yml pg"
+    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack95.yml pg"
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c portainer-agent-stack.yml portainer"
     sleep 15s #Wait till everything has started
 

@@ -79,7 +79,7 @@ if $postgres_is_not_running; then
     # Start Stack
     deploy_stack
 else
-    echo "-- Using existing stack deployment"
+    echo "-- Using existing stack V9.5 deployment"
 fi
 
 source "./test_scripts/test_client_lib.sh"
