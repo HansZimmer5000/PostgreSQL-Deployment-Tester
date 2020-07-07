@@ -8,19 +8,33 @@ get_pg_status(){
 	(docker exec $1 psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c 'SELECT * FROM pglogical.pglogical_node_info();') 1> /dev/null
 }
 
+# TODO adjusted copy from id_ip_nodes.sh
+determine_db_version() {
+	result_raw=$(docker exec $1 psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c 'SELECT version();' 2>/dev/null)
+    arr=($result_raw)
+    result="${arr[3]}"
+    if [ -z "$result" ] || [ "$result" == "failed:" ]; then
+        result="err"
+    fi
+    echo $result
+}
+
 pg_is_ready(){
 	result=false
-	err=$(get_pg_status $1 2>&1)
-	if [ -z "$err" ]; then
+	version=$(determine_db_version $1) 
+	status=$(get_pg_status $1 2>&1)
+	if ! [ "$version" == "err" ] && [ -z "$status" ]; then
 		result=true
 	fi
 	echo $result
 }
 
+# To check on VM (Beware, long cmd): 
+# source notify.sh ; export -f get_pg_status gather_running_containers set_ids pg_is_ready determine_db_version ; watch "container_id=0 ; set_ids ; pg_is_ready $container_id"
 wait_for_all_pg_to_boot(){
     while [[ $(systemctl status keepalived) == *"Active: active"* ]]; do
 
-		if $(pg_is_ready $1); then
+		if $(pg_is_ready $1); then	
 			break
 		fi
 		
@@ -76,17 +90,6 @@ set_ids(){
 	done
 }
 
-# TODO adjusted copy from id_ip_nodes.sh
-determine_db_version() {
-	result_raw=$(docker exec $1 "psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c 'SELECT version();'" 2>/dev/null)
-    arr=($result_raw)
-    result="${arr[3]}"
-    if [ -z "$result" ]; then
-        result="err"
-    fi
-    echo $result
-}
-
 state=$3
 echo "$state $(date)" > /etc/keepalived/current_state.txt
 
@@ -126,7 +129,7 @@ case $state in
 							wait_for_all_pg_to_boot $container_id
 							
 							# TODO must it fit exactly (major + minor Version) or just major?
-							cluster_pg_version=$(cat cluster_version.txt)
+							cluster_pg_version=$(cat /etc/keepalived/cluster_version.txt)
 							local_pg_version=$(determine_db_version $container_id)
 							if [ "$local_pg_version" == "$cluster_pg_version" ]; then
 								log "$(/etc/keepalived/promote.sh $container_id $subscription_id)"
