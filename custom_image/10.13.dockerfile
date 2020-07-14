@@ -16,6 +16,10 @@ RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-
 RUN curl https://access.2ndquadrant.com/api/repository/dl/default/release/deb | bash
 RUN apt-get install postgresql-10-pglogical
 
+# Needed for pg_upgrade during startup (after receiving data via pg_basebackup)
+#RUN "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main 10" > /etc/apt/sources.list.d/pgdg.list
+RUN apt-get install -y --no-install-recommends --no-install-suggests postgresql-9.5 
+
 # Give Postgres permission to use the volume
 RUN mkdir -p /var/lib/postgresql/10/data
 RUN chown -R postgres /var/lib/postgresql/10/data
