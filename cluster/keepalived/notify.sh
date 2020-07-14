@@ -9,6 +9,7 @@ get_pg_status(){
 }
 
 # TODO adjusted copy from id_ip_nodes.sh
+# TODO may only use Major Version (9.5 / 9.6 / 10 / 11 / ...)
 determine_db_version() {
 	result_raw=$(docker exec $1 psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c 'SELECT version();' 2>/dev/null)
     arr=($result_raw)
