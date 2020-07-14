@@ -129,6 +129,7 @@ update_id_ip_nodes() {
                         current_ip=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $current_id)
 
                         if [ -z "$current_ip" ] || [[ "$current_ip" == *"<no value>"* ]]; then
+                            # TODO Does this really work? status shows empty IP
                             current_ip="$(docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $current_id)"
                         fi
 
