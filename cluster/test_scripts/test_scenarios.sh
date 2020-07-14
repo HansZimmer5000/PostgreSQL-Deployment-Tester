@@ -28,13 +28,14 @@ reset_cluster(){
     for tuple in $ID_IP_NODEs 
     do
         current_role=$(get_role "$tuple")
+        current_version=$(get_version "$tuple")
         if [[ $current_role == "prov" ]] && ! $provider_exists; then
             test_log Found Provider $(get_name "$tuple")
             provider_exists=true
         elif [[ $current_role == "prov" ]] && $provider_exists; then
             test_log "There are multiple providers in the cluster!"
             exit 1
-        elif [[ $current_role == "sub" ]] && [ $sub_exists_count -lt $sub_count ]; then
+        elif [[ $current_role == "sub" ]] && [ $sub_exists_count -lt $sub_count ] && [[ "$current_version" == "9.5"* ]]; then
             test_log Found Subscriber $(get_name "$tuple")
             sub_exists_count=$((sub_exists_count+1))
         else
@@ -44,12 +45,17 @@ reset_cluster(){
         fi
     done
 
+    set_label_version 1 9.5
+    set_label_version 2 9.5
+    set_label_version 3 9.5
+    set_cluster_version 9.5.18
+
     if ! $provider_exists; then
-        start_new_subscriber
+        start_new_subscriber "pg95_db"
     fi
 
     while [ $sub_exists_count -lt $sub_count ]; do
-        start_new_subscriber
+        start_new_subscriber "pg95_db"
         sleep 15s #Wait for older Hardware to start subscriber
         sub_exists_count=$((sub_exists_count+1))
     done
@@ -271,12 +277,21 @@ upgrade_test_1(){
 
     test_log "3. Upgrade Subscriber"
     sub=$(get_all_subscriber)
-    sub_container_id=$(get_id "$sub")
+    sub_name=$(get_name "$sub")
+    kill_subscriber "$sub_name" 
+    sleep 5s
     sub_node=$(get_node "$sub")
-    upgrade "$sub_node" "$sub_container_id"
-    sleep 10s
+    if [ "$sub_node" == "$dsn1_node" ]; then
+        set_label_version 1 10
+    elif [ "$sub_node" == "$dsn2_node" ]; then
+        set_label_version 2 10
+    elif [ "$sub_node" == "$dsn3_node" ]; then
+        set_label_version 3 10
+    fi
+    update_id_ip_nodes
+    sleep 30s
 
-    test_log "4. Check that Subscriber still has old data"
+    test_log "4. Check that Subscriber has old data"
     result=$(check_tables true)
     if [[ $result != true ]]; then
         >&2 echo "$result"

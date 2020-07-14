@@ -97,13 +97,10 @@ running_loop() {
             ;;
         "log") 
             if [ -z "$PARAM1" ]; then
-                echo "-- Missing Number"
-            elif [ "$PARAM1" == "0" ]; then
-                echo "-- Get Log of Provider"
-                get_log "provider"
-            elif [ "$PARAM1" -gt 0 ]; then
-                echo "-- Get Log of Subscriber $PARAM1"
-                get_log "db.$PARAM1"
+                echo "-- Missing Name"
+            else
+                echo "-- Get Log of $PARAM1"
+                get_log "$PARAM1"
             fi
             ;;
         "notify")          
@@ -152,13 +149,10 @@ running_loop() {
             ;;
         "table") 
             if [ -z $PARAM1 ]; then
-                echo "-- Missing Number"
-            elif [ "$PARAM1" == "0" ]; then
-                echo "-- Get TestTable Entries from Provider"
-                get_table "provider"
-            elif [ "$PARAM1" -gt 0 ]; then
-                echo "-- Get TestTable Entries from Subscriber $PARAM1"
-                get_table "db.$PARAM1"
+                echo "-- Missing Name"
+            elif ! [ -z "$PARAM1" ]; then
+                echo "-- Get TestTable Entries from $PARAM1"
+                get_table "$PARAM1"
             fi
             ;;
         "reconnect")
@@ -210,7 +204,7 @@ kill:       [dbname]
             will reduce the replica count of the swarm stack and kill a given container by its name as printed by status. Also set '-c' to crash-kill a container and not adjust the replica count.
         
 reset:      [number]
-            will reset the cluster (TODO V9.5 or V10 Stack?) to one provider and a given number of subscribers (default 1)
+            will reset the cluster with Version 9.5 to one provider and a given number of subscribers (default 1)
   
 reconnect:  []
             will reconnect all subscriber to the virtual IP (more info about that in ../keepalived/).
@@ -233,14 +227,14 @@ vip:    will return the owner of the virtual IP.
 status: [-a,-o,-f] 
         will return the status of the containers. Either fast (-f, without update info), verbose (-a, also lists all VM IPs) and continously (-o, as -a but never stops)
         
-log:    [1=db.1,2=db.2,...]
-        will return the docker log of the given container by its number in its name 'db.X'.
+log:    [dbname]
+        will return the docker log of the given name.
         
 notify: [1=db.1,2=db.2,...]
         will return the keepalived 'notify_log.txt' file of a given node by its name which was set in the ../.env file.
 
-table:  [1=db.1,2=db.2,...]
-        will return the current content of the 'testtable' in the postgres container by its number in its name 'db.X'.
+table:  [dbname]
+        will return the current content of the 'testtable' in the postgres container by its name.
 
 -- Test Cluster
 
