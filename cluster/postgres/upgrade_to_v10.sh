@@ -21,7 +21,7 @@ export PGDATANEW=/var/lib/postgresql/10/data
 PGDATA=/var/lib/postgresql/9.5/data /usr/lib/postgresql/9.5/bin/pg_ctl stop 
 PGDATA=/var/lib/postgresql/10/data /usr/lib/postgresql/10/bin/initdb -E 'UTF-8' --locale=en_US.utf8
 
-# Reuse old configuratoin file
+# Reuse old configuration file
 cp /var/lib/postgresql/9.5/data/postgresql.conf /var/lib/postgresql/10/data/postgresql.conf
 cp /var/lib/postgresql/9.5/data/pg_hba.conf /var/lib/postgresql/10/data/pg_hba.conf
 

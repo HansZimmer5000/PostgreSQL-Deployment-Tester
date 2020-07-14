@@ -31,7 +31,7 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
 ## VM Setup
 
 - Downloaded vdi from [osboxes](https://www.osboxes.org/centos/#centos-1908-vbox) (Password: osboxes.org)
-- Set VirtualBox Name according to "Docker Swarm Node 0", replace 0 with number (1 ... n)
+- Set VirtualBox Name according to "Docker Swarm Node 0", replace 0 with number (1 ... n). Change hostname via "hostname 'docker-swarm-node1'".
 - Networks: 
   - First Try: NAT, Host-Only and Internal-Network (works but Flaky)
   - Second Try: Bridged Network (doesn't have 192.168.99.10* IPs but works, Current Setting!)
@@ -58,3 +58,5 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
       - iptables-save
       - service firewalld stop
       - systemctl disable firewalld
+  - Check that the keepalived.conf uses the same interface as the 192.168.99.XXX address range is on the VMs!
+

@@ -5,6 +5,23 @@ ssh_into_vm(){
     $SSH_CMD root@$1
 }
 
+set_cluster_version(){
+    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
+}
+get_cluster_version(){
+    SSH_CMD_FOR_EACH_NODE "cat /etc/keepalived/cluster_version.txt"
+}
+
+set_label_version() {
+    # TODO May refactor with similar commands (--label-add) in docker.sh
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=$2 docker-swarm-node$1.localdomain
+}
+
+get_label_version(){
+    # TODO For each node and todo finalize
+    $SSH_CMD root@$MANAGER_NODE docker inspect --format '{{ index .Config.Labels "pg.ver"}}' todo_container_id
+}
+
 get_virtualip_owner(){    
     ping -c 1 $dsn1_node 1> /dev/null
     ping -c 1 $dsn2_node 1> /dev/null
@@ -41,11 +58,8 @@ running_loop() {
         case "$COMMAND" in
         "kill") 
             if [ -z $PARAM1 ]; then
-                echo "-- Missing Number"
-            elif [ "$PARAM1" == "0" ]; then
-                echo "-- Killing Provider"
-                kill_provider $PARAM2
-            elif [ "$PARAM1" -gt 0 ]; then
+                echo "-- Missing Name"
+            elif ! [ -z "$PARAM1" ]; then
                 echo "-- Killing Subscriber $PARAM1"
                 kill_subscriber $PARAM1 $PARAM2 1>  /dev/null
             fi
@@ -53,12 +67,16 @@ running_loop() {
             ;;
         "start") 
             echo "-- Starting new Subscriber"
-            start_new_subscriber 1> /dev/null
-            update_id_ip_nodes
+            if [ -z "$PARAM1" ]; then
+                echo "-- Missing Service name"
+            else
+                start_new_subscriber $PARAM1 1> /dev/null
+                update_id_ip_nodes
+            fi
             ;;
         "reset") 
             echo "-- Reseting Cluster"
-            reset_cluster 1
+            reset_cluster "$PARAM1"
             update_id_ip_nodes
             ;;
         "status") 
@@ -118,6 +136,20 @@ running_loop() {
                 ssh_into_vm $dsn3_node
             fi
             ;;
+        "cl_vr")
+            if ! [ -z "$PARAM1" ]; then
+                set_cluster_version $PARAM1
+            fi
+            echo "Current Cluster Versions:"
+            get_cluster_version
+            ;;
+        "lb_vr")
+            if ! [ -z "$PARAM1" ] && ! [ -z "$PARAM2" ]; then
+                set_label_version $PARAM1 $PARAM2
+            else
+                echo "Please Enter Node number AND new Version number"
+            fi
+            ;;
         "table") 
             if [ -z $PARAM1 ]; then
                 echo "-- Missing Number"
@@ -170,14 +202,15 @@ running_loop() {
             echo "' $COMMAND $PARAM1 ' is not a valid command:"
             echo "
 -- Interact with Container 
-start:      will start a new postgres container. 
+start:      [servicename]
+            will start a new postgres container within the specified service (e.g. pg95_db or pg10_db). 
             BEWARE as container expose ports via host mode which limits the container per VM to one!
         
-kill:       [0=provider,1=db.1,2=db.2,...] 
-            will reduce the replica count of the swarm stack and kill a given container by its number in its name 'db.X'. Also set '-c' to crash-kill a container and not adjust the replica count.
+kill:       [dbname] 
+            will reduce the replica count of the swarm stack and kill a given container by its name as printed by status. Also set '-c' to crash-kill a container and not adjust the replica count.
         
 reset:      [number]
-            will reset the cluster to one provider and a given number of subscribers (default 1)
+            will reset the cluster (TODO V9.5 or V10 Stack?) to one provider and a given number of subscribers (default 1)
   
 reconnect:  []
             will reconnect all subscriber to the virtual IP (more info about that in ../keepalived/).
@@ -186,7 +219,12 @@ reconnect:  []
 
 ssh:    [1=dsn1, 2=dsn2, ...]
         will ssh into the given node by its name which was set in the ../.env file.
-        
+
+cl_vr:  [number]
+        will set the Cluster Version according to the exact input which is mandatory.       
+
+lb_vr:  [number (1=dsn1, 2=dsn2, ...)] [number (version)]
+        will set the version number to the specified node as a docker swarm node label.
 
 -- Get Info about VMs & Containers
 

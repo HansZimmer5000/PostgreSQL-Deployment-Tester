@@ -23,6 +23,7 @@ wait_for_vm() {
 
 update_all_nodes() {
     update_keepalived_basics
+    update_labels
     update_stacks
 }
 

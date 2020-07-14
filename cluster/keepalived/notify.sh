@@ -8,19 +8,34 @@ get_pg_status(){
 	(docker exec $1 psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c 'SELECT * FROM pglogical.pglogical_node_info();') 1> /dev/null
 }
 
+# TODO adjusted copy from id_ip_nodes.sh
+# TODO may only use Major Version (9.5 / 9.6 / 10 / 11 / ...)
+determine_db_version() {
+	result_raw=$(docker exec $1 psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c 'SELECT version();' 2>/dev/null)
+    arr=($result_raw)
+    result="${arr[3]}"
+    if [ -z "$result" ] || [ "$result" == "failed:" ]; then
+        result="err"
+    fi
+    echo $result
+}
+
 pg_is_ready(){
 	result=false
-	err=$(get_pg_status $1 2>&1)
-	if [ -z "$err" ]; then
+	version=$(determine_db_version $1) 
+	status=$(get_pg_status $1 2>&1)
+	if ! [ "$version" == "err" ] && [ -z "$status" ]; then
 		result=true
 	fi
 	echo $result
 }
 
+# To check on VM (Beware, long cmd): 
+# source notify.sh ; export -f get_pg_status gather_running_containers set_ids pg_is_ready determine_db_version ; watch "container_id=0 ; set_ids ; pg_is_ready $container_id"
 wait_for_all_pg_to_boot(){
     while [[ $(systemctl status keepalived) == *"Active: active"* ]]; do
 
-		if $(pg_is_ready $1); then
+		if $(pg_is_ready $1); then	
 			break
 		fi
 		
@@ -62,10 +77,14 @@ set_ids(){
 				CURRENT_NAME=$info
 
 				# Implicitly set ids
-				if [[ ($CURRENT_NAME == pg_db*) ]]; then
+				if [[ ($CURRENT_NAME == pg95_db*) ]] || [[ ($CURRENT_NAME == pg10_db*) ]]; then
 					CURRENT_NAME=${CURRENT_NAME:3:12}
-					CURRENT_IP=$(docker inspect -f '{{.NetworkSettings.Networks.pg_pgnet.IPAddress}}' $CURRENT_ID)
+					CURRENT_IP="$(docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $CURRENT_ID)"
 					
+					if [ -z "$CURRENT_IP" ] || [[ "$CURRENT_IP" == *"<no value>"* ]]; then
+						CURRENT_IP="$(docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $CURRENT_ID)"
+					fi
+
 					# It is only possible to have one postgres instance running!
 					container_id="$CURRENT_ID"
 					subscription_id="subscription${CURRENT_IP//./}"
@@ -97,10 +116,11 @@ log "ContainerID: $container_id SubscriptionID: $subscription_id"
 
 case $state in
 	"MASTER") 	log "Enter MASTER" 
-				grep_res=$(docker ps | grep "pg_db")
-				if [ -z "$grep_res" ]; then 
+				grep_res_v95=$(docker ps | grep "pg95_db")
+				grep_res_v10=$(docker ps | grep "pg10_db")
+				if [ -z "$grep_res_v95" ] && [ -z "$grep_res_v10"] ; then 
 					log "Finite State Machine State 4 - VIP but no PG"
-					log "Restarting keepalived with notify.sh: $(docker ps | grep "pg_db")" 
+					log "Restarting keepalived with notify.sh" 
 					systemctl restart keepalived
 				else
 					# Differentiate State 5 and 6
@@ -113,13 +133,22 @@ case $state in
 
 							log "Waiting for Postgres to be ready"
 							wait_for_all_pg_to_boot $container_id
-							log "$(/etc/keepalived/promote.sh $container_id $subscription_id)"
+							
+							# TODO must it fit exactly (major + minor Version) or just major?
+							cluster_pg_version=$(cat /etc/keepalived/cluster_version.txt)
+							local_pg_version=$(determine_db_version $container_id)
+							if [ "$local_pg_version" == "$cluster_pg_version" ]; then
+								log "$(/etc/keepalived/promote.sh $container_id $subscription_id)"
+							else
+								log "Cluster version was different (File=$cluster_pg_version//Local=$local_pg_version), cannot promote! Restarting keepalived"
+								systemctl restart keepalived
+							fi
 						fi
 					fi
 				fi
  				;;
 	"BACKUP") 	log "Enter BACKUP" 
-				if [ -z $(docker ps | grep "pg_db") ]; then
+				if [ -z $(docker ps | grep "pg95_db") ] && [ -z $(docker ps | grep "pg10_db") ]; then
 					log "Finite State Machine State 1 - no VIP, no PG"
 				else
 					if [ -z "$container_id" ]; then

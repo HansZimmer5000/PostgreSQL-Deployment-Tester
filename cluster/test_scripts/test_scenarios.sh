@@ -2,7 +2,7 @@
 # This is meant to be 'sourced' from test_client_lib.sh!
 
 test_log(){
-    echo "$(date) $1"
+    echo "$(date) $@"
 }
 
 # TESTSCENARIOS
@@ -29,17 +29,18 @@ reset_cluster(){
     do
         current_role=$(get_role "$tuple")
         if [[ $current_role == "prov" ]] && ! $provider_exists; then
+            test_log Found Provider $(get_name "$tuple")
             provider_exists=true
         elif [[ $current_role == "prov" ]] && $provider_exists; then
             test_log "There are multiple providers in the cluster!"
             exit 1
         elif [[ $current_role == "sub" ]] && [ $sub_exists_count -lt $sub_count ]; then
+            test_log Found Subscriber $(get_name "$tuple")
             sub_exists_count=$((sub_exists_count+1))
         else
             current_name=$(get_name "$tuple")
-            current_number=${current_name:3:1}
-            test_log "removing db.$current_number"
-            kill_subscriber "$current_number" 1> /dev/null
+            test_log "removing $current_name"
+            kill_subscriber "$current_name" 1> /dev/null
         fi
     done
 
@@ -312,6 +313,10 @@ upgrade_test_3(){
     echo "0"
 }
 
+update_cluster_version(){
+    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
+}
+
 upgrade_test_4(){
     # Major Update of Cluster
     #   - Phase 1
@@ -329,6 +334,8 @@ upgrade_test_4(){
     #       - Reconnect all other subscribers <Skipped in this environment since we only have 1 Subscriber that became the provider and other replica already starting as subscriber with up-to-date connection>
     #       - Change the Keepalivd Dominate-Cluster-Version file to V10.
     echo "NIPY"
+
+    #set_cluster_version "TODO which version is in use? 10.12?"
 }
 
 upgrade_test_4_old(){

@@ -21,31 +21,19 @@ volumes:
 
 services:
 
-    adminer:
-        image: adminer:4.7.2 
-        environment:
-          - ADMINER_DEFAULT_SERVER=192.168.99.149
-        networks:
-          - pgnet
-        ports:
-          - 8082:8080
-        deploy:
-          mode: replicated
-          replicas: 1
-
     db:
-        hostname: 'subscriber95'
-        image: mypglog:9.5-raw
+        hostname: 'subscriber10'
+        image: mypglog:10-raw
         environment:
             - POSTGRES_PASSWORD=pass
             - POSTGRES_USER=postgres
             - POSTGRES_DB=testdb
-            - PGDATA=/var/lib/postgresql/9.5/data #Already set in Image, here just again to make it clear and reader friendly.
+            - PGDATA=/var/lib/postgresql/10/data #Already set in Image, here just again to make it clear and reader friendly.
             - PROVIDER_IP=192.168.99.149 # TODO how to make this dynamic by somehow getting this value from ../.env?
         volumes: 
             - /etc/upgrade_to_v10.sh:/etc/upgrade_to_v10.sh 
             - /etc/sub_setup.sh:/etc/sub_setup.sh
-            #- pgdata:/var/lib/postgresql/9.5/data # BIG TODO!!: Due to volume usage, restarted container will be in the role whatever the container before had!! Maybe clear volume at every container start?
+            #- pgdata:/var/lib/postgresql/10/data # BIG TODO!!: Due to volume usage, restarted container will be in the role whatever the container before had!! Maybe clear volume at every container start?
         configs:
             - source: tables
               target: /docker-entrypoint-initdb.d/init.sql
@@ -58,9 +46,9 @@ services:
               mode: host
         networks:
             - pgnet
-        volumes:
-            #- data_9.5.18:/var/lib/postgresql/9.5/data
-            - /etc/upgrade_to_v10.sh:/etc/upgrade_to_v10.sh
         deploy:
+            placement:
+              constraints:
+                - "node.labels.pg.ver==10"
             mode: replicated
             replicas: 1

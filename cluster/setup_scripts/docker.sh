@@ -16,8 +16,20 @@ extract_token() {
     echo $result
 }
 
+update_labels(){
+    # TODO refactor with set_init_label
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm pg.ver docker-swarm-node1.localdomain
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm pg.ver docker-swarm-node2.localdomain
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm pg.ver docker-swarm-node3.localdomain
+
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=9.5 docker-swarm-node1.localdomain
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=9.5 docker-swarm-node2.localdomain
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=9.5 docker-swarm-node3.localdomain
+}
+
 update_stacks() {
-    SCP_CMD_FOR_EACH_NODE ./stacks/stack.yml /root/
+    SCP_CMD_FOR_EACH_NODE ./stacks/stack95.yml /root/
+    SCP_CMD_FOR_EACH_NODE ./stacks/stack10.yml /root/
     SCP_CMD_FOR_EACH_NODE ./stacks/portainer-agent-stack.yml /root/
 }
 
@@ -51,10 +63,12 @@ set_init_label() {
 
 build_images() {
     SCP_CMD_FOR_EACH_NODE "../custom_image/9.5.18.dockerfile" /etc/
+    SCP_CMD_FOR_EACH_NODE "../custom_image/10.13.dockerfile" /etc/
     SCP_CMD_FOR_EACH_NODE "../custom_image/docker-entrypoint.sh" /etc/
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/docker-entrypoint.sh"
 
     SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5-raw"
+    SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/10.13.dockerfile -t mypglog:10-raw"
 }
 
 set_configs() {
@@ -64,7 +78,8 @@ set_configs() {
 }
 
 clean_docker() {
-    $SSH_CMD root@$MANAGER_NODE "docker stack rm pg"
+    $SSH_CMD root@$MANAGER_NODE "docker stack rm pg95"
+    $SSH_CMD root@$MANAGER_NODE "docker stack rm pg10"
     sleep 10s #Wait till everything is deleted
 
     SSH_CMD_FOR_EACH_NODE "docker rm $(docker ps -aq) -f"
@@ -72,7 +87,8 @@ clean_docker() {
 }
 
 deploy_stack() {
-    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack.yml pg"
+    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack95.yml pg95"
+    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack10.yml pg10"
     $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c portainer-agent-stack.yml portainer"
     sleep 15s #Wait till everything has started
 

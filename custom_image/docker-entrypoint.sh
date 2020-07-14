@@ -80,11 +80,26 @@ init_basebackup(){
 
     if $1; then
             echo "-- executing pg_basebackup"
-            pg_basebackup -c fast -X stream -h $2 -U postgres -v --no-password -D $PGDATA 
+            pg_basebackup -c fast -X stream -h $2 -U postgres -v --no-password -D $3 
     fi
 }
 
-init_basebackup $provider_is_reachable $PROVIDER_IP
+upgrade_backup(){
+    if $1; then
+            echo "-- executing pg_upgrade with Path: $PATH"
+            export PGBINOLD=/usr/lib/postgresql/9.5/bin
+            export PGBINNEW=/usr/lib/postgresql/10/bin
+            export PGDATAOLD=$2
+            export PGDATANEW=$3
+            /usr/lib/postgresql/10/bin/pg_upgrade 
+    fi
+}
+
+backup_dir="/var/lib/postgresql/9.5/data"
+
+# TODO Refactor Provider_is_reachable check to here instead of in each following function
+init_basebackup $provider_is_reachable $PROVIDER_IP $backup_dir
+upgrade_backup $provider_is_reachable $backup_dir $PGDATA
 init_new_db=true
 if [ "$(ls -A $PGDATA)" ]; then
         init_new_db=false
