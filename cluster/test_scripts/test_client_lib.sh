@@ -58,11 +58,8 @@ running_loop() {
         case "$COMMAND" in
         "kill") 
             if [ -z $PARAM1 ]; then
-                echo "-- Missing Number"
-            elif [ "$PARAM1" == "0" ]; then
-                echo "-- Killing Provider"
-                kill_provider $PARAM2
-            elif [ "$PARAM1" -gt 0 ]; then
+                echo "-- Missing Name"
+            elif ! [ -z "$PARAM1" ]; then
                 echo "-- Killing Subscriber $PARAM1"
                 kill_subscriber $PARAM1 $PARAM2 1>  /dev/null
             fi
@@ -70,8 +67,12 @@ running_loop() {
             ;;
         "start") 
             echo "-- Starting new Subscriber"
-            start_new_subscriber 1> /dev/null
-            update_id_ip_nodes
+            if [ -z "$PARAM1" ]; then
+                echo "-- Missing Service name"
+            else
+                start_new_subscriber $PARAM1 1> /dev/null
+                update_id_ip_nodes
+            fi
             ;;
         "reset") 
             echo "-- Reseting Cluster"
@@ -201,11 +202,12 @@ running_loop() {
             echo "' $COMMAND $PARAM1 ' is not a valid command:"
             echo "
 -- Interact with Container 
-start:      will start a new postgres container (TODO V9.5 or V10 Stack?). 
+start:      [servicename]
+            will start a new postgres container within the specified service (e.g. pg95_db or pg10_db). 
             BEWARE as container expose ports via host mode which limits the container per VM to one!
         
-kill:       [0=provider,1=db.1,2=db.2,...] 
-            will reduce the replica count of the swarm stack (TODO V9.5 or V10 Stack?) and kill a given container by its number in its name 'db.X'. Also set '-c' to crash-kill a container and not adjust the replica count.
+kill:       [dbname] 
+            will reduce the replica count of the swarm stack and kill a given container by its name as printed by status. Also set '-c' to crash-kill a container and not adjust the replica count.
         
 reset:      [number]
             will reset the cluster (TODO V9.5 or V10 Stack?) to one provider and a given number of subscribers (default 1)
@@ -219,7 +221,7 @@ ssh:    [1=dsn1, 2=dsn2, ...]
         will ssh into the given node by its name which was set in the ../.env file.
 
 cl_vr:  [number]
-        will set the Cluster Version according to input which is mandatory!        
+        will set the Cluster Version according to the exact input which is mandatory.       
 
 lb_vr:  [number (1=dsn1, 2=dsn2, ...)] [number (version)]
         will set the version number to the specified node as a docker swarm node label.

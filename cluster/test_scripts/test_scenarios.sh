@@ -39,9 +39,8 @@ reset_cluster(){
             sub_exists_count=$((sub_exists_count+1))
         else
             current_name=$(get_name "$tuple")
-            current_number=${current_name:3:1}
-            test_log "removing db.$current_number"
-            kill_subscriber "$current_number" #1> /dev/null
+            test_log "removing $current_name"
+            kill_subscriber "$current_name" 1> /dev/null
         fi
     done
 

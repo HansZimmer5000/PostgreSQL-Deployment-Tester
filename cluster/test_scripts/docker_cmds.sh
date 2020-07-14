@@ -15,7 +15,6 @@ kill_postgres(){
 }
 
 kill_provider(){
-    # TODO make compatible to V10 stack?
     # Kill the Provider
     # Test: Swarm creates new Provider
     # Test: Provider takes over old subscriptions (does it work that way?
@@ -46,17 +45,22 @@ kill_provider(){
 }
 
 kill_subscriber(){
-    # TODO make compatible to V10 stack?
     # Kill Subscriber (as harsh as possible) and immediately Scale the subscriber service down by one so Swarm doesn't directly start a new subscriber
     # Test: Should cause no Problems.
     # Test: Provider can work on its own.
 
-    kill_postgres "db.$1" 
+    kill_postgres "$1" 
     echo Current Count = $current_sub_count
     
     if [ "$2" != "-c" ]; then
         current_sub_count=$(($current_sub_count - 1))
-        $SSH_CMD root@$MANAGER_NODE "docker service scale pg95_db=$current_sub_count"
+        if [ "$current_sub_count" -lt 0 ]; then
+            current_sub_count=0
+        fi
+        IFS='.' read service_name replic_number <<< "$1"
+        #pg95_db
+        echo $service_name $replic_number
+        $SSH_CMD root@$MANAGER_NODE "docker service scale $service_name=$current_sub_count"
     fi
 }
 
@@ -91,13 +95,12 @@ wait_for_all_pg_to_boot(){
 }
 
 start_new_subscriber(){
-    # TODO make compatible to V10 stack?
     # Scale the subscriber service up by one
     # Test: (Re-) Start of Subscribers that creates subscription
     # Test: Subscriber also receives als data before start.
     echo "This may take a few moments and consider deployment-constraints / ports usage which could prevent a success!"
     current_sub_count=$(($current_sub_count + 1))
-    $SSH_CMD root@$MANAGER_NODE "docker service scale pg95_db=$current_sub_count" # 1> /dev/null"
+    $SSH_CMD root@$MANAGER_NODE "docker service scale $1=$current_sub_count" # 1> /dev/null"
     wait_for_all_pg_to_boot
 }
 

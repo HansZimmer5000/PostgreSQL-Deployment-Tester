@@ -124,14 +124,23 @@ update_id_ip_nodes() {
                 if [ $((info_no % 2)) == 1 ]; then
                     current_id=$info
                 else
-                    if [[ $info == pg95_db* ]] || [[ $info == pg10_db* ]]; then
-                        current_name=${info:5:4}
+                    # TODO may Refactor (last part of both is identical)
+                    if [[ $info == pg95_db* ]]; then
+                        echo get ip 95
+                        current_name=${info:0:9}
                         current_ip=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $current_id)
 
-                        if [ -z "$current_ip" ] || [[ "$current_ip" == *"<no value>"* ]]; then
-                            # TODO Does this really work? status shows empty IP
-                            current_ip="$(docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $current_id)"
-                        fi
+                        current_role=$(determine_role $node $current_id)
+                        current_db_version="$(determine_db_version $node $current_id)"
+                        ID_IP_NODEs="$ID_IP_NODEs $current_name:$current_role,$current_id,'$current_ip',$node,$current_db_version"
+                        echo end
+                    fi
+
+                    if [[ $info == pg10_db* ]]; then
+                        # TODO output error ("Error: no such object: <pgv10 container id>") comes from here!
+
+                        current_name=${info:0:9}
+                        current_ip="$(docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $current_id)"
 
                         current_role=$(determine_role $node $current_id)
                         current_db_version="$(determine_db_version $node $current_id)"
@@ -145,6 +154,7 @@ update_id_ip_nodes() {
 }
 
 print_id_ip_nodes() {
+    # TODO somehow V10 instances ID are check in the wrong context I guess leading to a print out of "Error: no such object: <containerid>"
     # Print Container IP, IP and Node of Provider and Subscribers
     # Test: To Confirm which Containers are running where.
 
@@ -152,7 +162,7 @@ print_id_ip_nodes() {
 
     for tuple in $ID_IP_NODEs; do
         current_name=$(get_name "$tuple")
-        if [[ $current_name == db.* ]]; then
+        if [[ $current_name == *_db.* ]]; then
             current_sub_count=$(($current_sub_count + 1))
         fi
         current_role=$(get_role "$tuple")
@@ -162,5 +172,5 @@ print_id_ip_nodes() {
         current_version=$(get_version "$tuple")
         echo "$current_name: Role($current_role) ID($current_id) IP($current_ip) Node($current_node) Version($current_version)"
     done
-    echo "Current subscriber count: $current_sub_count"
+    echo "Current instances count: $current_sub_count"
 }
