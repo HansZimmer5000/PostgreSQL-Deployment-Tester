@@ -126,14 +126,12 @@ update_id_ip_nodes() {
                 else
                     # TODO may Refactor (last part of both is identical)
                     if [[ $info == pg95_db* ]]; then
-                        echo get ip 95
                         current_name=${info:0:9}
                         current_ip=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $current_id)
 
                         current_role=$(determine_role $node $current_id)
                         current_db_version="$(determine_db_version $node $current_id)"
                         ID_IP_NODEs="$ID_IP_NODEs $current_name:$current_role,$current_id,'$current_ip',$node,$current_db_version"
-                        echo end
                     fi
 
                     if [[ $info == pg10_db* ]]; then
