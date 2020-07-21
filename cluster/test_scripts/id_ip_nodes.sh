@@ -67,6 +67,14 @@ get_node_and_id_from_name() {
     done
 }
 
+get_all_tuples(){
+    result=""
+    for tuple in $ID_IP_NODEs; do
+        result="$result $tuple"
+    done
+    echo $result
+}
+
 get_all_provider() {
     result=""
     for tuple in $ID_IP_NODEs; do
@@ -146,7 +154,6 @@ update_id_ip_nodes() {
 }
 
 print_id_ip_nodes() {
-    # TODO somehow V10 instances ID are check in the wrong context I guess leading to a print out of "Error: no such object: <containerid>"
     # Print Container IP, IP and Node of Provider and Subscribers
     # Test: To Confirm which Containers are running where.
 

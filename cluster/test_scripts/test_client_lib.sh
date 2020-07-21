@@ -13,13 +13,11 @@ get_cluster_version(){
 }
 
 set_label_version() {
-    # TODO May refactor with similar commands (--label-add) in docker.sh
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=$2 docker-swarm-node$1.localdomain
+    reset_label "docker-swarm-node$1.localdomain" "pg_ver" "$2" 1> /dev/null
 }
 
 get_label_version(){
-    # TODO For each node and todo finalize
-    $SSH_CMD root@$MANAGER_NODE docker inspect --format '{{ index .Config.Labels "pg.ver"}}' todo_container_id
+    $SSH_CMD root@$MANAGER_NODE "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' docker-swarm-node$1.localdomain"
 }
 
 get_virtualip_owner(){    
@@ -143,6 +141,7 @@ running_loop() {
         "lb_vr")
             if ! [ -z "$PARAM1" ] && ! [ -z "$PARAM2" ]; then
                 set_label_version $PARAM1 $PARAM2
+                get_label_version $PARAM1
             else
                 echo "Please Enter Node number AND new Version number"
             fi

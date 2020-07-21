@@ -16,15 +16,15 @@ extract_token() {
     echo $result
 }
 
-update_labels(){
-    # TODO refactor with set_init_label
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm pg.ver docker-swarm-node1.localdomain
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm pg.ver docker-swarm-node2.localdomain
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm pg.ver docker-swarm-node3.localdomain
+reset_label(){
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm $2 $1
+    $SSH_CMD root@$MANAGER_NODE docker node update --label-add $2=$3 $1
+}
 
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=9.5 docker-swarm-node1.localdomain
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=9.5 docker-swarm-node2.localdomain
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=9.5 docker-swarm-node3.localdomain
+update_labels(){
+    reset_label "docker-swarm-node1.localdomain" "pg_ver" "9.5"
+    reset_label "docker-swarm-node2.localdomain" "pg_ver" "9.5"
+    reset_label "docker-swarm-node3.localdomain" "pg_ver" "9.5"
 }
 
 update_stacks() {
@@ -54,11 +54,11 @@ reset_config() {
 
 # $1 = DSN Zahl des Init Nodes, $2-4 sind alle DSN Zahlen
 set_init_label() {
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add init_node=false docker-swarm-node$2.localdomain
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add init_node=false docker-swarm-node$3.localdomain
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add init_node=false docker-swarm-node$4.localdomain
+    reset_label "docker-swarm-node1.localdomain" "init_node" "false"
+    reset_label "docker-swarm-node2.localdomain" "init_node" "false"
+    reset_label "docker-swarm-node3.localdomain" "init_node" "false"
 
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add init_node=true docker-swarm-node$1.localdomain
+    reset_label "docker-swarm-node$1.localdomain" "init_node" "true"
 }
 
 build_images() {
