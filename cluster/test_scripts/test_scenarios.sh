@@ -242,9 +242,50 @@ test_4(){
 ####### UPGRADE_TESTS
 
 
-# $1 = Node, $2 = Container ID
-upgrade(){
-    $SSH_CMD root@$1 "docker exec -t -u root $2 /etc/upgrade_to_v10.sh" 
+upgrade_provider(){
+    # 1. Shutdown Provider Smart
+    prov_tuple="$(get_all_provider)"
+    prov_node=$(get_node "$prov_tuple")
+    prov_id=$(get_id "$prov_tuple")
+    $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
+    # TODO expects that the provider is the last v9.5 db!
+    $SSH_CMD root@$MANAGER_NODE "docker service scale pg95_db=0" 1> /dev/null
+
+    # 2. Adjust Cluster & Node Labels
+    set_cluster_version 10.13
+
+    # Beware that this only changes the node label of the provider node! 
+    # This code,again, expects that the provider is the last v9.5 db!
+    if [ "$prov_node" == "$dsn1_node" ]; then
+        set_label_version 1 10
+    elif [ "$prov_node" == "$dsn2_node" ]; then
+        set_label_version 2 10
+    elif [ "$prov_node" == "$dsn3_node" ]; then
+        set_label_version 3 10
+    fi
+
+    # 3. Increase v10 Instance count by one.
+    # TODO contains fixed number of 2!
+    $SSH_CMD root@$MANAGER_NODE "docker service scale pg10_db=2" #1> /dev/null
+    update_id_ip_nodes
+    sleep 30s
+}
+
+upgrade_subscriber(){
+    sub=$(get_all_subscriber)
+    sub_name=$(get_name "$sub")
+    kill_subscriber "$sub_name" 
+    sleep 5s
+    sub_node=$(get_node "$sub")
+    if [ "$sub_node" == "$dsn1_node" ]; then
+        set_label_version 1 10
+    elif [ "$sub_node" == "$dsn2_node" ]; then
+        set_label_version 2 10
+    elif [ "$sub_node" == "$dsn3_node" ]; then
+        set_label_version 3 10
+    fi
+    update_id_ip_nodes
+    sleep 30s
 }
 
 upgrade_test_1(){
@@ -276,20 +317,7 @@ upgrade_test_1(){
     fi
 
     test_log "3. Upgrade Subscriber"
-    sub=$(get_all_subscriber)
-    sub_name=$(get_name "$sub")
-    kill_subscriber "$sub_name" 
-    sleep 5s
-    sub_node=$(get_node "$sub")
-    if [ "$sub_node" == "$dsn1_node" ]; then
-        set_label_version 1 10
-    elif [ "$sub_node" == "$dsn2_node" ]; then
-        set_label_version 2 10
-    elif [ "$sub_node" == "$dsn3_node" ]; then
-        set_label_version 3 10
-    fi
-    update_id_ip_nodes
-    sleep 30s
+    upgrade_subscriber
 
     test_log "4. Check that Subscriber has old data"
     result=$(check_tables true)
@@ -341,9 +369,53 @@ upgrade_test_4(){
     #       - Let Docker handle the replica start
     #       - Reconnect all other subscribers <Skipped in this environment since we only have 1 Subscriber that became the provider and other replica already starting as subscriber with up-to-date connection>
     #       - Change the Keepalivd Dominate-Cluster-Version file to V10.
-    echo "NIPY"
 
-    #set_cluster_version "TODO which version is in use? 10.12?"
+    test_log "0. Reset Cluster"
+    reset_cluster 1 1> /dev/null
+
+    test_log "1. Add Data via provider"
+    provider_tuple="$(get_all_provider)"
+    PROVIDER_NODE=$(get_node "$provider_tuple")
+    PROVIDER_ID=$(get_id "$provider_tuple")
+
+    FIRST_INSERTED_ID=1
+    add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
+
+    test_log "2. Check that all instances have same state"
+    result=$(check_tables true)
+    if [[ $result != true ]]; then
+        >&2 echo "$result"
+        exit 1
+    fi
+
+    test_log "3. Upgrade Subscriber"
+    upgrade_subscriber
+
+    test_log "4. Check that all instances have same state"
+    result=$(check_tables true)
+    if [[ $result != true ]]; then
+        >&2 echo "$result"
+        exit 1
+    fi
+
+    test_log "5. Upgrade Provider"
+    upgrade_provider
+
+    test_log "6. Add Sample data via new provider"
+    provider_tuple="$(get_all_provider)"
+    PROVIDER_NODE=$(get_node "$provider_tuple")
+    PROVIDER_ID=$(get_id "$provider_tuple")
+
+    FIRST_INSERTED_ID=2
+    add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
+
+    test_log "7. Check that all instances have same state"
+    result=$(check_tables true)
+    if [[ $result == true ]]; then
+        echo "Upgrade Test 4 was successfull"
+    else
+        >&2 echo "$result"
+    fi
 }
 
 upgrade_test_4_old(){
