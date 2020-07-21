@@ -6,7 +6,9 @@
 # - ssh_scp.sh
 
 get_current_node_ips() {
-    echo "$(SSH_CMD_FOR_EACH_NODE 'hostname -I')"
+    if ! [ -z "$dsn1_node" ]; then echo dsn1_node: $($SSH_CMD root@$dsn1_node hostname -I); fi
+    if ! [ -z "$dsn2_node" ]; then echo dsn2_node: $($SSH_CMD root@$dsn2_node hostname -I); fi
+    if ! [ -z "$dsn3_node" ]; then echo dsn3_node: $($SSH_CMD root@$dsn3_node hostname -I); fi
 }
 
 wait_for_vm() {
