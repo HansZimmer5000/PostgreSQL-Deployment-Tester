@@ -31,13 +31,11 @@ update_all_nodes() {
 set_scripts() {
     SCP_CMD_FOR_EACH_NODE "./postgres/reconnect.sh" /etc/
     SCP_CMD_FOR_EACH_NODE "./postgres/demote.sh" /etc/
-    SCP_CMD_FOR_EACH_NODE "./postgres/upgrade_to_v10.sh" /etc/
     SCP_CMD_FOR_EACH_NODE "./postgres/sub_setup.sh" /etc/
 
 
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/reconnect.sh"
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/demote.sh"
-    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/upgrade_to_v10.sh"
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/sub_setup.sh"
 }
 
