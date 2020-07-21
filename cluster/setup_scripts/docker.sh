@@ -16,15 +16,15 @@ extract_token() {
     echo $result
 }
 
-reset_label(){
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-rm $2 $1
+set_label(){
+    #$SSH_CMD root@$MANAGER_NODE docker node update --label-rm $2 $1 # In Comment as this may will lead to "killing" of containers
     $SSH_CMD root@$MANAGER_NODE docker node update --label-add $2=$3 $1
 }
 
 update_labels(){
-    reset_label "docker-swarm-node1.localdomain" "pg_ver" "9.5"
-    reset_label "docker-swarm-node2.localdomain" "pg_ver" "9.5"
-    reset_label "docker-swarm-node3.localdomain" "pg_ver" "9.5"
+    set_label "docker-swarm-node1.localdomain" "pg_ver" "9.5"
+    set_label "docker-swarm-node2.localdomain" "pg_ver" "9.5"
+    set_label "docker-swarm-node3.localdomain" "pg_ver" "9.5"
 }
 
 update_stacks() {
@@ -54,11 +54,11 @@ reset_config() {
 
 # $1 = DSN Zahl des Init Nodes, $2-4 sind alle DSN Zahlen
 set_init_label() {
-    reset_label "docker-swarm-node1.localdomain" "init_node" "false"
-    reset_label "docker-swarm-node2.localdomain" "init_node" "false"
-    reset_label "docker-swarm-node3.localdomain" "init_node" "false"
+    set_label "docker-swarm-node1.localdomain" "init_node" "false"
+    set_label "docker-swarm-node2.localdomain" "init_node" "false"
+    set_label "docker-swarm-node3.localdomain" "init_node" "false"
 
-    reset_label "docker-swarm-node$1.localdomain" "init_node" "true"
+    set_label "docker-swarm-node$1.localdomain" "init_node" "true"
 }
 
 build_images() {

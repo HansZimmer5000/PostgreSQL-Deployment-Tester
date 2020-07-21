@@ -13,7 +13,7 @@ get_cluster_version(){
 }
 
 set_label_version() {
-    reset_label "docker-swarm-node$1.localdomain" "pg_ver" "$2" 1> /dev/null
+    set_label "docker-swarm-node$1.localdomain" "pg_ver" "$2" 1> /dev/null
 }
 
 get_label_version(){
