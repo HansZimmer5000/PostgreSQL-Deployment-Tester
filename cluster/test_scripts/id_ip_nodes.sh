@@ -135,10 +135,9 @@ update_id_ip_nodes() {
                     fi
 
                     if [[ $info == pg10_db* ]]; then
-                        # TODO output error ("Error: no such object: <pgv10 container id>") comes from here!
 
                         current_name=${info:0:9}
-                        current_ip="$(docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $current_id)"
+                        current_ip="$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $current_id)"
 
                         current_role=$(determine_role $node $current_id)
                         current_db_version="$(determine_db_version $node $current_id)"
