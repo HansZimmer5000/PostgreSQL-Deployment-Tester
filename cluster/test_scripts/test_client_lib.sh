@@ -13,13 +13,11 @@ get_cluster_version(){
 }
 
 set_label_version() {
-    # TODO May refactor with similar commands (--label-add) in docker.sh
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add pg.ver=$2 docker-swarm-node$1.localdomain
+    set_label "docker-swarm-node$1.localdomain" "pg_ver" "$2" 1> /dev/null
 }
 
 get_label_version(){
-    # TODO For each node and todo finalize
-    $SSH_CMD root@$MANAGER_NODE docker inspect --format '{{ index .Config.Labels "pg.ver"}}' todo_container_id
+    $SSH_CMD root@$MANAGER_NODE "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' docker-swarm-node$1.localdomain"
 }
 
 get_virtualip_owner(){    
@@ -141,10 +139,13 @@ running_loop() {
             get_cluster_version
             ;;
         "lb_vr")
-            if ! [ -z "$PARAM1" ] && ! [ -z "$PARAM2" ]; then
-                set_label_version $PARAM1 $PARAM2
+            if ! [ -z "$PARAM1" ]; then
+                if ! [ -z "$PARAM2" ]; then
+                    set_label_version $PARAM1 $PARAM2
+                fi
+                get_label_version $PARAM1
             else
-                echo "Please Enter Node number AND new Version number"
+                echo "Please Enter Node number to see the current label, also enter new Version number to set label"
             fi
             ;;
         "table") 
@@ -215,10 +216,12 @@ ssh:    [1=dsn1, 2=dsn2, ...]
         will ssh into the given node by its name which was set in the ../.env file.
 
 cl_vr:  [number]
-        will set the Cluster Version according to the exact input which is mandatory.       
+        if given, will set the Cluster Version according to the exact input which is mandatory.
+        If no input is given, current versions will be shown.       
 
 lb_vr:  [number (1=dsn1, 2=dsn2, ...)] [number (version)]
-        will set the version number to the specified node as a docker swarm node label.
+        if given, will set the version number to the specified node as a docker swarm node label.
+        If no input is given, current labels will be shown.
 
 -- Get Info about VMs & Containers
 

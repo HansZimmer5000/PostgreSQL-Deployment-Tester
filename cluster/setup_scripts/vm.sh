@@ -6,7 +6,9 @@
 # - ssh_scp.sh
 
 get_current_node_ips() {
-    echo "$(SSH_CMD_FOR_EACH_NODE 'hostname -I')"
+    if ! [ -z "$dsn1_node" ]; then echo "dsn1 (label=$(get_label_version 1))": $($SSH_CMD root@$dsn1_node hostname -I); fi
+    if ! [ -z "$dsn2_node" ]; then echo "dsn2 (label=$(get_label_version 2))": $($SSH_CMD root@$dsn2_node hostname -I); fi
+    if ! [ -z "$dsn3_node" ]; then echo "dsn3 (label=$(get_label_version 3))": $($SSH_CMD root@$dsn3_node hostname -I); fi
 }
 
 wait_for_vm() {
@@ -31,13 +33,11 @@ update_all_nodes() {
 set_scripts() {
     SCP_CMD_FOR_EACH_NODE "./postgres/reconnect.sh" /etc/
     SCP_CMD_FOR_EACH_NODE "./postgres/demote.sh" /etc/
-    SCP_CMD_FOR_EACH_NODE "./postgres/upgrade_to_v10.sh" /etc/
     SCP_CMD_FOR_EACH_NODE "./postgres/sub_setup.sh" /etc/
 
 
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/reconnect.sh"
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/demote.sh"
-    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/upgrade_to_v10.sh"
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/sub_setup.sh"
 }
 

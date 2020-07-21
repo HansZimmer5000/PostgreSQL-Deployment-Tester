@@ -105,10 +105,12 @@ start_new_subscriber(){
 }
 
 return_from_trap(){
+    echo "Aborting Observation"
     trap - SIGINT
-    running_loop
+    $0 # Restart script.
 }
 
+#observe=true
 observe_container_status(){
     trap return_from_trap SIGINT
     while true; 
@@ -118,6 +120,6 @@ observe_container_status(){
         get_current_node_ips
         echo ""
         print_id_ip_nodes
-        sleep 4s 
+        sleep 4s
     done
 }

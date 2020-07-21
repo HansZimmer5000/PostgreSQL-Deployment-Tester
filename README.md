@@ -51,7 +51,7 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
   - `yum install upgrade -y`
   - `yum install keepalived docker`
   - Open Ports
-    - TODO also open up ports for keepalived and portainer
+    - also open up ports for keepalived and portainer
     - `firewall-cmd --permanent --add-port=2377/tcp`
     - `firewall-cmd --reload`
     - Or More "Durch die Wand" approach:

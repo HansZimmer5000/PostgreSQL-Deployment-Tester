@@ -43,7 +43,6 @@ services:
             - PGDATA=/var/lib/postgresql/9.5/data #Already set in Image, here just again to make it clear and reader friendly.
             - PROVIDER_IP=192.168.99.149 # TODO how to make this dynamic by somehow getting this value from ../.env?
         volumes: 
-            - /etc/upgrade_to_v10.sh:/etc/upgrade_to_v10.sh 
             - /etc/sub_setup.sh:/etc/sub_setup.sh
             #- pgdata:/var/lib/postgresql/9.5/data # BIG TODO!!: Due to volume usage, restarted container will be in the role whatever the container before had!! Maybe clear volume at every container start?
         configs:
@@ -64,6 +63,6 @@ services:
         deploy:
             placement:
               constraints:
-                - "node.labels.pg.ver==9.5"
+                - "node.labels.pg_ver==9.5"
             mode: replicated
             replicas: 1

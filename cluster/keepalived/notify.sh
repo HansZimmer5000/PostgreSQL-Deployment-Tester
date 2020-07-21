@@ -107,12 +107,12 @@ log "1=$1 2=$2 State=$3 Prio=$4"
 log "ContainerID: $container_id SubscriptionID: $subscription_id"
 
 ## States
-# State 1: no VIP, 	no PG	-> Nothing todo 
-# State 2: no VIP, 	Sub		-> Nothing todo 
+# State 1: no VIP, 	no PG	-> Nothing to do 
+# State 2: no VIP, 	Sub		-> Nothing to do 
 # State 3: no VIP, 	Prov	-> Reconnect or Receive VIP
 # State 4: VIP, 	no PG	-> Release VIP
 # State 5: VIP, 	Sub		-> Release VIP or promote 
-# State 6: VIP, 	Prov	-> Nothing todo 
+# State 6: VIP, 	Prov	-> Nothing to do 
 
 case $state in
 	"MASTER") 	log "Enter MASTER" 

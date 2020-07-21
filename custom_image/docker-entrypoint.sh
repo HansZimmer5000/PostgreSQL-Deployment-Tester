@@ -97,7 +97,6 @@ upgrade_backup(){
 
 backup_dir="/var/lib/postgresql/9.5/data"
 
-# TODO Refactor Provider_is_reachable check to here instead of in each following function
 init_basebackup $provider_is_reachable $PROVIDER_IP $backup_dir
 upgrade_backup $provider_is_reachable $backup_dir $PGDATA
 init_new_db=true

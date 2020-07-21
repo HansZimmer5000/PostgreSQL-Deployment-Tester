@@ -22,7 +22,7 @@ update_keepalived_basics() {
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/keepalived/promote.sh"
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/keepalived/notify.sh"
     SSH_CMD_FOR_EACH_NODE "> /etc/keepalived/notify_log.txt"
-    SSH_CMD_FOR_EACH_NODE "echo 9.5.18 > /etc/keepalived/cluster_version.txt" # TODO how to set version dynamically? Neccessary?
+    SSH_CMD_FOR_EACH_NODE "echo 9.5.18 > /etc/keepalived/cluster_version.txt"
     SSH_CMD_FOR_EACH_NODE "systemctl restart keepalived"
 }
 

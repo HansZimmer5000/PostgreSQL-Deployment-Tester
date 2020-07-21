@@ -67,6 +67,14 @@ get_node_and_id_from_name() {
     done
 }
 
+get_all_tuples(){
+    result=""
+    for tuple in $ID_IP_NODEs; do
+        result="$result $tuple"
+    done
+    echo $result
+}
+
 get_all_provider() {
     result=""
     for tuple in $ID_IP_NODEs; do
@@ -124,22 +132,16 @@ update_id_ip_nodes() {
                 if [ $((info_no % 2)) == 1 ]; then
                     current_id=$info
                 else
-                    # TODO may Refactor (last part of both is identical)
+                    current_name=${info:0:9}
+                    current_ip=""
+                    
                     if [[ $info == pg95_db* ]]; then
-                        current_name=${info:0:9}
                         current_ip=$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg95_pgnet.IPAddress}}' $current_id)
-
-                        current_role=$(determine_role $node $current_id)
-                        current_db_version="$(determine_db_version $node $current_id)"
-                        ID_IP_NODEs="$ID_IP_NODEs $current_name:$current_role,$current_id,'$current_ip',$node,$current_db_version"
+                    elif [[ $info == pg10_db* ]]; then
+                        current_ip="$($SSH_CMD root@$node docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $current_id)"
                     fi
 
-                    if [[ $info == pg10_db* ]]; then
-                        # TODO output error ("Error: no such object: <pgv10 container id>") comes from here!
-
-                        current_name=${info:0:9}
-                        current_ip="$(docker inspect -f '{{.NetworkSettings.Networks.pg10_pgnet.IPAddress}}' $current_id)"
-
+                    if ! [ -z "$current_ip" ]; then
                         current_role=$(determine_role $node $current_id)
                         current_db_version="$(determine_db_version $node $current_id)"
                         ID_IP_NODEs="$ID_IP_NODEs $current_name:$current_role,$current_id,'$current_ip',$node,$current_db_version"
@@ -152,7 +154,6 @@ update_id_ip_nodes() {
 }
 
 print_id_ip_nodes() {
-    # TODO somehow V10 instances ID are check in the wrong context I guess leading to a print out of "Error: no such object: <containerid>"
     # Print Container IP, IP and Node of Provider and Subscribers
     # Test: To Confirm which Containers are running where.
 
