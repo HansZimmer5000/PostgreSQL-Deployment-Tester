@@ -250,7 +250,7 @@ upgrade_provider(){
     prov_id=$(get_id "$prov_tuple")
     $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
     # TODO expects that the provider is the last v9.5 db!
-    $SSH_CMD root@$MANAGER_NODE "docker service scale pg95_db=0" 1> /dev/null
+    scale_service "pg95_db" 0 1> /dev/null
 
     # 2. Adjust Cluster & Node Labels
     set_cluster_version 10.13
@@ -267,7 +267,7 @@ upgrade_provider(){
 
     # 3. Increase v10 Instance count by one.
     # TODO contains fixed number of 2!
-    $SSH_CMD root@$MANAGER_NODE "docker service scale pg10_db=2" #1> /dev/null
+    scale_service "pg10_db" 2
     update_id_ip_nodes
     sleep 30s
 }

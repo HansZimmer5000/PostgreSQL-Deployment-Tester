@@ -1,8 +1,13 @@
 # !/bin/sh 
 # This is meant to be 'sourced' from test_client_lib.sh!
 
-# CONTAINER
-################
+scale_service(){
+    if  [ -z "$1" ] || [ -z "$2" ]; then
+        echo "Missing Servicename or new replication count!"
+    else
+        $SSH_CMD root@$MANAGER_NODE "docker service scale $1=$2"
+    fi
+}
 
 # TODO This variable is intentionally the same as in id_ip_nodes.sh, but this seems very ugly!
 current_sub_count=1
@@ -37,7 +42,7 @@ kill_provider(){
             fi
 
             if [ $CURRENT_NAME == "db_i" ] || [ "$1" != "-c" ]; then
-                $SSH_CMD root@$MANAGER_NODE "docker service scale pg95_db=$current_sub_count" 1> /dev/null
+                scale_service "pg95_db" $current_sub_count 1> /dev/null
                 break
             fi
         fi
@@ -58,9 +63,7 @@ kill_subscriber(){
             current_sub_count=0
         fi
         IFS='.' read service_name replic_number <<< "$1"
-        #pg95_db
-        echo $service_name $replic_number
-        $SSH_CMD root@$MANAGER_NODE "docker service scale $service_name=$current_sub_count"
+        scale_service $service_name $current_sub_count
     fi
 }
 
@@ -100,7 +103,7 @@ start_new_subscriber(){
     # Test: Subscriber also receives als data before start.
     echo "This may take a few moments and consider deployment-constraints / ports usage which could prevent a success!"
     current_sub_count=$(($current_sub_count + 1))
-    $SSH_CMD root@$MANAGER_NODE "docker service scale $1=$current_sub_count" # 1> /dev/null"
+    scale_service "$1" $current_sub_count
     wait_for_all_pg_to_boot
 }
 
