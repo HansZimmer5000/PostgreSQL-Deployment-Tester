@@ -18,7 +18,7 @@ reset_cluster(){
         fi
     fi
 
-    test_log "Reseting Cluster with $sub_count Subscriber"
+    test_log "Reseting Cluster with $sub_count Subscriber" 
     update_id_ip_nodes
 
     # check if provider exists
@@ -40,6 +40,8 @@ reset_cluster(){
             test_log Found Subscriber $(get_name "$tuple")
             sub_exists_count=$((sub_exists_count+1))
         else
+            # In case this is a subscriber and the sub_count was already reached
+            # In case this is not a v9.5 subscriber
             current_name=$(get_name "$tuple")
             test_log "removing $current_name"
             kill_subscriber "$current_name" 1> /dev/null

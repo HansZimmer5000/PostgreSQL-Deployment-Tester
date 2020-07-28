@@ -20,9 +20,6 @@ kill_postgres(){
 }
 
 kill_provider(){
-    # Kill the Provider
-    # Test: Swarm creates new Provider
-    # Test: Provider takes over old subscriptions (does it work that way?
 
     for tuple in $ID_IP_NODEs 
     do
@@ -32,13 +29,8 @@ kill_provider(){
             kill_postgres "$CURRENT_NAME"
             CURRENT_NODE=$(get_node "$tuple")
 
-            if [[ $CURRENT_NAME == "db_i" ]]; then
-                # Killing Init_helper, so better make sure we have one more sub that can take over as provider
-                current_sub_count=$(($current_sub_count + 1))
-            else
-                if [ "$1" != "-c" ]; then
-                    current_sub_count=$(($current_sub_count - 1))
-                fi
+            if [ "$1" != "-c" ]; then
+                current_sub_count=$(($current_sub_count - 1))
             fi
 
             if [ $CURRENT_NAME == "db_i" ] || [ "$1" != "-c" ]; then
