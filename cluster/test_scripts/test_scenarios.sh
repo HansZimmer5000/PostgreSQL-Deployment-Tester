@@ -69,10 +69,10 @@ reset_cluster(){
 
     # TODO may add timeout to fail, since scaling may never succeed due to placement issues!
     test_log Setting v9.5 service to $v95_instances replicas
-    scale_service "pg95_db" $v95_instances 1> /dev/null
+    scale_service_with_timeout "pg95_db" $v95_instances 1> /dev/null
 
     test_log Setting v10 service to $v10_instances replicas
-    scale_service "pg10_db" $v10_instances 1> /dev/null
+    scale_service_with_timeout "pg10_db" $v10_instances 1> /dev/null
     
     # Wait till everything is up. 30s is an abitrary number!
     sleep 30s
@@ -282,7 +282,7 @@ upgrade_provider(){
     prov_id=$(get_id "$prov_tuple")
     $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
     # TODO expects that the provider is the last v9.5 db!
-    scale_service "pg95_db" 0 1> /dev/null
+    scale_service_with_timeout "pg95_db" 0 1> /dev/null
 
     # 2. Adjust Cluster & Node Labels
     set_cluster_version 10.13
@@ -298,7 +298,7 @@ upgrade_provider(){
     fi
 
     # 3. Increase v10 Instance count by one.
-    scale_service "pg10_db" $1
+    scale_service_with_timeout "pg10_db" $1
     update_id_ip_nodes
     sleep 30s
 }
@@ -319,7 +319,7 @@ upgrade_subscriber(){
     elif [ "$sub_node" == "$dsn3_node" ]; then
         set_label_version 3 10
     fi
-    scale_service "pg10_db" $2 1> /dev/null
+    scale_service_with_timeout "pg10_db" $2 #1> /dev/null
 
     update_id_ip_nodes
     sleep 30s
