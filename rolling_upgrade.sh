@@ -10,6 +10,7 @@ import_code(){
     source "./test_scripts/test_scenarios.sh"
     source "./test_scripts/docker_cmds.sh"
     source "./test_scripts/pg_cmds.sh"
+    source ./test_scripts/test_client_lib.sh
 }
 
 start_upgrade_phase_one(){
@@ -30,7 +31,8 @@ start_upgrade_phase_two(){
 }
 
 start_upgrade_phase_three(){
-    total_number_of_upgraded_postgres_instances=$((get_tuples_count - 1))
+    update_id_ip_nodes
+    total_number_of_upgraded_postgres_instances=$(get_tuples_count)
     upgrade_provider $total_number_of_upgraded_postgres_instances
 }
 
@@ -45,7 +47,7 @@ start_upgrade(){
     start_upgrade_phase_two
     print_id_ip_nodes
     read -p "Second Phase Done, Continue?"
-    
+
     start_upgrade_phase_three
     print_id_ip_nodes
     echo "Third Phase Done"
