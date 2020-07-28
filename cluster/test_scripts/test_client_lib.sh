@@ -52,7 +52,7 @@ running_loop() {
     print_id_ip_nodes
 
     while $LOOP; do
-        read -p ">> input command: " COMMAND PARAM1 PARAM2
+        read -p ">> input command: " COMMAND PARAM1 PARAM2 PARAM3
         case "$COMMAND" in
         "kill") 
             if [ -z $PARAM1 ]; then
@@ -74,7 +74,7 @@ running_loop() {
             ;;
         "reset") 
             echo "-- Reseting Cluster"
-            reset_cluster "$PARAM1" "$PARAM2"
+            reset_cluster "$PARAM1" "$PARAM2" "$PARAM3"
             update_id_ip_nodes
             ;;
         "status") 
@@ -204,8 +204,8 @@ start:      [servicename]
 kill:       [dbname] 
             will reduce the replica count of the swarm stack and kill a given container by its name as printed by status. Also set '-c' to crash-kill a container and not adjust the replica count.
         
-reset:      [number] [number]
-            will reset the subscribers to the given v9.5 replication count (first param) and v10 replication count (second param).
+reset:      [number] [number] [bool]
+            will reset the cluster to the given v9.5 replication count (first param), v10 replication count (second param) and a boolean if the provider should be in version 10 (false = v9.5).
   
 reconnect:  []
             will reconnect all subscriber to the virtual IP (more info about that in ../keepalived/).
