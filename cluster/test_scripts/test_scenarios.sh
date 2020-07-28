@@ -5,6 +5,10 @@ test_log(){
     echo "$(date) $@"
 }
 
+get_node_count(){
+    echo $ALL_NODES | wc -w
+}
+
 # TESTSCENARIOS
 # Expecting 1 Provider 1 and Subscriber"
 ################
@@ -52,40 +56,52 @@ reset_cluster(){
         v10_instances=$(($v10_instances+$2))
     fi
 
-    if [ $(($v95_instances + $v10_instances)) -gt $(echo $ALL_NODES | wc -w) ]; then
-        test_log "Aborting due to more instances wanted ($v95_instances + $v10_instances) than nodes $(echo $ALL_NODES | wc -w)"!
+    if [ $(($v95_instances + $v10_instances)) -gt $(get_node_count) ]; then
+        test_log "Aborting due to more instances wanted ($v95_instances + $v10_instances) than nodes $(get_node_count)"!
         exit 1
     fi
 
+    test_log Reset Cluster with $v95_instances v9.5 instances and $v10_instances v10 instances
     reset_labels $v95_instances $v10_instances
 
     # Make sure the provider will be in the right version (docker swarm does not differentiate which version the postgres is running and changing of cluster version currently does not intefere with the running instances)
-    kill_provider -c
+    kill_provider 1> /dev/null
 
+    # TODO may add timeout to fail, since scaling may never succeed due to placement issues!
+    test_log Setting v9.5 service to $v95_instances replicas
     scale_service "pg95_db" $v95_instances 1> /dev/null
+
+    test_log Setting v10 service to $v10_instances replicas
     scale_service "pg10_db" $v10_instances 1> /dev/null
     
     # Wait till everything is up. 30s is an abitrary number!
     sleep 30s
 
     update_id_ip_nodes
+    if ! [ $(get_tuples_count) -eq $(($v95_instances+$v10_instances)) ]; then
+        test_log Error, not the expected amount of instances is active!
+        exit 1
+    fi
     clear_all_local_tables
     reconnect_all_subscriber
 }
 
-# TODO add extra reset tests with params
-#   - 0 0 false
-#   - 1 0 false
-#   - 0 1 false
-#   - 0 0 true
-#   - 1 0 true
-#   - 0 1 true
-#   - 1 1 true -> In a environment with only two nodes, this should fail because instance_count > node_count!
-# TODO change normal tests ("test_*" functions) so, that they can get executed on the current running environment and then combine multiple environments (see above) with all the normal tests.
+# TODO change normal tests ("test_*" functions) so, that they can get executed on the current running environment and then combine multiple environments (see above) with all the normal tests. But Beware, not every environment may be suited for specific test scenarios!
+# TODO paint success / fail in green / red after test.
+# TODO make logging of tests more abstract (f.e. "scenario (1) reset params (0 0 false): success") and may add a log file for further debugging
+# TODO when there were 1 v95 sub and 1 v95 prov, both had VIP, eventhough one notify_log showed that it actually changed to backup. What happened?
+all_reset_params=("0 0 false" "1 0 false" "0 1 false" "0 0 true" "1 0 true" "0 1 true" "$(get_node_count) 0 true")
 
 test_1(){
+    for reset_param in "${all_reset_params[@]}"; do
+        test_log Testscenario 1 with reset params: $reset_param
+        reset_cluster $reset_param 1
+        test_scenario_1
+    done
+}
+
+test_scenario_1(){
     # Check if roles and replications are set correctly
-    # 0. Reset Cluster
     # 1. Add Data via provider
     # 2. Check that all instances have same state
     # 3. Remove all data from all instances
@@ -93,12 +109,9 @@ test_1(){
     #   1. Add Data via subscriber
     #   2. Check that only this subscriber has new data
 
-    # 0.
-    test_log "0. Reset Cluster"
-    reset_cluster 1 1> /dev/null
-
     # 1. - 4.
     test_log "1.-4. Check instance roles"
+    # TODO add success checking!
     check_roles
 }
 
