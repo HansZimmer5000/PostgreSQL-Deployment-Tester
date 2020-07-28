@@ -6,6 +6,7 @@
 # - ssh_scp.sh
 
 get_current_node_ips() {
+    # TODO somehow "get_label_version" is unkown, I guess it is before I execute the normal test_script loop?
     if ! [ -z "$dsn1_node" ]; then echo "dsn1 (label=$(get_label_version 1))": $($SSH_CMD root@$dsn1_node hostname -I); fi
     if ! [ -z "$dsn2_node" ]; then echo "dsn2 (label=$(get_label_version 2))": $($SSH_CMD root@$dsn2_node hostname -I); fi
     if ! [ -z "$dsn3_node" ]; then echo "dsn3 (label=$(get_label_version 3))": $($SSH_CMD root@$dsn3_node hostname -I); fi
