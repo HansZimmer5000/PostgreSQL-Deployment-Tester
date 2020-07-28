@@ -30,6 +30,7 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
 
 ## VM Setup
 
+- The Testbed VM is available as a [vagrant box](https://app.vagrantup.com/hanszimmer5000/boxes/pdt-testbed)
 - Downloaded vdi from [osboxes](https://www.osboxes.org/centos/#centos-1908-vbox) (Password: osboxes.org)
 - Set VirtualBox Name according to "Docker Swarm Node 0", replace 0 with number (1 ... n). Change hostname via "hostname 'docker-swarm-node1'".
 - Networks: 
