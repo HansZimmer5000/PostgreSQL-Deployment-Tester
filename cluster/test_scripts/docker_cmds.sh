@@ -10,6 +10,7 @@ get_label_version(){
 }
 
 scale_service(){
+    # TODO add timeout and then rename to "scale_service_with_timeout"
     if  [ -z "$1" ] || [ -z "$2" ]; then
         echo "Missing Servicename or new replication count!"
     else
