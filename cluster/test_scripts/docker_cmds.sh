@@ -9,11 +9,15 @@ get_label_version(){
     $SSH_CMD root@$MANAGER_NODE "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' docker-swarm-node$1.localdomain"
 }
 
-scale_service(){
+scale_service_with_timeout(){
     if  [ -z "$1" ] || [ -z "$2" ]; then
         echo "Missing Servicename or new replication count!"
     else
-        $SSH_CMD root@$MANAGER_NODE "docker service scale $1=$2"
+        timeout 25s $SSH_CMD root@$MANAGER_NODE "docker service scale $1=$2"
+        exit_code="$?"
+        if [ "$exit_code" -gt 0 ]; then
+            echo "Could not scale the service! Exit Code was: $exit_code"
+        fi
     fi
 }
 
@@ -54,7 +58,7 @@ kill_subscriber(){
             current_sub_count=0
         fi
         IFS='.' read service_name replic_number <<< "$1"
-        scale_service $service_name $current_sub_count
+        scale_service_with_timeout $service_name $current_sub_count
     fi
 }
 
@@ -94,7 +98,7 @@ start_new_subscriber(){
     # Test: Subscriber also receives als data before start.
     echo "This may take a few moments and consider deployment-constraints / ports usage which could prevent a success!"
     current_sub_count=$(($current_sub_count + 1))
-    scale_service "$1" $current_sub_count
+    scale_service_with_timeout "$1" $current_sub_count
     wait_for_all_pg_to_boot
 }
 

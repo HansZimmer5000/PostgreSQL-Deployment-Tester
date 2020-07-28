@@ -50,4 +50,4 @@ services:
               constraints:
                 - "node.labels.pg_ver==10"
             mode: replicated
-            replicas: 1
+            replicas: 0

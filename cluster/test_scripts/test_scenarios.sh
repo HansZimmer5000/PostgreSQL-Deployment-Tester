@@ -69,10 +69,10 @@ reset_cluster(){
 
     # TODO may add timeout to fail, since scaling may never succeed due to placement issues!
     test_log Setting v9.5 service to $v95_instances replicas
-    scale_service "pg95_db" $v95_instances 1> /dev/null
+    scale_service_with_timeout "pg95_db" $v95_instances 1> /dev/null
 
     test_log Setting v10 service to $v10_instances replicas
-    scale_service "pg10_db" $v10_instances 1> /dev/null
+    scale_service_with_timeout "pg10_db" $v10_instances 1> /dev/null
     
     # Wait till everything is up. 30s is an abitrary number!
     sleep 30s
@@ -272,15 +272,17 @@ test_4(){
 
 ####### UPGRADE_TESTS
 
-
+# $1 = total number of new (v10) postgres instances after upgrade
 upgrade_provider(){
+    # TODO adjust to upgrade_subscriber code
+
     # 1. Shutdown Provider Smart
     prov_tuple="$(get_all_provider)"
     prov_node=$(get_node "$prov_tuple")
     prov_id=$(get_id "$prov_tuple")
     $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
     # TODO expects that the provider is the last v9.5 db!
-    scale_service "pg95_db" 0 1> /dev/null
+    scale_service_with_timeout "pg95_db" 0 1> /dev/null
 
     # 2. Adjust Cluster & Node Labels
     set_cluster_version 10.13
@@ -296,18 +298,20 @@ upgrade_provider(){
     fi
 
     # 3. Increase v10 Instance count by one.
-    # TODO contains fixed number of 2!
-    scale_service "pg10_db" 2
+    scale_service_with_timeout "pg10_db" $1 1> /dev/null
     update_id_ip_nodes
     sleep 30s
 }
 
+# $1 = name of the old (v9.5) postgres instance that will ge upgraded (replaced with a new (v10) one)
+# $2 = total number of new (v10) postgres instances after upgrade
 upgrade_subscriber(){
-    sub=$(get_all_subscriber)
-    sub_name=$(get_name "$sub")
-    kill_subscriber "$sub_name" 
-    sleep 5s
-    sub_node=$(get_node "$sub")
+    # TODO make $2 deprecated by getting current replica count from docker service directly and then increase by one to get total number of new postgres instances.
+    sub_tuple=$(get_tuple_from_name $1)
+    sub_node=$(get_node $sub_tuple)
+    echo $sub_tuple .... $1 $sub_node $dsn1_node $dsn2_node
+    kill_subscriber "$1" 
+
     if [ "$sub_node" == "$dsn1_node" ]; then
         set_label_version 1 10
     elif [ "$sub_node" == "$dsn2_node" ]; then
@@ -315,6 +319,8 @@ upgrade_subscriber(){
     elif [ "$sub_node" == "$dsn3_node" ]; then
         set_label_version 3 10
     fi
+    scale_service_with_timeout "pg10_db" $2 1> /dev/null
+
     update_id_ip_nodes
     sleep 30s
 }
@@ -346,8 +352,10 @@ upgrade_test_1(){
         exit 1
     fi
 
-    test_log "3. Upgrade Subscriber"
-    upgrade_subscriber
+    test_log "3. Upgrade Subscriber"    
+    sub=$(get_all_subscriber)
+    sub_name=$(get_name "$sub")
+    upgrade_subscriber $sub_name 1
 
     test_log "4. Check that Subscriber has old data"
     result=$(check_tables true)
@@ -419,7 +427,9 @@ upgrade_test_4(){
     fi
 
     test_log "3. Upgrade Subscriber"
-    upgrade_subscriber
+    sub=$(get_all_subscriber)
+    sub_name=$(get_name "$sub")
+    upgrade_subscriber $sub_name 1
 
     test_log "4. Check that all instances have same state"
     result=$(check_tables true)
@@ -429,7 +439,7 @@ upgrade_test_4(){
     fi
 
     test_log "5. Upgrade Provider"
-    upgrade_provider
+    upgrade_provider 2
 
     test_log "6. Add Sample data via new provider"
     provider_tuple="$(get_all_provider)"

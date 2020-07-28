@@ -9,6 +9,7 @@ source ./setup_scripts/ssh_scp.sh
 source ./setup_scripts/keepalived.sh
 source ./setup_scripts/docker.sh
 source ./setup_scripts/vm.sh
+source ./test_scripts/docker_cmds.sh
 
 print_help(){
     echo "
