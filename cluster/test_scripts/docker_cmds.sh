@@ -19,32 +19,24 @@ kill_postgres(){
     $SSH_CMD root@$CURRENT_NODE "docker rm -f $CURRENT_ID"
 }
 
+# kill_provider only works under the assumption that there is at most one provider in the system!
+# Otherwise it will kill all providers.
 kill_provider(){
+    # TODO this uses id_ip_nodes.sh internal variable (ID_IP_NODEs), replace with a get_all function
+    for tuple in $ID_IP_NODEs; do
+        current_role=$(get_role "$tuple")
+        if [[ $current_role == "prov" ]]; then
+            current_name=$(get_name "$tuple")
 
-    for tuple in $ID_IP_NODEs 
-    do
-        CURRENT_ROLE=$(get_role "$tuple")
-        if [[ $CURRENT_ROLE == "prov" ]]; then
-            CURRENT_NAME=$(get_name "$tuple")
-            kill_postgres "$CURRENT_NAME"
-            CURRENT_NODE=$(get_node "$tuple")
-
-            if [ "$1" != "-c" ]; then
-                current_sub_count=$(($current_sub_count - 1))
-            fi
-
-            if [ $CURRENT_NAME == "db_i" ] || [ "$1" != "-c" ]; then
-                scale_service "pg95_db" $current_sub_count 1> /dev/null
-                break
-            fi
+            kill_subscriber "$current_name" "$1"
         fi
     done
 }
 
+# Kill Subscriber (as harsh as possible) and immediately Scale the subscriber service down by one so Swarm doesn't directly start a new subscriber
 kill_subscriber(){
-    # Kill Subscriber (as harsh as possible) and immediately Scale the subscriber service down by one so Swarm doesn't directly start a new subscriber
-    # Test: Should cause no Problems.
-    # Test: Provider can work on its own.
+    # TODO make it possible via parameter to shutdown "smart"
+    # TODO rename function since it basically can kill subscriber and provider instances.
 
     kill_postgres "$1" 
     echo Current Count = $current_sub_count
@@ -74,6 +66,7 @@ get_notify_log(){
 }
 
 wait_for_all_pg_to_boot(){
+    # TODO this uses id_ip_nodes.sh internal variable (ID_IP_NODEs), replace with a get_all function
     for tuple in $ID_IP_NODEs; do
         container_id=$(get_id "$tuple")
         node=$(get_node "$tuple")
