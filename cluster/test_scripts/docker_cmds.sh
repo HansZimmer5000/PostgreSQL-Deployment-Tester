@@ -14,6 +14,10 @@ scale_service_with_timeout(){
         echo "Missing Servicename or new replication count!"
     else
         timeout 25s $SSH_CMD root@$MANAGER_NODE "docker service scale $1=$2"
+        exit_code="$?"
+        if [ "$exit_code" -gt 0 ]; then
+            echo "Could not scale the service! Exit Code was: $exit_code"
+        fi
     fi
 }
 
