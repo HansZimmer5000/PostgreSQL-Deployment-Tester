@@ -120,6 +120,11 @@ reset_cluster(){
         v10_instances=$(($v10_instances+$2))
     fi
 
+    if [ $((v95_instances + v10_instances)) -gt $(echo $ALL_NODES | wc -w) ]; then
+        test_log Aborting due to more instances wanted ($v95_instances + $v10_instances) than nodes $(echo $ALL_NODES | wc -w)!
+        exit 1
+    fi
+
     current_v95_node_num=1
     while [ "$current_v95_node_num" -le $v95_instances ]; do
         set_label_version $current_v95_node_num 9.5
