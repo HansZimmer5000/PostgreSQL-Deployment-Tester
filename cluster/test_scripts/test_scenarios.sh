@@ -298,7 +298,7 @@ upgrade_provider(){
     fi
 
     # 3. Increase v10 Instance count by one.
-    scale_service_with_timeout "pg10_db" $1
+    scale_service_with_timeout "pg10_db" $1 1> /dev/null
     update_id_ip_nodes
     sleep 30s
 }
@@ -319,7 +319,7 @@ upgrade_subscriber(){
     elif [ "$sub_node" == "$dsn3_node" ]; then
         set_label_version 3 10
     fi
-    scale_service_with_timeout "pg10_db" $2 #1> /dev/null
+    scale_service_with_timeout "pg10_db" $2 1> /dev/null
 
     update_id_ip_nodes
     sleep 30s
