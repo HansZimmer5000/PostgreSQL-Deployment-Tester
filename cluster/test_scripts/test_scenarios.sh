@@ -59,13 +59,12 @@ reset_cluster(){
     set_cluster_version "$cluster_version"
     reset_labels $v95_instances $v10_instances
 
-    # TODO test if this new approach works!
     kill_provider -c
 
     scale_service "pg95_db" $v95_instances 1> /dev/null
     scale_service "pg10_db" $v10_instances 1> /dev/null
     
-    # Wait till everything is up.
+    # Wait till everything is up. 30s is an abitrary number!
     sleep 30s
 
     update_id_ip_nodes
