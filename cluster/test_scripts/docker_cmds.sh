@@ -22,8 +22,7 @@ kill_postgres(){
 # kill_provider only works under the assumption that there is at most one provider in the system!
 # Otherwise it will kill all providers.
 kill_provider(){
-    # TODO this uses id_ip_nodes.sh internal variable (ID_IP_NODEs), replace with a get_all function
-    for tuple in $ID_IP_NODEs; do
+    for tuple in $(get_all_tuples); do
         current_role=$(get_role "$tuple")
         if [[ $current_role == "prov" ]]; then
             current_name=$(get_name "$tuple")
@@ -66,8 +65,7 @@ get_notify_log(){
 }
 
 wait_for_all_pg_to_boot(){
-    # TODO this uses id_ip_nodes.sh internal variable (ID_IP_NODEs), replace with a get_all function
-    for tuple in $ID_IP_NODEs; do
+    for tuple in $(get_all_tuples); do
         container_id=$(get_id "$tuple")
         node=$(get_node "$tuple")
         while true; do
