@@ -9,92 +9,6 @@ test_log(){
 # Expecting 1 Provider 1 and Subscriber"
 ################
 
-reset_provider(){
-    prov_version="9.5"
-
-    if [ "$1" == "true" ]; then
-            prov_version="10"
-    fi
-
-    test_log "Reseting Cluster with a provider of version $prov_version"
-
-    provider_exists=false
-
-    for tuple in $(get_all_tuples) 
-    do
-        current_role=$(get_role "$tuple")
-        current_version=$(get_version "$tuple")
-        if [[ $current_role == "prov" ]] && ! $provider_exists && [[ "$current_version" == "$prov_version"* ]]; then
-            test_log Found Provider $(get_name "$tuple")
-            provider_exists=true
-        elif [[ $current_role == "prov" ]] && $provider_exists; then
-            # In case this is an additional provider 
-            # In case this is a provider with the wrong version
-            current_name=$(get_name "$tuple")
-            test_log "removing $current_name"
-            kill_subscriber "$current_name" 1> /dev/null
-        fi
-    done
-
-    if ! $provider_exists; then
-        if [ "$prov_version" == "10" ]; then
-            start_new_subscriber "pg10_db"
-        else
-            start_new_subscriber "pg95_db"
-        fi
-    fi
-}
-
-reset_subscriber(){
-    v95_sub_count=1
-    v10_sub_count=0
-
-    if ! [ -z "$1" ] && [ "$1" -ge 0 ]; then
-            v95_sub_count=$1
-    fi
-
-    if ! [ -z "$2" ] && [ "$2" -ge 0 ]; then
-            v10_sub_count=$2
-    fi
-
-    test_log "Reseting Cluster with $v95_sub_count v9.5 Subscriber and $v10_sub_count v10 Subscriber"
-
-    v95_sub_exists_count=0
-    v10_sub_exists_count=0
-
-    for tuple in $(get_all_tuples) 
-    do
-        current_role=$(get_role "$tuple")
-        current_version=$(get_version "$tuple")
-        if [[ $current_role == "sub" ]] && [ $v95_sub_exists_count -lt $v95_sub_count ] && [[ "$current_version" == "9.5"* ]]; then
-            test_log Found Subscriber $(get_name "$tuple")
-            sv95_sub_exists_count=$(($v95_sub_exists_count+1))
-        elif [[ $current_role == "sub" ]] && [ $v10_sub_exists_count -lt $v10_sub_count ] && [[ "$current_version" == "10"* ]]; then
-            test_log Found Subscriber $(get_name "$tuple")
-            v10_sub_exists_count=$(($v10_sub_exists_count+1))
-        elif [[ $current_role == "sub" ]]; then
-            # In case this is a subscriber and the v95_sub_count was already reached
-            # In case this is a subscriber and the v10_sub_count was already reached
-            # In case this is not a v9.5 or v10 subscriber
-            current_name=$(get_name "$tuple")
-            test_log "removing $current_name"
-            kill_subscriber "$current_name" 1> /dev/null
-        fi
-    done
-
-    while [ $v95_sub_exists_count -lt $v95_sub_count ]; do
-        start_new_subscriber "pg95_db"
-        sleep 15s #Wait for older Hardware to start subscriber
-        v95_sub_exists_count=$(($v95_sub_exists_count+1))
-    done
-
-    while [ $v10_sub_exists_count -lt $v10_sub_count ]; do
-        start_new_subscriber "pg10_db"
-        sleep 15s #Wait for older Hardware to start subscriber
-        v10_sub_exists_count=$(($v10_sub_exists_count+1))
-    done
-}
-
 # Expecting v9.5 Subscriber count as Param1, default is 1
 # Expecting v10 Subscriber count as Param2, default is 0
 # Expecting if Provider should be v10, default is false (v9.5)
@@ -143,6 +57,9 @@ reset_cluster(){
 
     scale_service "pg95_db" $v95_instances 1> /dev/null
     scale_service "pg10_db" $v10_instances 1> /dev/null
+    
+    # Wait till everything is up.
+    sleep 30s
 
     update_id_ip_nodes
     clear_all_local_tables
