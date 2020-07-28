@@ -9,6 +9,23 @@ test_log(){
 # Expecting 1 Provider 1 and Subscriber"
 ################
 
+# Param 1 = v95 Instances
+# Param 2 = v10 Instances
+reset_labels(){
+    current_v95_node_num=1
+    while [ "$current_v95_node_num" -le $1 ]; do
+        set_label_version $current_v95_node_num 9.5
+        current_v95_node_num=$(($current_v95_node_num+1))
+    done
+
+    node_num_offset=$(($current_v95_node_num-1))
+    current_v10_node_num=1
+    while [ "$current_v10_node_num" -le $2 ]; do
+        set_label_version $(($current_v10_node_num+$node_num_offset)) 10
+        current_v10_node_num=$(($current_v10_node_num+1))
+    done
+}
+
 # Expecting v9.5 Subscriber count as Param1, default is 1
 # Expecting v10 Subscriber count as Param2, default is 0
 # Expecting if Provider should be v10, default is false (v9.5)
@@ -17,12 +34,12 @@ reset_cluster(){
 
     v95_instances=0
     v10_instances=0
+    cluster_version="9.5.18"
 
     if [ "$3" == "true" ]; then
-        set_cluster_version 10.13
+        cluster_version="10.13"
         v10_instances=1
     else
-        set_cluster_version 9.5.18
         v95_instances=1
     fi
 
@@ -34,23 +51,13 @@ reset_cluster(){
         v10_instances=$(($v10_instances+$2))
     fi
 
-    if [ $((v95_instances + v10_instances)) -gt $(echo $ALL_NODES | wc -w) ]; then
+    if [ $(($v95_instances + $v10_instances)) -gt $(echo $ALL_NODES | wc -w) ]; then
         test_log Aborting due to more instances wanted ($v95_instances + $v10_instances) than nodes $(echo $ALL_NODES | wc -w)!
         exit 1
     fi
 
-    current_v95_node_num=1
-    while [ "$current_v95_node_num" -le $v95_instances ]; do
-        set_label_version $current_v95_node_num 9.5
-        current_v95_node_num=$(($current_v95_node_num+1))
-    done
-
-    node_num_offset=$(($current_v95_node_num-1))
-    current_v10_node_num=1
-    while [ "$current_v10_node_num" -le $v10_instances ]; do
-        set_label_version $(($current_v10_node_num+$node_num_offset)) 10
-        current_v10_node_num=$(($current_v10_node_num+1))
-    done
+    set_cluster_version "$cluster_version"
+    reset_labels
 
     # TODO test if this new approach works!
     kill_provider -c
