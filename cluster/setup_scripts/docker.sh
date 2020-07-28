@@ -54,6 +54,7 @@ reset_config() {
 
 # $1 = DSN Zahl des Init Nodes, $2-4 sind alle DSN Zahlen
 set_init_label() {
+    # TODO delete anything todo with init_helper since it does not longer exist
     set_label "docker-swarm-node1.localdomain" "init_node" "false"
     set_label "docker-swarm-node2.localdomain" "init_node" "false"
     set_label "docker-swarm-node3.localdomain" "init_node" "false"

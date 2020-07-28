@@ -12,14 +12,6 @@ get_cluster_version(){
     SSH_CMD_FOR_EACH_NODE "cat /etc/keepalived/cluster_version.txt"
 }
 
-set_label_version() {
-    set_label "docker-swarm-node$1.localdomain" "pg_ver" "$2" 1> /dev/null
-}
-
-get_label_version(){
-    $SSH_CMD root@$MANAGER_NODE "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' docker-swarm-node$1.localdomain"
-}
-
 get_virtualip_owner(){    
     ping -c 1 $dsn1_node 1> /dev/null
     ping -c 1 $dsn2_node 1> /dev/null
@@ -37,7 +29,6 @@ get_virtualip_owner(){
             break
         fi
     done
-
 }
 
 source "./test_scripts/id_ip_nodes.sh"
@@ -52,7 +43,7 @@ running_loop() {
     print_id_ip_nodes
 
     while $LOOP; do
-        read -p ">> input command: " COMMAND PARAM1 PARAM2
+        read -p ">> input command: " COMMAND PARAM1 PARAM2 PARAM3
         case "$COMMAND" in
         "kill") 
             if [ -z $PARAM1 ]; then
@@ -74,7 +65,7 @@ running_loop() {
             ;;
         "reset") 
             echo "-- Reseting Cluster"
-            reset_cluster "$PARAM1"
+            reset_cluster "$PARAM1" "$PARAM2" "$PARAM3"
             update_id_ip_nodes
             ;;
         "status") 
@@ -204,8 +195,8 @@ start:      [servicename]
 kill:       [dbname] 
             will reduce the replica count of the swarm stack and kill a given container by its name as printed by status. Also set '-c' to crash-kill a container and not adjust the replica count.
         
-reset:      [number]
-            will reset the cluster with Version 9.5 to one provider and a given number of subscribers (default 1)
+reset:      [number] [number] [bool]
+            will reset the cluster to the given v9.5 replication count (first param), v10 replication count (second param) and a boolean if the provider should be in version 10 (false = v9.5).
   
 reconnect:  []
             will reconnect all subscriber to the virtual IP (more info about that in ../keepalived/).

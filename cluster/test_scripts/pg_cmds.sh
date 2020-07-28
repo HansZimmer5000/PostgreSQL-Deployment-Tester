@@ -55,7 +55,7 @@ get_all_local_tables(){
 
     TABLES=""
 
-    for tuple in $ID_IP_NODEs; do
+    for tuple in $(get_all_tuples); do
         CURRENT_NAME=$(get_name "$tuple")
         CURRENT_NODE=$(get_node "$tuple")
         CURRENT_ID=$(get_id "$tuple")
@@ -85,7 +85,7 @@ remove_all_entries(){
 clear_all_local_tables(){
     # Print local table of Provider and Subscribers
 
-    for tuple in $ID_IP_NODEs; do
+    for tuple in $(get_all_tuples); do
         CURRENT_NAME=$(get_name "$tuple")
         CURRENT_NODE=$(get_node "$tuple")
         CURRENT_ID=$(get_id "$tuple")
@@ -158,7 +158,7 @@ check_subscriber(){
 }
 
 check_roles() {
-    for tuple in $ID_IP_NODEs; do
+    for tuple in $(get_all_tuples); do
         CURRENT_NAME=$(get_name "$tuple")
         CURRENT_ROLE=$(get_role "$tuple")
         CURRENT_NODE=$(get_node "$tuple")
@@ -177,7 +177,7 @@ reconnect_subscriber(){
 }
 
 reconnect_all_subscriber(){
-    for tuple in $ID_IP_NODEs; do
+    for tuple in $(get_all_tuples); do
         current_role=$(get_role "$tuple")
         current_node=$(get_node "$tuple")
         current_id=$(get_id "$tuple")

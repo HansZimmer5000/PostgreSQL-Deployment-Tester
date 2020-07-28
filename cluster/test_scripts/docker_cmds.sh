@@ -1,8 +1,21 @@
 # !/bin/sh 
 # This is meant to be 'sourced' from test_client_lib.sh!
 
-# CONTAINER
-################
+set_label_version() {
+    set_label "docker-swarm-node$1.localdomain" "pg_ver" "$2" 1> /dev/null
+}
+
+get_label_version(){
+    $SSH_CMD root@$MANAGER_NODE "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' docker-swarm-node$1.localdomain"
+}
+
+scale_service(){
+    if  [ -z "$1" ] || [ -z "$2" ]; then
+        echo "Missing Servicename or new replication count!"
+    else
+        $SSH_CMD root@$MANAGER_NODE "docker service scale $1=$2"
+    fi
+}
 
 # TODO This variable is intentionally the same as in id_ip_nodes.sh, but this seems very ugly!
 current_sub_count=1
@@ -14,40 +27,23 @@ kill_postgres(){
     $SSH_CMD root@$CURRENT_NODE "docker rm -f $CURRENT_ID"
 }
 
+# kill_provider only works under the assumption that there is at most one provider in the system!
+# Otherwise it will kill all providers.
 kill_provider(){
-    # Kill the Provider
-    # Test: Swarm creates new Provider
-    # Test: Provider takes over old subscriptions (does it work that way?
+    for tuple in $(get_all_tuples); do
+        current_role=$(get_role "$tuple")
+        if [[ $current_role == "prov" ]]; then
+            current_name=$(get_name "$tuple")
 
-    for tuple in $ID_IP_NODEs 
-    do
-        CURRENT_ROLE=$(get_role "$tuple")
-        if [[ $CURRENT_ROLE == "prov" ]]; then
-            CURRENT_NAME=$(get_name "$tuple")
-            kill_postgres "$CURRENT_NAME"
-            CURRENT_NODE=$(get_node "$tuple")
-
-            if [[ $CURRENT_NAME == "db_i" ]]; then
-                # Killing Init_helper, so better make sure we have one more sub that can take over as provider
-                current_sub_count=$(($current_sub_count + 1))
-            else
-                if [ "$1" != "-c" ]; then
-                    current_sub_count=$(($current_sub_count - 1))
-                fi
-            fi
-
-            if [ $CURRENT_NAME == "db_i" ] || [ "$1" != "-c" ]; then
-                $SSH_CMD root@$MANAGER_NODE "docker service scale pg95_db=$current_sub_count" 1> /dev/null
-                break
-            fi
+            kill_subscriber "$current_name" "$1"
         fi
     done
 }
 
+# Kill Subscriber (as harsh as possible) and immediately Scale the subscriber service down by one so Swarm doesn't directly start a new subscriber
 kill_subscriber(){
-    # Kill Subscriber (as harsh as possible) and immediately Scale the subscriber service down by one so Swarm doesn't directly start a new subscriber
-    # Test: Should cause no Problems.
-    # Test: Provider can work on its own.
+    # TODO make it possible via parameter to shutdown "smart"
+    # TODO rename function since it basically can kill subscriber and provider instances.
 
     kill_postgres "$1" 
     echo Current Count = $current_sub_count
@@ -58,9 +54,7 @@ kill_subscriber(){
             current_sub_count=0
         fi
         IFS='.' read service_name replic_number <<< "$1"
-        #pg95_db
-        echo $service_name $replic_number
-        $SSH_CMD root@$MANAGER_NODE "docker service scale $service_name=$current_sub_count"
+        scale_service $service_name $current_sub_count
     fi
 }
 
@@ -79,7 +73,7 @@ get_notify_log(){
 }
 
 wait_for_all_pg_to_boot(){
-    for tuple in $ID_IP_NODEs; do
+    for tuple in $(get_all_tuples); do
         container_id=$(get_id "$tuple")
         node=$(get_node "$tuple")
         while true; do
@@ -100,7 +94,7 @@ start_new_subscriber(){
     # Test: Subscriber also receives als data before start.
     echo "This may take a few moments and consider deployment-constraints / ports usage which could prevent a success!"
     current_sub_count=$(($current_sub_count + 1))
-    $SSH_CMD root@$MANAGER_NODE "docker service scale $1=$current_sub_count" # 1> /dev/null"
+    scale_service "$1" $current_sub_count
     wait_for_all_pg_to_boot
 }
 
