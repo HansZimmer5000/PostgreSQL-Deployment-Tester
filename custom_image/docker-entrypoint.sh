@@ -175,7 +175,7 @@ EOWARN
                         authMethod=trust
                 fi
 
-                # TODO is this normal?
+                # TODO is the following included in the normal image?
                 {
                         echo
                         echo "hostnossl all postgres 0.0.0.0/0 trust"  
