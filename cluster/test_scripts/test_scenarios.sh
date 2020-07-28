@@ -138,9 +138,11 @@ reset_cluster(){
         current_v10_node_num=$(($current_v10_node_num+1))
     done
 
-    # TODO maybe only scale services according to v*_instances count but kill provider with "-c".
-    reset_provider $3
-    reset_subscriber $1 $2
+    # TODO test if this new approach works!
+    kill_provider -c
+
+    scale_service "pg95_db" $v95_instances 1> /dev/null
+    scale_service "pg10_db" $v10_instances 1> /dev/null
 
     update_id_ip_nodes
     clear_all_local_tables
