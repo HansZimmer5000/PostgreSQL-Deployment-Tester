@@ -59,6 +59,7 @@ reset_cluster(){
 
     reset_labels $v95_instances $v10_instances
 
+    # Make sure the provider will be in the right version (docker swarm does not differentiate which version the postgres is running and changing of cluster version currently does not intefere with the running instances)
     kill_provider -c
 
     scale_service "pg95_db" $v95_instances 1> /dev/null
