@@ -71,6 +71,10 @@ get_all_tuples(){
     echo "$ID_IP_NODEs"
 }
 
+get_tuples_count(){
+    echo "$ID_IP_NODEs" | wc -w
+}
+
 get_all_provider() {
     result=""
     for tuple in $ID_IP_NODEs; do
