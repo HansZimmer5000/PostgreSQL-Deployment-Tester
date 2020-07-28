@@ -12,14 +12,6 @@ get_cluster_version(){
     SSH_CMD_FOR_EACH_NODE "cat /etc/keepalived/cluster_version.txt"
 }
 
-set_label_version() {
-    set_label "docker-swarm-node$1.localdomain" "pg_ver" "$2" 1> /dev/null
-}
-
-get_label_version(){
-    $SSH_CMD root@$MANAGER_NODE "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' docker-swarm-node$1.localdomain"
-}
-
 get_virtualip_owner(){    
     ping -c 1 $dsn1_node 1> /dev/null
     ping -c 1 $dsn2_node 1> /dev/null
@@ -37,7 +29,6 @@ get_virtualip_owner(){
             break
         fi
     done
-
 }
 
 source "./test_scripts/id_ip_nodes.sh"

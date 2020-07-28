@@ -1,6 +1,14 @@
 # !/bin/sh 
 # This is meant to be 'sourced' from test_client_lib.sh!
 
+set_label_version() {
+    set_label "docker-swarm-node$1.localdomain" "pg_ver" "$2" 1> /dev/null
+}
+
+get_label_version(){
+    $SSH_CMD root@$MANAGER_NODE "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' docker-swarm-node$1.localdomain"
+}
+
 scale_service(){
     if  [ -z "$1" ] || [ -z "$2" ]; then
         echo "Missing Servicename or new replication count!"
