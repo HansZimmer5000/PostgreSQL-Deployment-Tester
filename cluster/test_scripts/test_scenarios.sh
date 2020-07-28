@@ -13,14 +13,14 @@ test_log(){
 # Param 2 = v10 Instances
 reset_labels(){
     current_v95_node_num=1
-    while [ "$current_v95_node_num" -le $1 ]; do
+    while [ "$current_v95_node_num" -le "$1" ]; do
         set_label_version $current_v95_node_num 9.5
         current_v95_node_num=$(($current_v95_node_num+1))
     done
 
     node_num_offset=$(($current_v95_node_num-1))
     current_v10_node_num=1
-    while [ "$current_v10_node_num" -le $2 ]; do
+    while [ "$current_v10_node_num" -le "$2" ]; do
         set_label_version $(($current_v10_node_num+$node_num_offset)) 10
         current_v10_node_num=$(($current_v10_node_num+1))
     done
@@ -52,12 +52,12 @@ reset_cluster(){
     fi
 
     if [ $(($v95_instances + $v10_instances)) -gt $(echo $ALL_NODES | wc -w) ]; then
-        test_log Aborting due to more instances wanted ($v95_instances + $v10_instances) than nodes $(echo $ALL_NODES | wc -w)!
+        test_log "Aborting due to more instances wanted ($v95_instances + $v10_instances) than nodes $(echo $ALL_NODES | wc -w)"!
         exit 1
     fi
 
     set_cluster_version "$cluster_version"
-    reset_labels
+    reset_labels $v95_instances $v10_instances
 
     # TODO test if this new approach works!
     kill_provider -c
@@ -72,6 +72,16 @@ reset_cluster(){
     clear_all_local_tables
     reconnect_all_subscriber
 }
+
+# TODO add extra reset tests with params
+#   - 0 0 false
+#   - 1 0 false
+#   - 0 1 false
+#   - 0 0 true
+#   - 1 0 true
+#   - 0 1 true
+#   - 1 1 true -> In a environment with only two nodes, this should fail because instance_count > node_count!
+# TODO change normal tests ("test_*" functions) so, that they can get executed on the current running environment and then combine multiple environments (see above) with all the normal tests.
 
 test_1(){
     # Check if roles and replications are set correctly
