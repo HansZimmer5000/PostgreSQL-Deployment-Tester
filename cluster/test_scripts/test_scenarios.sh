@@ -42,6 +42,7 @@ reset_cluster(){
     else
         v95_instances=1
     fi
+    set_cluster_version "$cluster_version"
 
     if ! [ -z "$1" ]; then
         v95_instances=$(($v95_instances+$1))
@@ -56,7 +57,6 @@ reset_cluster(){
         exit 1
     fi
 
-    set_cluster_version "$cluster_version"
     reset_labels $v95_instances $v10_instances
 
     kill_provider -c
