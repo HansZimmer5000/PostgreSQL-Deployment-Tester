@@ -55,6 +55,7 @@ get_all_local_tables(){
 
     TABLES=""
 
+    # TODO this uses id_ip_nodes.sh internal variable (ID_IP_NODEs), replace with a get_all function
     for tuple in $ID_IP_NODEs; do
         CURRENT_NAME=$(get_name "$tuple")
         CURRENT_NODE=$(get_node "$tuple")
@@ -85,6 +86,7 @@ remove_all_entries(){
 clear_all_local_tables(){
     # Print local table of Provider and Subscribers
 
+    # TODO this uses id_ip_nodes.sh internal variable (ID_IP_NODEs), replace with a get_all function
     for tuple in $ID_IP_NODEs; do
         CURRENT_NAME=$(get_name "$tuple")
         CURRENT_NODE=$(get_node "$tuple")
@@ -158,6 +160,7 @@ check_subscriber(){
 }
 
 check_roles() {
+    # TODO this uses id_ip_nodes.sh internal variable (ID_IP_NODEs), replace with a get_all function
     for tuple in $ID_IP_NODEs; do
         CURRENT_NAME=$(get_name "$tuple")
         CURRENT_ROLE=$(get_role "$tuple")
@@ -177,6 +180,7 @@ reconnect_subscriber(){
 }
 
 reconnect_all_subscriber(){
+    # TODO this uses id_ip_nodes.sh internal variable (ID_IP_NODEs), replace with a get_all function
     for tuple in $ID_IP_NODEs; do
         current_role=$(get_role "$tuple")
         current_node=$(get_node "$tuple")
