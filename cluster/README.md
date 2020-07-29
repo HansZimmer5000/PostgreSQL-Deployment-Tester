@@ -34,9 +34,6 @@ Following the configuration | how to adjust it:
     - old version stack is deployed with the name `pg95` and the postgres service is called `db` and the network is called `pgnet` | Change any occurence of the mentioned values in the code and stack file to the wanted text.
     - new version stack is deployed with the name `pg10` and the postgres service is called `db` and the network is called `pgnet` | Change any occurence of the mentioned values in the code and stack file to the wanted text.
 
-- (Setup.sh) Must match existing virtualbox instance names | TODO
-- (Setup.sh) hostnames are fixed | Rename in virtualbox and replace hostnames in text with new one.
-
 ## Setup, Testing, Developing
 
 The logical center of execution is the setup.sh script.
@@ -55,6 +52,10 @@ Flags:
 To start up the full cluster execute `setup.sh -msp`, to only e.g. reset Postgres container only execute `setup.sh -p`. This will setup & start the VMs, Docker Swarm, Keepalived and Postgres containers. The full execution `-msp` may take a few minutes, the most time is needed when the `-p` flag is set.
 
 After the start setup.sh will source test_scripts/test_client_lib.sh. For more info on that have a look into test_scripts/README.md
+
+Configuration additionally to the listed in rolling upgrade:
+- Must match existing virtualbox instance names | TODO
+- hostnames are fixed | Rename in virtualbox and replace hostnames in text with new one.
 
 ## Virtual Machines
 
