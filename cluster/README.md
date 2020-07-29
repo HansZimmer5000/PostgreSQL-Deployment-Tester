@@ -1,6 +1,33 @@
-# Setup, test and interact 
+# Executables
 
-## Application
+## Rolling Upgrade
+
+To perform a rolling upgrade, execute rolling_upgrade.sh.
+
+How to use:
+- Execute with normal shell in this folder `./rolling_upgrade.sh`
+- Phase 1: Then you will be prompted to enter a subscriber name, it is in the form like `pg95_db.1`. This subscriber will be the first that is upgraded to the new version (v10).
+- Phase 2: After you pressed `enter` to continue, the other subscriber will be upgraded.
+- Phase 3: After you pressed `enter` to continue, the provider will be upgraded and the rolling upgrade comes to an end.
+
+Following the configuration and how to adjust it:
+- old version is 9.5.18 | TODO
+- new version is 10.13 | TODO
+- there are three hosts | TODO
+- hostnames | TODO
+- hosts are reachable via ssh on port 22 | TODO
+- The swarm manager node is reachable via ssh on port 22 | TODO
+- The script is only tested in linux | TODO
+- hosts IPs | Adjustable in the .env file
+- old version stack is deployed with the name `pg95` and the postgres service is called `db` and the network is called `` | TODO
+- new version stack is deployed with the name `pg10` and the postgres service is called `db` and the network is called `pgnet` | TODO
+- Postgres Images need to have pglogical2 installed | No way around that without massive changes
+- There is only one provider per Cluster | TODO
+- There are 0 or more subscriber per Cluster | TODO
+- Scripts expect the provider to be the last instance that is upgraded. | TODO
+- Scripts uses the docker node label `pg_ver` to mark where to run which version | TODO
+
+## Setup, Testing, Developing
 
 The logical center of execution is the setup.sh script.
 
