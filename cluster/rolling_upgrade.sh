@@ -53,11 +53,5 @@ start_upgrade(){
     echo "Third Phase Done"
 }
 
-# Must move to "cluster" folder since code contains relative paths!
-cd cluster
-
 import_code
 start_upgrade
-
-# Switch back to original folder.
-cd ..
