@@ -20,7 +20,7 @@ rollback_all_subscriber(){
 }
 
 start_upgrade_phase_one(){
-    read -p "Please enter name of first postgres to upgrade: " sub_name
+    read -p "Please enter name of first postgres subscriber to upgrade: " sub_name
     upgrade_subscriber $sub_name 1
 }
 
