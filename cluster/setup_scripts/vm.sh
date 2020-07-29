@@ -48,13 +48,7 @@ prepare_swarm() {
 }
 
 prepare_machines() {
-    INIT_NODE_DSN_NO=2
-    set_init_label $INIT_NODE_DSN_NO 1 2 3
-
     update_all_nodes
-
-    # Make sure dsn2 = INIT_NODE gets the VIP
-    give_vip_to_init_node
     echo "Current IPs (each line is a different node):
 $(get_current_node_ips)
 "
