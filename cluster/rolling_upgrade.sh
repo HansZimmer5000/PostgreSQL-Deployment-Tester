@@ -13,6 +13,13 @@ import_code(){
     source ./test_scripts/test_client_lib.sh
 }
 
+rollback_all_subscriber(){
+    #TODO implement more sophisticated rollback that checks if every step was successfull or not.
+    reset_labels $1 0
+    scale_service_with_timeout pg10_db 0
+    scale_service_with_timeout pg95_db $1
+}
+
 start_upgrade_phase_one(){
     read -p "Please enter name of first postgres to upgrade: " sub_name
     upgrade_subscriber $sub_name 1
@@ -32,25 +39,35 @@ start_upgrade_phase_two(){
 
 start_upgrade_phase_three(){
     update_id_ip_nodes
-    total_number_of_upgraded_postgres_instances=$(get_tuples_count)
-    upgrade_provider $total_number_of_upgraded_postgres_instances
+    upgrade_provider $1
 }
 
 start_upgrade(){
     update_id_ip_nodes
     print_id_ip_nodes
+    total_postgres_count=$(get_tuples_count)
 
     start_upgrade_phase_one
     print_id_ip_nodes
-    read -p "First Phase Done, Continue?"
+    echo "First Phase Done, Continue (<Enter>) or Rollback ('r')?"
+    read -p ">" answer
 
-    start_upgrade_phase_two
-    print_id_ip_nodes
-    read -p "Second Phase Done, Continue?"
+    if [ "$answer" != "r" ]; then
+        start_upgrade_phase_two
+        print_id_ip_nodes
+        echo "Second Phase Done, Continue ('y') or Rollback ('r')?"
+        read -p ">" answer
 
-    start_upgrade_phase_three
-    print_id_ip_nodes
-    echo "Third Phase Done"
+        if [ "$answer" != "r" ]; then
+            start_upgrade_phase_three $total_postgres_count
+            print_id_ip_nodes
+            echo "Third Phase Done"
+        else
+            rollback_all_subscriber $total_postgres_count
+        fi
+    else
+        rollback_all_subscriber $total_postgres_count
+    fi
 }
 
 import_code
