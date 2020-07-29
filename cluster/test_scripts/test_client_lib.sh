@@ -33,7 +33,6 @@ get_virtualip_owner(){
 
 source "./test_scripts/id_ip_nodes.sh"
 source "./test_scripts/test_scenarios.sh"
-source "./test_scripts/docker_cmds.sh"
 source "./test_scripts/pg_cmds.sh"
 
 running_loop() {
