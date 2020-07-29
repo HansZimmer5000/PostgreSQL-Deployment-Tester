@@ -134,7 +134,7 @@ case $state in
 							log "Waiting for Postgres to be ready"
 							wait_for_all_pg_to_boot $container_id
 							
-							# TODO must it fit exactly (major + minor Version) or just major?
+							# TODO let it match only major version?
 							cluster_pg_version=$(cat /etc/keepalived/cluster_version.txt)
 							local_pg_version=$(determine_db_version $container_id)
 							if [ "$local_pg_version" == "$cluster_pg_version" ]; then

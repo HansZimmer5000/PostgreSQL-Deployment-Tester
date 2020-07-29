@@ -67,7 +67,6 @@ reset_cluster(){
     # Make sure the provider will be in the right version (docker swarm does not differentiate which version the postgres is running and changing of cluster version currently does not intefere with the running instances)
     kill_provider 1> /dev/null
 
-    # TODO may add timeout to fail, since scaling may never succeed due to placement issues!
     test_log Setting v9.5 service to $v95_instances replicas
     scale_service_with_timeout "pg95_db" $v95_instances 1> /dev/null
 
@@ -281,7 +280,8 @@ upgrade_provider(){
     prov_node=$(get_node "$prov_tuple")
     prov_id=$(get_id "$prov_tuple")
     $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
-    # TODO expects that the provider is the last v9.5 db!
+    
+    # TODO write down in documentation that this expects that the provider is the last v9.5 db!
     scale_service_with_timeout "pg95_db" 0 1> /dev/null
 
     # 2. Adjust Cluster & Node Labels

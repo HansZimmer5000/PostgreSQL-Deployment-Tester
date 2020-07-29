@@ -26,14 +26,6 @@ update_keepalived_basics() {
     SSH_CMD_FOR_EACH_NODE "systemctl restart keepalived"
 }
 
-give_vip_to_init_node() {
-    SSH_CMD_FOR_EACH_NODE "systemctl stop keepalived"
-
-    $SSH_CMD root@$INIT_NODE systemctl start keepalived
-    sleep 5s #Wait for the INIT_NODEs keepalived to grap the VIP
-    SSH_CMD_FOR_EACH_NODE "systemctl start keepalived"
-}
-
 start_keepalived() {
     SSH_CMD_FOR_EACH_NODE "systemctl start keepalived"
 }
