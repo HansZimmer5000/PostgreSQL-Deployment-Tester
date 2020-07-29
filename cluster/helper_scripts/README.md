@@ -22,7 +22,7 @@ reconnect:  []
 -- Interact with VMs
 
 ssh:    [1=dsn1, 2=dsn2, ...]
-        will ssh into the given node by its name which was set in the ../.env file.
+        will ssh into the given node by its name which was set in the ../.env.sh file.
         
 
 -- Get Info about VMs & Containers
@@ -36,7 +36,7 @@ log:    [1=db.1,2=db.2,...]
         will return the docker log of the given container by its number in its name 'db.X'.
         
 notify: [1=db.1,2=db.2,...]
-        will return the keepalived 'notify_log.txt' file of a given node by its name which was set in the ../.env file.
+        will return the keepalived 'notify_log.txt' file of a given node by its name which was set in the ../.env.sh file.
 
 table:  [1=db.1,2=db.2,...]
         will return the current content of the 'testtable' in the postgres container by its number in its name 'db.X'.

@@ -1,9 +1,9 @@
 #!/bin/sh
 
 prepare_env_file() {
-	echo OLD=$OLD > .env
-	echo NEW=$NEW >> .env
-	echo VOLUME_DIR=$VOLUME_DIR >> .env
+	echo OLD=$OLD > .env.sh
+	echo NEW=$NEW >> .env.sh
+	echo VOLUME_DIR=$VOLUME_DIR >> .env.sh
 }
 
 pre_cleanup() {
@@ -14,7 +14,7 @@ pre_cleanup() {
 	rm -rf $VOLUME_DIR
 	mkdir -p $VOLUME_DIR
 
-	rm -f .env
+	rm -f .env.sh
 }
 
 post_cleanup() {

@@ -203,7 +203,7 @@ reconnect:  []
 -- Interact with VMs
 
 ssh:    [1=dsn1, 2=dsn2, ...]
-        will ssh into the given node by its name which was set in the ../.env file.
+        will ssh into the given node by its name which was set in the ../.env.sh file.
 
 cl_vr:  [number]
         if given, will set the Cluster Version according to the exact input which is mandatory.
@@ -224,7 +224,7 @@ log:    [dbname]
         will return the docker log of the given name.
         
 notify: [1=db.1,2=db.2,...]
-        will return the keepalived 'notify_log.txt' file of a given node by its name which was set in the ../.env file.
+        will return the keepalived 'notify_log.txt' file of a given node by its name which was set in the ../.env.sh file.
 
 table:  [dbname]
         will return the current content of the 'testtable' in the postgres container by its name.

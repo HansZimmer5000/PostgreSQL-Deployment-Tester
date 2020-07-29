@@ -1,6 +1,6 @@
 #!/bin/sh 
 
-source ./.env
+source ./.env.sh
 source helper_scripts/ssh_scp.sh
 
 setup_firewall(){

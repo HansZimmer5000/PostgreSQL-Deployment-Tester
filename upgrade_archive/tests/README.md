@@ -1,6 +1,6 @@
 # Tests
 
-- File .env: Environment Variables for the stack files
+- File .env.sh: Environment Variables for the stack files
 - File newstack.yml: The stack/compose file for the new postgres version
 - File oldstack.yml: The stack/compose file for the old postgres version
 - File test_scenario.sh: Executes an upgrade scenario with specific versions (e.g. 9.5 to 10).
