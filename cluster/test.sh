@@ -1,9 +1,9 @@
 #!/bin/sh
 
-cd test_scripts
+cd helper_scripts
 bats *.bats
 
-cd ../setup_scripts
+cd ../helper_scripts
 bats *.bats
 
 cd ../keepalived

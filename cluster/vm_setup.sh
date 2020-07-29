@@ -1,7 +1,7 @@
 #!/bin/sh 
 
 source ./.env
-source setup_scripts/ssh_scp.sh
+source helper_scripts/ssh_scp.sh
 
 setup_firewall(){
     #https://www.rootusers.com/how-to-open-a-port-in-centos-7-with-firewalld/
