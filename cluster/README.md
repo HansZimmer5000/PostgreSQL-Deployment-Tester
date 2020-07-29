@@ -10,17 +10,18 @@ How to use:
 - Phase 2: After you pressed `enter` to continue, the other subscriber will be upgraded.
 - Phase 3: After you pressed `enter` to continue, the provider will be upgraded and the rolling upgrade comes to an end.
 
-Following the configuration and how to adjust it:
+Following the configuration | how to adjust it:
 - old version is 9.5.18 | TODO
 - new version is 10.13 | TODO
-- there are three hosts | TODO
+- there are at maximum three hosts | TODO
 - hostnames | TODO
-- hosts are reachable via ssh on port 22 | TODO
+- hosts root users are reachable via ssh on port 22 | TODO
+- ssh authenticates to hosts via ssh keys in the `keys` folder | TODO
 - The swarm manager node is reachable via ssh on port 22 | TODO
 - The script is only tested in linux | TODO
 - hosts IPs | Adjustable in the .env file
-- old version stack is deployed with the name `pg95` and the postgres service is called `db` and the network is called `` | TODO
-- new version stack is deployed with the name `pg10` and the postgres service is called `db` and the network is called `pgnet` | TODO
+- old version stack is deployed with the name `pg95` and the postgres service is called `db` and the network is called `pgnet` | Change any occurence of the mentioned values in the code and stack file to the wanted text.
+- new version stack is deployed with the name `pg10` and the postgres service is called `db` and the network is called `pgnet` | Change any occurence of the mentioned values in the code and stack file to the wanted text.
 - Postgres Images need to have pglogical2 installed | No way around that without massive changes
 - There is only one provider per Cluster | TODO
 - There are 0 or more subscriber per Cluster | TODO
@@ -28,8 +29,7 @@ Following the configuration and how to adjust it:
 - Scripts uses the docker node label `pg_ver` to mark where to run which version | TODO
 - Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | TODO
 - Tested version does only include anonymous mounts! | TODO
-- The script will expect certain scripts at certain locations, have a look at 'TODO.png'! | TODO
-- (only Setup.sh?) Scripts will expect to be root on the host machines | TODO
+- The script will expect certain scripts from the `postgres` and `keepalived` folders at certain locations on the hosts, have a look at 'script_location.png'! | TODO
 - (Setup.sh) Must match existing virtualbox instance names | TODO
 
 ## Setup, Testing, Developing
