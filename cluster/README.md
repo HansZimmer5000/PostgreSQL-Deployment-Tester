@@ -26,6 +26,9 @@ Following the configuration and how to adjust it:
 - There are 0 or more subscriber per Cluster | TODO
 - Scripts expect the provider to be the last instance that is upgraded. | TODO
 - Scripts uses the docker node label `pg_ver` to mark where to run which version | TODO
+- Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | TODO
+- Tested version does only include anonymous mounts! | TODO
+- The script will expect certain scripts at certain locations, have a look at 'TODO.png'! | TODO
 
 ## Setup, Testing, Developing
 
