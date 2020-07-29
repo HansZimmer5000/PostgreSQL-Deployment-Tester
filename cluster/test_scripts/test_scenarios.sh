@@ -309,8 +309,7 @@ upgrade_subscriber(){
     # TODO make $2 deprecated by getting current replica count from docker service directly and then increase by one to get total number of new postgres instances.
     sub_tuple=$(get_tuple_from_name $1)
     sub_node=$(get_node $sub_tuple)
-    echo $sub_tuple .... $1 $sub_node $dsn1_node $dsn2_node
-    kill_subscriber "$1" 
+    kill_subscriber "$1" 1> /dev/null
 
     if [ "$sub_node" == "$dsn1_node" ]; then
         set_label_version 1 10

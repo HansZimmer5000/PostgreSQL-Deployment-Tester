@@ -29,6 +29,8 @@ Following the configuration and how to adjust it:
 - Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | TODO
 - Tested version does only include anonymous mounts! | TODO
 - The script will expect certain scripts at certain locations, have a look at 'TODO.png'! | TODO
+- (only Setup.sh?) Scripts will expect to be root on the host machines | TODO
+- (Setup.sh) Must match existing virtualbox instance names | TODO
 
 ## Setup, Testing, Developing
 

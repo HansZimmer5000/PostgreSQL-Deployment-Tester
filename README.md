@@ -15,22 +15,25 @@ See cluster/REAMDE.md for more info.
 As this is a Work in Progress there are currently alot of limitations. Each of them will be addressed if there is time according to their priority (MUST > SHOULD > NICE-to-have)
 
 - Deployment
-  - (SHOULD) Research Docker Swarm Health checks and their use for this project
   - (NICE) Only is used and tested with VirtualBox
   - (NICE) Only works with Docker Swarm
 - Testing
   - (MUST) There are hardly any Unit Tests
-  - (SHOULD) There are only six pre defined integration tests
-  - (SHOULD) Only can interact and test with current configuration
 - Implementations
-  - (SHOULD) There are alot of fixed IPs (see .env), hostnames and magic numbers
+  - (MUST) refactor placement and names of functions, files, folders.
+  - (SHOULD) Map out which kind of configuration is expected and how to change that.
   - (SHOULD) The code is in a bad shape in terms of test coverage (none), readability and flakiness
 - Setup
   - (NICE) Setup / configure (see following section) the VMs via Ansible or similar.
 
 ## VM Setup
 
+### Via Vagrant
 - The Testbed VM is available as a [vagrant box](https://app.vagrantup.com/hanszimmer5000/boxes/pdt-testbed)
+- Needs vagrant to get the virtualbox instance from it.
+- After that, the virtualbox instance is usable without vagrant if desired.
+
+### Raw
 - Downloaded vdi from [osboxes](https://www.osboxes.org/centos/#centos-1908-vbox) (Password: osboxes.org)
 - Set VirtualBox Name according to "Docker Swarm Node 0", replace 0 with number (1 ... n). Change hostname via "hostname 'docker-swarm-node1'".
 - Networks: 
