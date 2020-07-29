@@ -6,8 +6,8 @@
 source ./.env
 
 source ./helper_scripts/ssh_scp.sh
-source ./helper_scripts/keepalived.sh
-source ./helper_scripts/docker.sh
+source ./helper_scripts/keepalived_helper.sh
+source ./helper_scripts/docker_helper.sh
 source ./helper_scripts/vm.sh
 
 print_help(){

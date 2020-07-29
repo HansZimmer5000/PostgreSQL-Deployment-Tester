@@ -1,3 +1,3 @@
 #!/usr/bin/env bats
 
-source ./keepalived.sh
+source ./keepalived_helper.sh

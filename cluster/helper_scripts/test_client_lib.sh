@@ -33,7 +33,7 @@ get_virtualip_owner(){
 
 source ./helper_scripts/id_ip_nodes.sh
 source ./helper_scripts/test_scenarios.sh
-source ./helper_scripts/postgres.sh
+source ./helper_scripts/postgres_helper.sh
 
 running_loop() {
     LOOP=true
