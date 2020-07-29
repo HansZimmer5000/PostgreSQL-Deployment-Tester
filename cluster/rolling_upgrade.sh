@@ -6,9 +6,9 @@ import_code(){
     source ./helper_scripts/docker.sh
     source ./helper_scripts/vm.sh
 
-    source "./helper_scripts/id_ip_nodes.sh"
-    source "./helper_scripts/test_scenarios.sh"
-    source "./helper_scripts/postgres.sh"
+    source ./helper_scripts/id_ip_nodes.sh
+    source ./helper_scripts/test_scenarios.sh
+    source ./helper_scripts/postgres.sh
     source ./helper_scripts/test_client_lib.sh
 }
 

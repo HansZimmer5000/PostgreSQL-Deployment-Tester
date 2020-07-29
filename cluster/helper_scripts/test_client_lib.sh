@@ -31,9 +31,9 @@ get_virtualip_owner(){
     done
 }
 
-source "./test_scripts/id_ip_nodes.sh"
-source "./test_scripts/test_scenarios.sh"
-source "./test_scripts/postgres.sh"
+source ./helper_scripts/id_ip_nodes.sh
+source ./helper_scripts/test_scenarios.sh
+source ./helper_scripts/postgres.sh
 
 running_loop() {
     LOOP=true
