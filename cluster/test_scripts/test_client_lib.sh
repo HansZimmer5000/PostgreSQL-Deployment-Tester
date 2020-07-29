@@ -168,7 +168,7 @@ running_loop() {
             fi
             ;;
         "up_test")
-            max_number=4
+            max_number=2
             if [[ $PARAM1 -gt 0 && $PARAM1 -le $max_number ]]; then
                 echo "-- Executing Upgrade Test $PARAM1"
                 upgrade_test_$PARAM1
@@ -236,7 +236,7 @@ check:      will check if the shown roles by 'status' are correct and replicatio
 test:       [1-4]
             will execute the normal integration test(s). Either a single one by providing a number or all by not providing a number.
         
-up_test:    [1,4]
+up_test:    [1-2]
             will execute the upgrade integration test(s). Behaves like 'test'.
         
 -- Misc.
