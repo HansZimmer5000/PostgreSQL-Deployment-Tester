@@ -324,6 +324,10 @@ upgrade_subscriber(){
     sleep 30s
 }
 
+update_cluster_version(){
+    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
+}
+
 upgrade_test_1(){
     # Major Upgrade of running Subscriber
     # 0. Reset Cluster
@@ -377,20 +381,6 @@ upgrade_test_1(){
 }
 
 upgrade_test_2(){
-    # Higher Provider, lower Subscriber, execute normal tests again? 
-    echo "0"
-}
-
-upgrade_test_3(){
-    # Lower Provider, higher Subscriber, execute normal tests again?
-    echo "0"
-}
-
-update_cluster_version(){
-    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
-}
-
-upgrade_test_4(){
     # Major Update of Cluster
     #   - Phase 1
     #       - Decrease V9.5 service replica by one

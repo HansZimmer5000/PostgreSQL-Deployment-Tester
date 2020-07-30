@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Depends on (will be sourced by using script):
-# - docker.sh
-# - keepalived.sh
+# - docker_helper.sh
+# - keepalived_helper.sh
 # - ssh_scp.sh
 
 get_current_node_ips() {

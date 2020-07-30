@@ -1,8 +1,8 @@
 #!/bin/sh
 
 prepare_env_file() {
-	echo OLD=$OLD > .env
-	echo NEW=$NEW >> .env
+	echo OLD=$OLD > .env.sh
+	echo NEW=$NEW >> .env.sh
 }
 
 pre_cleanup() {
@@ -14,7 +14,7 @@ pre_cleanup() {
 	docker volume rm data_9.5.18
     docker volume rm data_10.12
 
-	rm -f .env
+	rm -f .env.sh
 }
 
 post_cleanup() {

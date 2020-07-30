@@ -1,6 +1,6 @@
 #!/bin/sh
 
-source ./.env
+source ./.env.sh
 
 print_help(){
     echo "

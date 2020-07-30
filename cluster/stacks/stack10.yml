@@ -29,7 +29,7 @@ services:
             - POSTGRES_USER=postgres
             - POSTGRES_DB=testdb
             - PGDATA=/var/lib/postgresql/10/data #Already set in Image, here just again to make it clear and reader friendly.
-            - PROVIDER_IP=192.168.99.149 # TODO how to make this dynamic by somehow getting this value from ../.env?
+            - PROVIDER_IP=192.168.99.149 # TODO how to make this dynamic by somehow getting this value from ../.env.sh?
         volumes: 
             - /etc/sub_setup.sh:/etc/sub_setup.sh
             #- pgdata:/var/lib/postgresql/10/data # BIG TODO!!: Due to volume usage, restarted container will be in the role whatever the container before had!! Maybe clear volume at every container start?

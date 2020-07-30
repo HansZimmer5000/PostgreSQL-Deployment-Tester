@@ -11,26 +11,28 @@ How to use:
 - Phase 3: After you pressed `enter` to continue, the provider will be upgraded and the rolling upgrade comes to an end.
 
 Following the configuration | how to adjust it:
-- old version is 9.5.18 | TODO
-- new version is 10.13 | TODO
-- there are at maximum three hosts | TODO
-- hostnames | TODO
-- hosts root users are reachable via ssh on port 22 | TODO
-- ssh authenticates to hosts via ssh keys in the `keys` folder | TODO
-- The swarm manager node is reachable via ssh on port 22 | TODO
-- The script is only tested in linux | TODO
-- hosts IPs | Adjustable in the .env file
-- old version stack is deployed with the name `pg95` and the postgres service is called `db` and the network is called `pgnet` | Change any occurence of the mentioned values in the code and stack file to the wanted text.
-- new version stack is deployed with the name `pg10` and the postgres service is called `db` and the network is called `pgnet` | Change any occurence of the mentioned values in the code and stack file to the wanted text.
-- Postgres Images need to have pglogical2 installed | No way around that without massive changes
-- There is only one provider per Cluster | TODO
-- There are 0 or more subscriber per Cluster | TODO
-- Scripts expect the provider to be the last instance that is upgraded. | TODO
-- Scripts uses the docker node label `pg_ver` to mark where to run which version | TODO
-- Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | TODO
-- Tested version does only include anonymous mounts! | TODO
-- The script will expect certain scripts from the `postgres` and `keepalived` folders at certain locations on the hosts, have a look at 'script_location.png'! | TODO
-- (Setup.sh) Must match existing virtualbox instance names | TODO
+- Docker Swarm Nodes / Hosts
+    - all hosts' root users are reachable via ssh on port 22 | If another port is used for SSH, change ssh command at `ssh_scp.sh`.
+    - ssh authenticates to hosts via ssh keys in the `keys` folder | TODO
+    - hosts IPs | Adjustable in the .env file
+    - Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | TODO
+    - there are at maximum three hosts | TODO
+- Postgres Cluster
+    - There is only one provider per Cluster | TODO
+    - There are 0 or more subscriber per Cluster | TODO
+    - old version is 9.5.18 | Change would affect Images and parts of the script thats checks the postgres version
+    - new version is 10.13 | Change would affect Images and parts of the script thats checks the postgres version
+    - Postgres Images need to have pglogical2 installed | No way around that without massive changes
+- Upgrade Process
+    - Scripts expects to only start a new versioned postgres after an old version postgres is shutdown. At any given moment in the time the total number of postgres instances do not change. | Change behaviour in `rolling_upgrade.sh`.
+    - Scripts expect the provider to be the last instance that is upgraded. | TODO
+    - The script is only tested in linux | May need additional installs to work, but which exactly is TODO.
+- Docker Stacks:
+    - Tested version does only include anonymous mounts! | TODO
+    - The script and stacks will expect certain executable scripts from the `postgres` and `keepalived` folders at certain locations on the hosts, have a look at: ![Placement](./script_location.png). The placement inside the container is done via the stacks. | TODO
+    - Scripts uses the docker node label `pg_ver` to mark where to run which version | TODO
+    - old version stack is deployed with the name `pg95` and the postgres service is called `db` and the network is called `pgnet` | Change any occurence of the mentioned values in the code and stack file to the wanted text.
+    - new version stack is deployed with the name `pg10` and the postgres service is called `db` and the network is called `pgnet` | Change any occurence of the mentioned values in the code and stack file to the wanted text.
 
 ## Setup, Testing, Developing
 
@@ -49,7 +51,11 @@ Flags:
 
 To start up the full cluster execute `setup.sh -msp`, to only e.g. reset Postgres container only execute `setup.sh -p`. This will setup & start the VMs, Docker Swarm, Keepalived and Postgres containers. The full execution `-msp` may take a few minutes, the most time is needed when the `-p` flag is set.
 
-After the start setup.sh will source test_scripts/test_client_lib.sh. For more info on that have a look into test_scripts/README.md
+After the start setup.sh will source helper_scripts/test_client_lib.sh. For more info on that have a look into helper_scripts/README.md
+
+Configuration additionally to the listed in rolling upgrade:
+- Must match existing virtualbox instance names | TODO
+- hostnames are fixed | Rename in virtualbox and replace hostnames in text with new one.
 
 ## Virtual Machines
 

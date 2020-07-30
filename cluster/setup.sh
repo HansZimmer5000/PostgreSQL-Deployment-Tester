@@ -5,11 +5,10 @@
 
 source ./.env
 
-source ./setup_scripts/ssh_scp.sh
-source ./setup_scripts/keepalived.sh
-source ./setup_scripts/docker.sh
-source ./setup_scripts/vm.sh
-source ./test_scripts/docker_cmds.sh
+source ./helper_scripts/ssh_scp.sh
+source ./helper_scripts/keepalived_helper.sh
+source ./helper_scripts/docker_helper.sh
+source ./helper_scripts/vm.sh
 
 print_help(){
     echo "
@@ -83,6 +82,6 @@ else
     echo "-- Using existing stack V9.5 deployment"
 fi
 
-source "./test_scripts/test_client_lib.sh"
+source ./helper_scripts/test_client_lib.sh
 running_loop
 
