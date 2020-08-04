@@ -14,7 +14,7 @@ Following the configuration | how to adjust it:
 - Docker Swarm Nodes / Hosts
     - all hosts' root users are reachable via ssh on port 22 | If another port is used for SSH, change ssh command at `ssh_scp.sh`.
     - ssh authenticates to hosts via ssh keys in the `keys` folder | TODO
-    - hosts IPs | Adjustable in the .env file
+    - hosts IPs | Adjustable in the .env.sh file
     - Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | TODO
     - there are at maximum three hosts | TODO
 - Postgres Cluster
