@@ -1,7 +1,5 @@
 # PostgreSQL-Deployment-Tester
 
-- TODO wann bin ich am 13.08. beim Zahnarzt?
-
 This program does two things:
 - The program deploys a PostgreSQL cluster via Docker Swarm onto VirtualBox VMs.
 - The program can interact with the deployed cluster:
