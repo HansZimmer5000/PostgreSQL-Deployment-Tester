@@ -37,7 +37,6 @@ TODOs from Meetings:
     - "-s" Option sometimes fails when executed for the 1st time due to "context timeout". Just re-execute the "-s" option.
   - vm_setup.sh
 - Documentation
-  - Sequencediagram for internal container start
   - Change Mounts & PGDATA
     - Use standard PGDATA
     - via ENV vars set "old" folder location and via mount set "old" folder (preperation for pg_upgrade)
