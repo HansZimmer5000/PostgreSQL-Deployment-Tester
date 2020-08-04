@@ -6,8 +6,9 @@ This program does two things:
   - To manually force failure and see how the deployment reacts to that
   - To execute the pre defined tests
   - To get current logs and stats
+  - To perform a rolling upgrade.
   
-The main logic is implemented in cluster/setup.sh.
+The main logic is implemented in cluster/setup.sh and cluster/rolling_upgrade.sh.
 See cluster/REAMDE.md for more info.
 
 ## TODO
@@ -25,6 +26,18 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
   - (SHOULD) The code is in a bad shape in terms of test coverage (none), readability and flakiness
 - Setup
   - (NICE) Setup / configure (see following section) the VMs via Ansible or similar.
+
+TODOs from Meetings:
+- Sequencediagram for internal container start
+- Try out with v9.5.3
+- Change Mounts & PGDATA
+  - Use standard PGDATA
+  - via ENV vars set "old" folder location and via mount set "old" folder (preperation for pg_upgrade)
+- Tutorial incl. common errors for:
+  - rolling_upgrade.sh
+  - setup.sh
+  - vm_setup.sh
+- Hints on further development (e.g. switch to python or Upgrade from v10 to v12)
 
 ## VM Setup
 
