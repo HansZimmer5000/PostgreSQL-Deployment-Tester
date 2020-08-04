@@ -3,7 +3,7 @@
 # VARIABLES & CONSTANTS
 ################
 
-source ./.env
+source ./.env.sh
 
 source ./helper_scripts/ssh_scp.sh
 source ./helper_scripts/keepalived_helper.sh
