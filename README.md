@@ -28,6 +28,11 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
   - (NICE) Setup / configure (see following section) the VMs via Ansible or similar.
 
 TODOs from Meetings:
+- What when existigin v9.5 Cluster does not use logical replication?
+    - Reuse Mount -> Downtime 
+    - Stop running container, start new container with pg_basebackup -> Downtime
+    - install pglogical on running v9.5 containers -> physical replication may active, physical and logical replication possible at the same time?
+    - init new v9.5 containers with additional physical replication and get so data from running v9.5 provider. -> same as above
 - Sequencediagram for internal container start
 - Try out with v9.5.3
 - Change Mounts & PGDATA

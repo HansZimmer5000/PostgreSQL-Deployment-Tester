@@ -4,13 +4,6 @@
 
 To perform a rolling upgrade, execute rolling_upgrade.sh.
 
-TODO:
-- What when existigin v9.5 Cluster does not use logical replication?
-    - Reuse Mount -> Downtime 
-    - Stop running container, start new container with pg_basebackup -> Downtime
-    - install pglogical on running v9.5 containers -> physical replication may active, physical and logical replication possible at the same time?
-    - init new v9.5 containers with additional physical replication and get so data from running v9.5 provider. -> same as above
-
 How to use:
 - Execute with normal shell in this folder `./rolling_upgrade.sh`
 - Phase 1: Then you will be prompted to enter a subscriber name, it is in the form like `pg95_db.1`. This subscriber will be the first that is upgraded to the new version (v10).
