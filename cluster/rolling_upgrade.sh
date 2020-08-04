@@ -1,6 +1,6 @@
 import_code(){
     source ./.env.sh
-    source ./test_client_lib.sh
+    source ./test_client.sh
 
     source ./helper_scripts/ssh_scp.sh
     source ./helper_scripts/keepalived_helper.sh

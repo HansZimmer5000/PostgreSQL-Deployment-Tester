@@ -1,5 +1,5 @@
 # !/bin/sh
-# This is meant to be 'sourced' from test_client_lib.sh!
+# This is meant to be 'sourced' from test_client.sh!
 
 test_log(){
     echo "$(date) $@"

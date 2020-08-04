@@ -1,7 +1,7 @@
 # Test Scripts
 
 This folder contains scripts to interact and test the deployed postgres containers.
-The main logic can be find in test_client_lib.sh. *BEWARE as the mentioned filed is supposed to be sourced from the ../setup.sh file!*
+The main logic can be find in test_client.sh. *BEWARE as the mentioned filed is supposed to be sourced from the ../setup.sh file!*
 
 TODO update or better reference to help in setup.sh
 Usage:

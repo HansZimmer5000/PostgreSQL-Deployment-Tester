@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 # This File is supposed to be included ('source') from setup.sh so it can use some function from it, do not execute on its own!
 
 ssh_into_vm(){
@@ -249,3 +249,4 @@ end:    will exit this script.
     done
 }
 
+running_loop
