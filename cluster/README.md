@@ -1,5 +1,9 @@
 # Executables
 
+## Full Workflow
+
+First the cluster must be created. Either by getting the Vagrant Boxes or by using an existing cluster. Both variants may will need more or less reconfiguring. After that the setup script can be executed to prepare the cluster for the upcoming interaction. At last the test client can be executed, but its recommended to first prepare the cluster by executing the setup script which will execute the test client in the end.
+
 ## Rolling Upgrade
 
 ### First Time / Prepare Rolling Upgrade 
@@ -7,6 +11,7 @@ The Rolling Upgrade only works with the image presented in the ../custom_images/
 This is due to the usage of logical replication via pglogical2. 
 
 Before executing the rolling upgrade for the first time in a cluster introduce logical replication via pglogical2! There are at least these four ways to be executed to replace container one by one. For these they will use the term "old" for the postgres without pglogical2 and "new" for postgres image including pglogical2. Finally, this means only that pglogical2 is introduced to the cluster, the postgres major version should NOT change.
+
 - Reuse the Volume / Mount
     - Downtime: Yes (at least Write Access), to ensure that no data is written and then lost (due to stop).
     - Sequence:
