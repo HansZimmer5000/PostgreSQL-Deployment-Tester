@@ -2,6 +2,38 @@
 
 ## Rolling Upgrade
 
+### First Time / Prepare Rolling Upgrade 
+The Rolling Upgrade only works with the image presented in the ../custom_images/ folder.
+This is due to the usage of logical replication via pglogical2. 
+
+Before executing the rolling upgrade for the first time in a cluster introduce logical replication via pglogical2! There are at least these four ways to be executed to replace container one by one. For these they will use the term "old" for the postgres without pglogical2 and "new" for postgres image including pglogical2. Finally, this means only that pglogical2 is introduced to the cluster, the postgres major version should NOT change.
+- Reuse the Volume / Mount
+    - Downtime: Yes (at least Write Access), to ensure that no data is written and then lost (due to stop).
+    - Sequence:
+        - Stop the old container
+        - Start the new container and reuse old mount
+- Get state via pg_basebackup
+    - Downtime: Yes, same as above.
+    - Sequence: 
+        - Start new container with pg_basebackup to get state from existing container.
+        - When new container is up, stop old container
+- Install pglogical
+    - Downtime: Zero Downtime possible
+    - Sequence:
+        - Install pglogical on old container
+        - Start pglogical provider on old container
+        - Start new container, but check that the set ip is set to old container with pglogical!
+        - Stop old container, when replication is up-to-date
+    - TODO: Not sure if physical replication (if existent in old container, new to old) and logical replication (new to new) can work side by side.
+- Setup physical replication
+    - Downtime: Zero Downtime possible
+    - Sequence:
+        - Start new container, may need pg_basebackup
+        - Connect new container to old container for physical replication
+        - Stop old container, when replication is up-to-date
+    - TODO: Not sure if physical replication (new to old) and logical replication (new to new) can work side by side.
+
+### Execute Rolling Ugrade
 To perform a rolling upgrade, execute rolling_upgrade.sh.
 
 How to use:
