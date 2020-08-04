@@ -34,8 +34,10 @@ TODOs from Meetings:
   - Use standard PGDATA
   - via ENV vars set "old" folder location and via mount set "old" folder (preperation for pg_upgrade)
 - Tutorial incl. common errors for:
+  - test_client_lib.sh -> also move .. and make it standalone (Currently it depends on being sourced by setup.sh)
   - rolling_upgrade.sh
   - setup.sh
+    - "-s" Option sometimes fails when executed for the 1st time due to "context timeout". Just re-execute the "-s" option.
   - vm_setup.sh
 - Hints on further development (e.g. switch to python or Upgrade from v10 to v12)
 
