@@ -83,7 +83,7 @@ Flags:
 
 To start up the full cluster execute `setup.sh -msp`, to only e.g. reset Postgres container only execute `setup.sh -p`. This will setup & start the VMs, Docker Swarm, Keepalived and Postgres containers. The full execution `-msp` may take a few minutes, the most time is needed when the `-p` flag is set.
 
-After the start setup.sh will source helper_scripts/test_client_lib.sh. For more info on that have a look into helper_scripts/README.md
+After the start setup.sh will source test_client_lib.sh. For more info on that have a look into helper_scripts/README.md
 
 Configuration additionally to the listed in rolling upgrade:
 - Must match existing virtualbox instance names | TODO

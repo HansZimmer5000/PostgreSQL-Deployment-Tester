@@ -82,6 +82,6 @@ else
     echo "-- Using existing stack V9.5 deployment"
 fi
 
-source ./helper_scripts/test_client_lib.sh
+source ./test_client_lib.sh
 running_loop
 

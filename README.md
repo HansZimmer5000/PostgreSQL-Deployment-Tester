@@ -31,7 +31,7 @@ TODOs from Meetings:
 - Usability
   - Make working with script intuitive
 - Tutorial incl. common errors for:
-  - test_client_lib.sh -> also move .. and make it standalone (Currently it depends on being sourced by setup.sh)
+  - test_client_lib.sh 
   - rolling_upgrade.sh
   - setup.sh
     - "-s" Option sometimes fails when executed for the 1st time due to "context timeout". Just re-execute the "-s" option.
