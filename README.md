@@ -1,12 +1,12 @@
 # PostgreSQL-Deployment-Tester
 
-This program does two things:
+This program (setup.sh & rolling_upgrade.sh) does two things:
 - The program deploys a PostgreSQL cluster via Docker Swarm onto VirtualBox VMs.
 - The program can interact with the deployed cluster:
   - To manually force failure and see how the deployment reacts to that
   - To execute the pre defined tests
   - To get current logs and stats
-  - To perform a rolling upgrade.
+  - To perform a rolling upgrade
   
 The main logic is implemented in cluster/setup.sh and cluster/rolling_upgrade.sh.
 See cluster/REAMDE.md for more info.
@@ -37,8 +37,8 @@ TODOs from Meetings:
     - "-s" Option sometimes fails when executed for the 1st time due to "context timeout". Just re-execute the "-s" option.
   - vm_setup.sh
 - First Rolling Upgrade (Introducing pglogical2 into existing v9.5 cluster)
-  - What when existigin v9.5 Cluster does not use logical replication (alle präsentieren / abstrakt beschreiben)?
-    - (SELECTED nach Absprache am 04.08. mit Filip) Reuse Mount -> Downtime 
+  - What when existing v9.5 Cluster does not use logical replication (Present / document all choices)?
+    - (Preferred choice) Reuse Mount -> Downtime 
     - Stop running container, start new container with pg_basebackup -> Downtime
     - install pglogical on running v9.5 containers -> physical replication may active, physical and logical replication possible at the same time?
     - init new v9.5 containers with additional physical replication and get so data from running v9.5 provider. -> same as above
