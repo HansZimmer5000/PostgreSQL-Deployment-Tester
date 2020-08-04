@@ -1,5 +1,7 @@
 # PostgreSQL-Deployment-Tester
 
+- TODO wann bin ich am 13.08. beim Zahnarzt?
+
 This program does two things:
 - The program deploys a PostgreSQL cluster via Docker Swarm onto VirtualBox VMs.
 - The program can interact with the deployed cluster:
@@ -28,23 +30,26 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
   - (NICE) Setup / configure (see following section) the VMs via Ansible or similar.
 
 TODOs from Meetings:
-- What when existigin v9.5 Cluster does not use logical replication?
-    - Reuse Mount -> Downtime 
-    - Stop running container, start new container with pg_basebackup -> Downtime
-    - install pglogical on running v9.5 containers -> physical replication may active, physical and logical replication possible at the same time?
-    - init new v9.5 containers with additional physical replication and get so data from running v9.5 provider. -> same as above
-- Sequencediagram for internal container start
-- Try out with v9.5.3
-- Change Mounts & PGDATA
-  - Use standard PGDATA
-  - via ENV vars set "old" folder location and via mount set "old" folder (preperation for pg_upgrade)
+- Usability
+  - Make working with script intuitive
 - Tutorial incl. common errors for:
   - test_client_lib.sh -> also move .. and make it standalone (Currently it depends on being sourced by setup.sh)
   - rolling_upgrade.sh
   - setup.sh
     - "-s" Option sometimes fails when executed for the 1st time due to "context timeout". Just re-execute the "-s" option.
   - vm_setup.sh
-- Hints on further development (e.g. switch to python or Upgrade from v10 to v12)
+- First Rolling Upgrade (Introducing pglogical2 into existing v9.5 cluster)
+  - What when existigin v9.5 Cluster does not use logical replication (alle präsentieren / abstrakt beschreiben)?
+    - (SELECTED nach Absprache am 04.08. mit Filip) Reuse Mount -> Downtime 
+    - Stop running container, start new container with pg_basebackup -> Downtime
+    - install pglogical on running v9.5 containers -> physical replication may active, physical and logical replication possible at the same time?
+    - init new v9.5 containers with additional physical replication and get so data from running v9.5 provider. -> same as above
+- Documentation
+  - Sequencediagram for internal container start
+  - Change Mounts & PGDATA
+    - Use standard PGDATA
+    - via ENV vars set "old" folder location and via mount set "old" folder (preperation for pg_upgrade)
+  - Hints on further development (e.g. switch to python or Upgrade from v10 to v12)
 
 ## VM Setup
 
