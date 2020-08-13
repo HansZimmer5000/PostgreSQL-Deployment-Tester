@@ -175,15 +175,7 @@ EOWARN
                         authMethod=trust
                 fi
 
-                # TODO is the following included in the normal image?
                 {
-                        echo
-                        echo "hostnossl all postgres 0.0.0.0/0 trust"  
-                        echo "hostnossl all all 0.0.0.0/0 trust"    
-                        echo "hostnossl all postgres 0.0.0.0/0 trust"
-                        echo "local all all md5"
-                        echo "host  replication  all  0.0.0.0/0  md5"
-                        echo "local all postgres trust"
                         echo "host all all all $authMethod"
                 } >> "$PGDATA/pg_hba.conf"
 
