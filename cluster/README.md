@@ -52,7 +52,7 @@ Following the configuration | how to adjust it:
     - all hosts' root users are reachable via ssh on port 22 | If another port is used for SSH, change ssh command at `ssh_scp.sh`.
     - ssh authenticates to hosts via ssh keys in the `keys` folder | If your host needs another key, rename that key to `dsnkey` and set it in the `keys` folder. Basically replace the old key.
     - hosts IPs | Adjustable in the .env.sh file
-    - Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | Before start, logging to your host and see which IP it has, set the values in the `.env.sh` file accordingly.
+    - Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | Before start, logging to your host and see which IP it has, set the values in the `.env.sh` file accordingly. Also set the new VIP according to the base IP in keepalived's config!
     - Hostnames | It is expected for Docker Nodes to have the hostname according to `docker-swarm-node<X>.localdomain`, where `<X>` is replaced with a number from 1 to the max host count. 
     - there are at maximum three hosts | The problem lies when the script uses the above mentioned hostnames! Currently each host is hard coded (e.g. no "for all" function), so in case you want to add more hosts, add the hostnames to the other hardcoded hostnames (`docker_helper.sh:update_labels` and `vm_setup.sh`)
 - Postgres Cluster

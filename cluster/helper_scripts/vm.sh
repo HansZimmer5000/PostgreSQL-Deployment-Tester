@@ -29,7 +29,6 @@ update_all_nodes() {
     update_stacks
 }
 
-# TODO This mainly copies scripts for docker but also for VM! (e.g. demote.sh)
 set_scripts() {
     SCP_CMD_FOR_EACH_NODE "./postgres/reconnect.sh" /etc/
     SCP_CMD_FOR_EACH_NODE "./postgres/demote.sh" /etc/
