@@ -94,6 +94,11 @@ get_virtualip_owner(){
     done
 }
 
+if [ "$1" == "-h" ]; then
+    print_test_client_help
+    exit 0
+fi
+
 source ./helper_scripts/id_ip_nodes.sh
 source ./helper_scripts/test_scenarios.sh
 source ./helper_scripts/postgres_helper.sh
