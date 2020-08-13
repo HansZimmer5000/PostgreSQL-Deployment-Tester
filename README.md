@@ -34,6 +34,7 @@ TODOs from Meetings:
   - test_client.sh 
   - rolling_upgrade.sh
   - setup.sh
+    - It is the best when each option (-m / -s / -p) is executed after another in the command line. 
     - "-s" Option sometimes fails when executed for the 1st time due to "context timeout". Just re-execute the "-s" option.
   - vm_setup.sh
 - Documentation
