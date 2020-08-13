@@ -88,7 +88,7 @@ reset_cluster(){
 # TODO change normal tests ("test_*" functions) so, that they can get executed on the current running environment and then combine multiple environments (see above) with all the normal tests. But Beware, not every environment may be suited for specific test scenarios!
 # TODO paint success / fail in green / red after test.
 # TODO make logging of tests more abstract (f.e. "scenario (1) reset params (0 0 false): success") and may add a log file for further debugging
-# TODO when there were 1 v95 sub and 1 v95 prov, both had VIP, eventhough one notify_log showed that it actually changed to backup. What happened?
+# TODO when there were 1 v95 sub and 1 v95 prov, both had VIP, eventhough one notify_log showed that it did everything correctly. What happened?
 all_reset_params=("0 0 false" "1 0 false" "0 1 false" "0 0 true" "1 0 true" "0 1 true" "$(get_node_count) 0 true")
 
 test_1(){
