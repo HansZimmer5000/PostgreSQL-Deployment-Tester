@@ -10,7 +10,7 @@ source ./helper_scripts/keepalived_helper.sh
 source ./helper_scripts/docker_helper.sh
 source ./helper_scripts/vm.sh
 
-print_help(){
+print_setup_help(){
     echo "
 This script sets up the environment (machines and docker swarm) to start a PostgreSQL Cluster for certain experiments.
 --------------------
@@ -29,7 +29,7 @@ postgres_is_not_running=false
 # 'hmsp:' would mean p also delivers a value (p=4), get it with $OPTARG
 while getopts 'hmsp' opts; do
     case ${opts} in 
-        h)  print_help 
+        h)  print_setup_help 
             exit 0 ;;
         m)  machines_are_not_running=true ;;
         s)  swarm_is_not_initialized=true ;;

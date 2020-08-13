@@ -2,7 +2,7 @@
 
 source ./.env.sh
 
-print_help(){
+print_vms_help(){
     echo "
 This script shutsdown or checks the VMs.
 --------------------
@@ -28,12 +28,12 @@ check_vm(){
 
 
 if [ -z "$1" ]; then
-    print_help
+    print_vms_help
 fi
 
 while getopts 'hsc' opts; do
     case ${opts} in 
-        h)  print_help 
+        h)  print_vms_help 
             exit 0 ;;
         s)  shutdown_vm "Docker Swarm Node 1"
             shutdown_vm "Docker Swarm Node 2"
