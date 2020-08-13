@@ -50,13 +50,14 @@ How to use:
 Following the configuration | how to adjust it:
 - Docker Swarm Nodes / Hosts
     - all hosts' root users are reachable via ssh on port 22 | If another port is used for SSH, change ssh command at `ssh_scp.sh`.
-    - ssh authenticates to hosts via ssh keys in the `keys` folder | TODO
+    - ssh authenticates to hosts via ssh keys in the `keys` folder | If your host needs another key, rename that key to `dsnkey` and set it in the `keys` folder. Basically replace the old key.
     - hosts IPs | Adjustable in the .env.sh file
-    - Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | TODO
-    - there are at maximum three hosts | TODO
+    - Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | Before start, logging to your host and see which IP it has, set the values in the `.env.sh` file accordingly.
+    - Hostnames | It is expected for Docker Nodes to have the hostname according to `docker-swarm-node<X>.localdomain`, where `<X>` is replaced with a number from 1 to the max host count. 
+    - there are at maximum three hosts | The problem lies when the script uses the above mentioned hostnames! Currently each host is hard coded (e.g. no "for all" function), so in case you want to add more hosts, add the hostnames to the other hardcoded hostnames (`docker_helper.sh:update_labels` and `vm_setup.sh`)
 - Postgres Cluster
-    - There is only one provider per Cluster | TODO
-    - There are 0 or more subscriber per Cluster | TODO
+    - There is only one provider per Cluster | TODO as some parts work on the basis of this without checking if there really is only one provider.
+    - There are 0 or more subscriber per Cluster | No Problem as long as their container name follows the name after deploying the stack (e.g. `pg10_db.1` for the `first container` of the `db service` of the `pg10 stack`.)
     - old version is 9.5.18 | Change would affect Images and parts of the script thats checks the postgres version
     - new version is 10.13 | Change would affect Images and parts of the script thats checks the postgres version
     - Postgres Images need to have pglogical2 installed | No way around that without massive changes
@@ -65,9 +66,9 @@ Following the configuration | how to adjust it:
     - Scripts expect the provider to be the last instance that is upgraded. | TODO
     - The script is only tested in linux | May need additional installs to work, but which exactly is TODO.
 - Docker Stacks:
-    - Tested version does only include anonymous mounts! | TODO
-    - The script and stacks will expect certain executable scripts from the `postgres` and `keepalived` folders at certain locations on the hosts, have a look at: ![Placement](./script_location.png). The placement inside the container is done via the stacks. | TODO
-    - Scripts uses the docker node label `pg_ver` to mark where to run which version | TODO
+    - Tested version does only include anonymous mounts! | If you are using named mounts, beware as they outlive the container and may be reused in a new container! Otherwise set your named mount accordingly in the stacks.
+    - The script and stacks will expect certain executable scripts from the `postgres` and `keepalived` folders at certain locations on the hosts, have a look at: ![Placement](./script_location.png). The placement inside the container is done via the stacks. | If the files are expected to be placed somwhere else, the only way for the script to find these files on the hosts, is to adjust the scripts accordingly. TODO env mit folders?
+    - Scripts uses the docker node label `pg_ver` to mark where to run which version | If you want to rename that, rename all occurrences in the scripts.
     - old version stack is deployed with the name `pg95` and the postgres service is called `db` and the network is called `pgnet` | Change any occurence of the mentioned values in the code and stack file to the wanted text.
     - new version stack is deployed with the name `pg10` and the postgres service is called `db` and the network is called `pgnet` | Change any occurence of the mentioned values in the code and stack file to the wanted text.
 

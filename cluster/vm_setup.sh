@@ -61,3 +61,4 @@ setup_vm(){
 
 setup_vm $dsn1_node docker-swarm-node1.localdomain
 setup_vm $dsn2_node docker-swarm-node2.localdomain
+#setup_vm $dsn2_node docker-swarm-node2.localdomain
