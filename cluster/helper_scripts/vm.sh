@@ -27,14 +27,14 @@ wait_for_vm() {
 }
 
 set_scripts() {
-    SCP_CMD_FOR_EACH_NODE "./postgres/reconnect.sh" /etc/
-    SCP_CMD_FOR_EACH_NODE "./postgres/demote.sh" /etc/
-    SCP_CMD_FOR_EACH_NODE "./postgres/sub_setup.sh" /etc/
+    scp_cmd_for_each_node "./postgres/reconnect.sh" /etc/
+    scp_cmd_for_each_node "./postgres/demote.sh" /etc/
+    scp_cmd_for_each_node "./postgres/sub_setup.sh" /etc/
 
 
-    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/reconnect.sh"
-    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/demote.sh"
-    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/sub_setup.sh"
+    ssh_cmd_for_each_node "chmod +x /etc/reconnect.sh"
+    ssh_cmd_for_each_node "chmod +x /etc/demote.sh"
+    ssh_cmd_for_each_node "chmod +x /etc/sub_setup.sh"
 }
 
 start_machines() {

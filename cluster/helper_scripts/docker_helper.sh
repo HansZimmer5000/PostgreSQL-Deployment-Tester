@@ -60,9 +60,9 @@ set_docker_files(){
 }
 
 set_stacks() {
-    SCP_CMD_FOR_EACH_NODE ./stacks/stack95.yml /root/
-    SCP_CMD_FOR_EACH_NODE ./stacks/stack10.yml /root/
-    SCP_CMD_FOR_EACH_NODE ./stacks/portainer-agent-stack.yml /root/
+    scp_cmd_for_each_node ./stacks/stack95.yml /root/
+    scp_cmd_for_each_node ./stacks/stack10.yml /root/
+    scp_cmd_for_each_node ./stacks/portainer-agent-stack.yml /root/
 }
 
 gather_id() {
@@ -85,13 +85,13 @@ reset_config() {
 }
 
 build_images() {
-    SCP_CMD_FOR_EACH_NODE "../custom_image/9.5.18.dockerfile" /etc/
-    SCP_CMD_FOR_EACH_NODE "../custom_image/10.13.dockerfile" /etc/
-    SCP_CMD_FOR_EACH_NODE "../custom_image/docker-entrypoint.sh" /etc/
-    SSH_CMD_FOR_EACH_NODE "chmod +x /etc/docker-entrypoint.sh"
+    scp_cmd_for_each_node "../custom_image/9.5.18.dockerfile" /etc/
+    scp_cmd_for_each_node "../custom_image/10.13.dockerfile" /etc/
+    scp_cmd_for_each_node "../custom_image/docker-entrypoint.sh" /etc/
+    ssh_cmd_for_each_node "chmod +x /etc/docker-entrypoint.sh"
 
-    SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5-raw"
-    SSH_CMD_FOR_EACH_NODE "docker build /etc/ -f /etc/10.13.dockerfile -t mypglog:10-raw"
+    ssh_cmd_for_each_node "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5-raw"
+    ssh_cmd_for_each_node "docker build /etc/ -f /etc/10.13.dockerfile -t mypglog:10-raw"
 }
 
 set_configs() {
@@ -105,8 +105,8 @@ clean_docker() {
     $SSH_CMD root@$manager_node "docker stack rm pg10"
     sleep 10s #Wait till everything is deleted
 
-    SSH_CMD_FOR_EACH_NODE "docker rm $(docker ps -aq) -f"
-    SSH_CMD_FOR_EACH_NODE "docker volume prune -f"
+    ssh_cmd_for_each_node "docker rm $(docker ps -aq) -f"
+    ssh_cmd_for_each_node "docker volume prune -f"
 }
 
 deploy_stack() {
@@ -119,8 +119,8 @@ deploy_stack() {
 }
 
 start_swarm() {
-    SSH_CMD_FOR_EACH_NODE "systemctl start docker"
-    SSH_CMD_FOR_EACH_NODE "docker swarm leave -f"
+    ssh_cmd_for_each_node "systemctl start docker"
+    ssh_cmd_for_each_node "docker swarm leave -f"
 
     full_init_msg=$($SSH_CMD root@$manager_node "docker swarm init --advertise-addr $manager_node")
     TOKEN=$(extract_token "$full_init_msg")
@@ -316,5 +316,5 @@ upgrade_subscriber(){
 }
 
 update_cluster_version(){
-    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
+    ssh_cmd_for_each_node "echo $1 > /etc/keepalived/cluster_version.txt"
 }

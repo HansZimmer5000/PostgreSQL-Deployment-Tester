@@ -69,10 +69,10 @@ ssh_into_vm(){
 }
 
 set_cluster_version(){
-    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
+    ssh_cmd_for_each_node "echo $1 > /etc/keepalived/cluster_version.txt"
 }
 get_cluster_version(){
-    SSH_CMD_FOR_EACH_NODE "cat /etc/keepalived/cluster_version.txt"
+    ssh_cmd_for_each_node "cat /etc/keepalived/cluster_version.txt"
 }
 
 get_virtualip_owner(){    
