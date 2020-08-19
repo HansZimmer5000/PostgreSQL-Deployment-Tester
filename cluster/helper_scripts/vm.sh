@@ -9,7 +9,7 @@
 get_current_node_ips() {
     index=0
     for current_node in $all_nodes; do
-        if ! [ -z "$current_node" ]; then echo "node$index (label=$(get_label_version $index))": $($SSH_CMD root@$current_node hostname -I); fi
+        if ! [ -z "$current_node" ]; then echo "node$index (label=$(get_version_label $index))": $($SSH_CMD root@$current_node hostname -I); fi
         index=$((index+1))
     done
 }

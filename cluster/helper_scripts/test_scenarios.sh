@@ -19,13 +19,13 @@ get_node_count(){
 set_v95_and_v10_labels(){
     current_v95_node_num=0
     while [ "$current_v95_node_num" -lt "$1" ]; do
-        set_label_version $current_v95_node_num 9.5 
+        set_version_label_of_index $current_v95_node_num 9.5 
         current_v95_node_num=$(($current_v95_node_num+1))
     done
 
     current_v10_node_num=0
     while [ "$current_v10_node_num" -lt "$2" ]; do
-        set_label_version $(($current_v10_node_num+$current_v95_node_num)) 10 
+        set_version_label_of_index $(($current_v10_node_num+$current_v95_node_num)) 10 
         current_v10_node_num=$(($current_v10_node_num+1))
     done
 }
