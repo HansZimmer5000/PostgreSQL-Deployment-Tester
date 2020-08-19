@@ -4,6 +4,7 @@
 # - docker_helper.sh
 # - keepalived_helper.sh
 # - ssh_scp.sh
+# - .env.sh
 
 get_current_node_ips() {
     index=0

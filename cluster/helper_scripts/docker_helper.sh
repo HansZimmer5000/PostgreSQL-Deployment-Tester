@@ -3,10 +3,10 @@
 # Depends on (will be sourced by using script):
 # - ssh_scp.sh
 
-EXTRACT_TOKEN_FAILURE_RESULT="NOT FOUND"
+extract_token_failure_text="NOT FOUND"
 
 extract_token() {
-    result="$EXTRACT_TOKEN_FAILURE_RESULT"
+    result="$extract_token_failure_text"
 
     token_raw=($(echo $1 | grep -o "SWMTKN.*"))
     if [ "${#token_raw[@]}" -gt 0 ]; then
