@@ -39,13 +39,13 @@ get_local_table(){
 }
 
 get_table(){
-    CURRENT_INFO=$(get_node_and_id_from_name "$1")
-    if [ -z $CURRENT_INFO ]; then
+    tuple=$(get_tuple "$1")
+    if [ -z $tuple ]; then
         echo "Container $1 was not found, is it really active?"
     else
-        IFS=',' read CURRENT_NODE CURRENT_ID <<< "${CURRENT_INFO}"
-        echo "Getting Table with: $CURRENT_INFO"
-        get_local_table $CURRENT_NODE $CURRENT_ID
+        node=$(get_node $tuple)
+        id=$(get_id $tuple)
+        get_local_table $node $id
     fi
 }
 

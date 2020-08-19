@@ -214,12 +214,13 @@ kill_pg_by_name(){
 }
 
 get_log(){
-    CURRENT_INFO=$(get_node_and_id_from_name "$1")
-    if [ -z $CURRENT_INFO ]; then
+    tuple=$(get_tuple_from_name $1)
+    if [ -z $tuple ]; then
         echo "Container $1 was not found, is it really active?"
     else
-        IFS=',' read CURRENT_NODE CURRENT_ID <<< "${CURRENT_INFO}"
-        $SSH_CMD_TIMEOUT root@$CURRENT_NODE "docker logs $CURRENT_ID"
+        node=$(get_node $tuple)
+        id=$(get_id $tuple)
+        $SSH_CMD_TIMEOUT root@$node "docker logs $id"
     fi
 }
 

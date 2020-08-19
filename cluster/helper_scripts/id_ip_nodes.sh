@@ -55,18 +55,6 @@ get_tuple_from_name() {
     done
 }
 
-get_node_and_id_from_name() {
-    for tuple in $ID_IP_NODEs; do
-        current_name=$(get_name "$tuple")
-        if [[ $current_name == $1 ]]; then
-            current_node=$(get_node "$tuple")
-            current_id=$(get_id "$tuple")
-            echo "$current_node,$current_id"
-            break
-        fi
-    done
-}
-
 get_all_tuples(){
     echo "$ID_IP_NODEs"
 }
