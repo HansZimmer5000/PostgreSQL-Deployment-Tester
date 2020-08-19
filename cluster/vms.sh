@@ -39,9 +39,10 @@ while getopts 'hsc' opts; do
             shutdown_vm "Docker Swarm Node 2"
             shutdown_vm "Docker Swarm Node 3"
             ;;
-        c)  check_vm $dsn1_node
-            check_vm $dsn2_node
-            check_vm $dsn3_node
+        c)  
+            for current_node in $all_nodes; do
+                check_vm $current_node
+            done
             ;;
     esac
 done

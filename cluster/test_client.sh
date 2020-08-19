@@ -20,15 +20,15 @@ reconnect:  []
 
 -- Interact with VMs
 
-ssh:    [1=dsn1, 2=dsn2, ...]
-        will ssh into the given node by its name which was set in the ../.env.sh file.
+ssh:    [0=first node, 1=second node, ...]
+        will ssh into the given node by its name which was set in the 'all_nodes' variable in the ../.env.sh file.
 
 cl_vr:  [number]
         if given, will set the Cluster Version according to the exact input which is mandatory.
         If no input is given, current versions will be shown.       
 
-lb_vr:  [number (1=dsn1, 2=dsn2, ...)] [number (version)]
-        if given, will set the version number to the specified node as a docker swarm node label.
+lb_vr:  [number (0=first node, 1=second node, ...)] [number (version)]
+        if given, will set the version number to the specified node (according to order of 'all_nodes' variable in the ../.env.sh file) as a docker swarm node label.
         If no input is given, current labels will be shown.
 
 -- Get Info about VMs & Containers
@@ -76,9 +76,9 @@ get_cluster_version(){
 }
 
 get_virtualip_owner(){    
-    ping -c 1 $dsn1_node 1> /dev/null
-    ping -c 1 $dsn2_node 1> /dev/null
-    ping -c 1 $dsn3_node 1> /dev/null
+    for current_node in $all_nodes; do
+        ping -c 1 $current_node 1> /dev/null
+    done
     ping -c 1 192.168.99.149 1> /dev/null
 
     virtualip_entry=($(arp -n 192.168.99.149))
@@ -163,13 +163,8 @@ running_loop() {
             if [ -z "$PARAM1" ]; then
                 echo "-- Missing node"
             else
-                if [ "$PARAM1" == "1" ]; then
-                    get_notify_log $dsn1_node
-                elif [ "$PARAM1" == "2" ]; then
-                    get_notify_log $dsn2_node
-                elif [ "$PARAM1" == "3" ]; then
-                    get_notify_log $dsn3_node
-                fi
+                current_node=$(get_dsn_node $PARAM1)
+                get_notify_log $current_node
             fi
             ;;
         "check")
@@ -180,14 +175,9 @@ running_loop() {
         "vip")
             get_virtualip_owner
             ;;
-        "ssh")
-            if [ "$PARAM1" == "1" ]; then
-                ssh_into_vm $dsn1_node
-            elif [ "$PARAM1" == "2" ]; then
-                ssh_into_vm $dsn2_node
-            elif [ "$PARAM1" == "3" ]; then
-                ssh_into_vm $dsn3_node
-            fi
+        "ssh")                
+                current_node=$(get_dsn_node $PARAM1)
+                ssh_into_vm $current_node
             ;;
         "cl_vr")
             if ! [ -z "$PARAM1" ]; then
