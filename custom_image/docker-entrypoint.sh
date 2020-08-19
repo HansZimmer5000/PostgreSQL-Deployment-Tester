@@ -85,6 +85,8 @@ init_basebackup(){
 }
 
 upgrade_backup(){
+    # TODO this may be executed in v9.5 container (when it should not)!
+    # The state is when the container starts with a non-empty PGDATA directory which he then tries to upgrade, which will fail since the v9.5 container does not have the '.../10/bin/pg_upgrade' script on purpose.
     if $1; then
             echo "-- executing pg_upgrade with Path: $PATH"
             export PGBINOLD=/usr/lib/postgresql/9.5/bin
