@@ -28,6 +28,7 @@ services:
             - PROVIDER_IP=192.168.99.149 # TODO how to make this dynamic by somehow getting this value from ../.env.sh?
         volumes: 
             - ../postgres/sub_setup.sh:/etc/sub_setup.sh
+            # COMPOSE - BEWARE! Compose may reuse old mounts/volumes if non are given!
             #- pgdata:/var/lib/postgresql/9.5/data # BIG TODO!!: Due to volume usage, restarted container will be in the role whatever the container before had!! Maybe clear volume at every container start?
             - ../postgres/table_setup.sql:/docker-entrypoint-initdb.d/init.sql
             - ../postgres/sub_postgresql.conf:/usr/share/postgresql/postgresql.conf.sample
