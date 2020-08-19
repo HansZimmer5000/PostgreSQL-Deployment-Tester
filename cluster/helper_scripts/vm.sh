@@ -71,3 +71,29 @@ start_machines() {
     echo "-- Running VMs: "
     VBoxManage list runningvms
 }
+
+get_dsn_node(){
+    arr=($all_nodes)
+    echo ${arr[$1]}
+}
+
+get_hostname(){
+    arr=($all_hostnames)
+    echo ${arr[$1]}
+}
+
+get_node_count(){
+    arr=($all_hostnames)
+    echo ${#arr[@]}
+}
+
+get_index_of_dsn_node(){
+    index=0
+    for current_node in $all_nodes; do
+        if [[ "$1" == "$current_node" ]]; then
+            echo $index
+            break
+        fi
+        index=$((index+1))
+    done
+}
