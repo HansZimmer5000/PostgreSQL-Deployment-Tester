@@ -21,6 +21,7 @@ set_label(){
     $SSH_CMD root@$manager_node docker node update --label-add $2=$3 $1
 }
 
+# $1 = IP of node that gets new version label
 set_label_version() {
     hostname=$(get_hostname $1)
     if [ -z "$hostname" ]; then
