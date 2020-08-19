@@ -1,5 +1,6 @@
 import_code(){
     source ./.env.sh
+    source ./test_client.sh
 
     source ./helper_scripts/ssh_scp.sh
     source ./helper_scripts/keepalived_helper.sh
@@ -9,7 +10,6 @@ import_code(){
     source ./helper_scripts/id_ip_nodes.sh
     source ./helper_scripts/test_scenarios.sh
     source ./helper_scripts/postgres_helper.sh
-    source ./helper_scripts/test_client_lib.sh
 }
 
 rollback_all_subscriber(){

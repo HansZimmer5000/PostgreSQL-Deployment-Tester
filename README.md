@@ -1,12 +1,12 @@
 # PostgreSQL-Deployment-Tester
 
-This program does two things:
+This program (setup.sh & rolling_upgrade.sh) does two things:
 - The program deploys a PostgreSQL cluster via Docker Swarm onto VirtualBox VMs.
 - The program can interact with the deployed cluster:
   - To manually force failure and see how the deployment reacts to that
   - To execute the pre defined tests
   - To get current logs and stats
-  - To perform a rolling upgrade.
+  - To perform a rolling upgrade
   
 The main logic is implemented in cluster/setup.sh and cluster/rolling_upgrade.sh.
 See cluster/REAMDE.md for more info.
@@ -28,23 +28,20 @@ As this is a Work in Progress there are currently alot of limitations. Each of t
   - (NICE) Setup / configure (see following section) the VMs via Ansible or similar.
 
 TODOs from Meetings:
-- What when existigin v9.5 Cluster does not use logical replication?
-    - Reuse Mount -> Downtime 
-    - Stop running container, start new container with pg_basebackup -> Downtime
-    - install pglogical on running v9.5 containers -> physical replication may active, physical and logical replication possible at the same time?
-    - init new v9.5 containers with additional physical replication and get so data from running v9.5 provider. -> same as above
-- Sequencediagram for internal container start
-- Try out with v9.5.3
-- Change Mounts & PGDATA
-  - Use standard PGDATA
-  - via ENV vars set "old" folder location and via mount set "old" folder (preperation for pg_upgrade)
+- Usability
+  - Make working with script intuitive
 - Tutorial incl. common errors for:
-  - test_client_lib.sh -> also move .. and make it standalone (Currently it depends on being sourced by setup.sh)
+  - test_client.sh 
   - rolling_upgrade.sh
   - setup.sh
+    - It is the best when each option (-m / -s / -p) is executed after another in the command line. 
     - "-s" Option sometimes fails when executed for the 1st time due to "context timeout". Just re-execute the "-s" option.
   - vm_setup.sh
-- Hints on further development (e.g. switch to python or Upgrade from v10 to v12)
+- Documentation
+  - Change Mounts & PGDATA
+    - Use standard PGDATA
+    - via ENV vars set "old" folder location and via mount set "old" folder (preperation for pg_upgrade)
+  - Hints on further development (e.g. switch to python or Upgrade from v10 to v12)
 
 ## VM Setup
 

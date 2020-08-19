@@ -1,5 +1,68 @@
-#!/bin/sh -x
+#!/bin/sh
 # This File is supposed to be included ('source') from setup.sh so it can use some function from it, do not execute on its own!
+
+print_test_client_help(){
+    echo "' $COMMAND $PARAM1 ' is not a valid command:"
+    echo "
+-- Interact with Container 
+start:      [servicename]
+            will start a new postgres container within the specified service (e.g. pg95_db or pg10_db). 
+            BEWARE as container expose ports via host mode which limits the container per VM to one!
+        
+kill:       [dbname] 
+            will reduce the replica count of the swarm stack and kill a given container by its name as printed by status. Also set '-c' to crash-kill a container and not adjust the replica count.
+        
+reset:      [number] [number] [bool]
+            will reset the cluster to the given v9.5 replication count (first param), v10 replication count (second param) and a boolean if the provider should be in version 10 (false = v9.5).
+  
+reconnect:  []
+            will reconnect all subscriber to the virtual IP (more info about that in ../keepalived/).
+
+-- Interact with VMs
+
+ssh:    [0=first node, 1=second node, ...]
+        will ssh into the given node by its name which was set in the 'all_nodes' variable in the ../.env.sh file.
+
+cl_vr:  [number]
+        if given, will set the Cluster Version according to the exact input which is mandatory.
+        If no input is given, current versions will be shown.       
+
+lb_vr:  [number (0=first node, 1=second node, ...)] [number (version)]
+        if given, will set the version number to the specified node (according to order of 'all_nodes' variable in the ../.env.sh file) as a docker swarm node label.
+        If no input is given, current labels will be shown.
+
+-- Get Info about VMs & Containers
+
+vip:    will return the owner of the virtual IP.
+    
+status: [-a,-o,-f] 
+        will return the status of the containers. Either fast (-f, without update info), verbose (-a, also lists all VM IPs) and continously (-o, as -a but never stops)
+        
+log:    [dbname]
+        will return the docker log of the given name.
+        
+notify: [1=db.1,2=db.2,...]
+        will return the keepalived 'notify_log.txt' file of a given node by its name which was set in the ../.env.sh file.
+
+table:  [dbname]
+        will return the current content of the 'testtable' in the postgres container by its name.
+
+-- Test Cluster
+
+check:      will check if the shown roles by 'status' are correct and replication works as expected.
+    
+test:       [1-4]
+            will execute the normal integration test(s). Either a single one by providing a number or all by not providing a number.
+        
+up_test:    [1-2]
+            will execute the upgrade integration test(s). Behaves like 'test'.
+        
+-- Misc.
+
+end:    will exit this script.
+
+"
+}
 
 ssh_into_vm(){
     $SSH_CMD root@$1
@@ -13,9 +76,9 @@ get_cluster_version(){
 }
 
 get_virtualip_owner(){    
-    ping -c 1 $dsn1_node 1> /dev/null
-    ping -c 1 $dsn2_node 1> /dev/null
-    ping -c 1 $dsn3_node 1> /dev/null
+    for current_node in $all_nodes; do
+        ping -c 1 $current_node 1> /dev/null
+    done
     ping -c 1 192.168.99.149 1> /dev/null
 
     virtualip_entry=($(arp -n 192.168.99.149))
@@ -30,6 +93,11 @@ get_virtualip_owner(){
         fi
     done
 }
+
+if [ "$1" == "-h" ]; then
+    print_test_client_help
+    exit 0
+fi
 
 source ./helper_scripts/id_ip_nodes.sh
 source ./helper_scripts/test_scenarios.sh
@@ -95,13 +163,8 @@ running_loop() {
             if [ -z "$PARAM1" ]; then
                 echo "-- Missing node"
             else
-                if [ "$PARAM1" == "1" ]; then
-                    get_notify_log $dsn1_node
-                elif [ "$PARAM1" == "2" ]; then
-                    get_notify_log $dsn2_node
-                elif [ "$PARAM1" == "3" ]; then
-                    get_notify_log $dsn3_node
-                fi
+                current_node=$(get_dsn_node $PARAM1)
+                get_notify_log $current_node
             fi
             ;;
         "check")
@@ -112,14 +175,9 @@ running_loop() {
         "vip")
             get_virtualip_owner
             ;;
-        "ssh")
-            if [ "$PARAM1" == "1" ]; then
-                ssh_into_vm $dsn1_node
-            elif [ "$PARAM1" == "2" ]; then
-                ssh_into_vm $dsn2_node
-            elif [ "$PARAM1" == "3" ]; then
-                ssh_into_vm $dsn3_node
-            fi
+        "ssh")                
+                current_node=$(get_dsn_node $PARAM1)
+                ssh_into_vm $current_node
             ;;
         "cl_vr")
             if ! [ -z "$PARAM1" ]; then
@@ -184,68 +242,10 @@ running_loop() {
             LOOP=false
             ;;
         *) 
-            echo "' $COMMAND $PARAM1 ' is not a valid command:"
-            echo "
--- Interact with Container 
-start:      [servicename]
-            will start a new postgres container within the specified service (e.g. pg95_db or pg10_db). 
-            BEWARE as container expose ports via host mode which limits the container per VM to one!
-        
-kill:       [dbname] 
-            will reduce the replica count of the swarm stack and kill a given container by its name as printed by status. Also set '-c' to crash-kill a container and not adjust the replica count.
-        
-reset:      [number] [number] [bool]
-            will reset the cluster to the given v9.5 replication count (first param), v10 replication count (second param) and a boolean if the provider should be in version 10 (false = v9.5).
-  
-reconnect:  []
-            will reconnect all subscriber to the virtual IP (more info about that in ../keepalived/).
-
--- Interact with VMs
-
-ssh:    [1=dsn1, 2=dsn2, ...]
-        will ssh into the given node by its name which was set in the ../.env.sh file.
-
-cl_vr:  [number]
-        if given, will set the Cluster Version according to the exact input which is mandatory.
-        If no input is given, current versions will be shown.       
-
-lb_vr:  [number (1=dsn1, 2=dsn2, ...)] [number (version)]
-        if given, will set the version number to the specified node as a docker swarm node label.
-        If no input is given, current labels will be shown.
-
--- Get Info about VMs & Containers
-
-vip:    will return the owner of the virtual IP.
-    
-status: [-a,-o,-f] 
-        will return the status of the containers. Either fast (-f, without update info), verbose (-a, also lists all VM IPs) and continously (-o, as -a but never stops)
-        
-log:    [dbname]
-        will return the docker log of the given name.
-        
-notify: [1=db.1,2=db.2,...]
-        will return the keepalived 'notify_log.txt' file of a given node by its name which was set in the ../.env.sh file.
-
-table:  [dbname]
-        will return the current content of the 'testtable' in the postgres container by its name.
-
--- Test Cluster
-
-check:      will check if the shown roles by 'status' are correct and replication works as expected.
-    
-test:       [1-4]
-            will execute the normal integration test(s). Either a single one by providing a number or all by not providing a number.
-        
-up_test:    [1-2]
-            will execute the upgrade integration test(s). Behaves like 'test'.
-        
--- Misc.
-
-end:    will exit this script.
-
-"
+            print_test_client_help
             ;;
         esac
     done
 }
 
+running_loop

@@ -1,12 +1,12 @@
 # !/bin/sh
-# This is meant to be 'sourced' from test_client_lib.sh!
+# This is meant to be 'sourced' from test_client.sh!
 
 test_log(){
     echo "$(date) $@"
 }
 
 get_node_count(){
-    echo $ALL_NODES | wc -w
+    echo $all_nodes | wc -w
 }
 
 # TESTSCENARIOS
@@ -16,23 +16,22 @@ get_node_count(){
 # Param 1 = v95 Instances
 # Param 2 = v10 Instances
 reset_labels(){
-    current_v95_node_num=1
-    while [ "$current_v95_node_num" -le "$1" ]; do
-        set_label_version $current_v95_node_num 9.5
+    current_v95_node_num=0
+    while [ "$current_v95_node_num" -lt "$1" ]; do
+        set_label_version $current_v95_node_num 9.5 
         current_v95_node_num=$(($current_v95_node_num+1))
     done
 
-    node_num_offset=$(($current_v95_node_num-1))
-    current_v10_node_num=1
-    while [ "$current_v10_node_num" -le "$2" ]; do
-        set_label_version $(($current_v10_node_num+$node_num_offset)) 10
+    current_v10_node_num=0
+    while [ "$current_v10_node_num" -lt "$2" ]; do
+        set_label_version $(($current_v10_node_num+$current_v95_node_num)) 10 
         current_v10_node_num=$(($current_v10_node_num+1))
     done
 }
 
 # Expecting v9.5 Subscriber count as Param1, default is 1
 # Expecting v10 Subscriber count as Param2, default is 0
-# Expecting if Provider should be v10, default is false (v9.5)
+# Expecting if Provider should be v10, default is false
 reset_cluster(){
     update_id_ip_nodes
 
@@ -88,7 +87,7 @@ reset_cluster(){
 # TODO change normal tests ("test_*" functions) so, that they can get executed on the current running environment and then combine multiple environments (see above) with all the normal tests. But Beware, not every environment may be suited for specific test scenarios!
 # TODO paint success / fail in green / red after test.
 # TODO make logging of tests more abstract (f.e. "scenario (1) reset params (0 0 false): success") and may add a log file for further debugging
-# TODO when there were 1 v95 sub and 1 v95 prov, both had VIP, eventhough one notify_log showed that it actually changed to backup. What happened?
+# TODO when there were 1 v95 sub and 1 v95 prov, both had VIP, eventhough one notify_log showed that it did everything correctly. What happened?
 all_reset_params=("0 0 false" "1 0 false" "0 1 false" "0 0 true" "1 0 true" "0 1 true" "$(get_node_count) 0 true")
 
 test_1(){
@@ -270,63 +269,6 @@ test_4(){
 }
 
 ####### UPGRADE_TESTS
-
-# $1 = total number of new (v10) postgres instances after upgrade
-upgrade_provider(){
-    # TODO adjust to upgrade_subscriber code
-
-    # 1. Shutdown Provider Smart
-    prov_tuple="$(get_all_provider)"
-    prov_node=$(get_node "$prov_tuple")
-    prov_id=$(get_id "$prov_tuple")
-    $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
-    
-    # TODO write down in documentation that this expects that the provider is the last v9.5 db!
-    scale_service_with_timeout "pg95_db" 0 1> /dev/null
-
-    # 2. Adjust Cluster & Node Labels
-    set_cluster_version 10.13
-
-    # Beware that this only changes the node label of the provider node! 
-    # This code,again, expects that the provider is the last v9.5 db!
-    if [ "$prov_node" == "$dsn1_node" ]; then
-        set_label_version 1 10
-    elif [ "$prov_node" == "$dsn2_node" ]; then
-        set_label_version 2 10
-    elif [ "$prov_node" == "$dsn3_node" ]; then
-        set_label_version 3 10
-    fi
-
-    # 3. Increase v10 Instance count by one.
-    scale_service_with_timeout "pg10_db" $1 1> /dev/null
-    update_id_ip_nodes
-    sleep 30s
-}
-
-# $1 = name of the old (v9.5) postgres instance that will ge upgraded (replaced with a new (v10) one)
-# $2 = total number of new (v10) postgres instances after upgrade
-upgrade_subscriber(){
-    # TODO make $2 deprecated by getting current replica count from docker service directly and then increase by one to get total number of new postgres instances.
-    sub_tuple=$(get_tuple_from_name $1)
-    sub_node=$(get_node $sub_tuple)
-    kill_subscriber "$1" 1> /dev/null
-
-    if [ "$sub_node" == "$dsn1_node" ]; then
-        set_label_version 1 10
-    elif [ "$sub_node" == "$dsn2_node" ]; then
-        set_label_version 2 10
-    elif [ "$sub_node" == "$dsn3_node" ]; then
-        set_label_version 3 10
-    fi
-    scale_service_with_timeout "pg10_db" $2 1> /dev/null
-
-    update_id_ip_nodes
-    sleep 30s
-}
-
-update_cluster_version(){
-    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
-}
 
 upgrade_test_1(){
     # Major Upgrade of running Subscriber

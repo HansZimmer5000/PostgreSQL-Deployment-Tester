@@ -18,21 +18,28 @@ extract_token() {
 
 set_label(){
     # Do not delete the label before setting it, otherwise swarm most certainly will shutdown depended containers.
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add $2=$3 $1
+    $SSH_CMD root@$manager_node docker node update --label-add $2=$3 $1
 }
 
 set_label_version() {
-    set_label "docker-swarm-node$1.localdomain" "pg_ver" "$2" 1> /dev/null
+    hostname=$(get_hostname $1)
+    if [ -z "$hostname" ]; then
+        echo "Could not find the hostname for index $1"
+        exit 1
+    else
+        set_label $hostname "pg_ver" "$2" 1> /dev/null
+    fi
 }
 
 get_label_version(){
-    $SSH_CMD root@$MANAGER_NODE "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' docker-swarm-node$1.localdomain"
+    hostname=$(get_hostname $1)
+    $SSH_CMD root@$manager_node "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' $hostname"
 }
 
 update_labels(){
-    set_label "docker-swarm-node1.localdomain" "pg_ver" "9.5"
-    set_label "docker-swarm-node2.localdomain" "pg_ver" "9.5"
-    set_label "docker-swarm-node3.localdomain" "pg_ver" "9.5"
+    for current_hostname in $all_hostnames; do
+        set_label $current_hostname "pg_ver" "9.5"
+    done
 }
 
 update_stacks() {
@@ -55,9 +62,9 @@ gather_running_containers() {
 
 # $1 = name // $2 = local location // $3 = remote location
 reset_config() {
-    $SSH_CMD root@$MANAGER_NODE "docker config rm $1" 2>/dev/null
-    $SCP_CMD $2 root@$MANAGER_NODE:$3
-    $SSH_CMD root@$MANAGER_NODE "docker config create $1 $3"
+    $SSH_CMD root@$manager_node "docker config rm $1" 2>/dev/null
+    $SCP_CMD $2 root@$manager_node:$3
+    $SSH_CMD root@$manager_node "docker config create $1 $3"
 }
 
 build_images() {
@@ -77,8 +84,8 @@ set_configs() {
 }
 
 clean_docker() {
-    $SSH_CMD root@$MANAGER_NODE "docker stack rm pg95"
-    $SSH_CMD root@$MANAGER_NODE "docker stack rm pg10"
+    $SSH_CMD root@$manager_node "docker stack rm pg95"
+    $SSH_CMD root@$manager_node "docker stack rm pg10"
     sleep 10s #Wait till everything is deleted
 
     SSH_CMD_FOR_EACH_NODE "docker rm $(docker ps -aq) -f"
@@ -86,43 +93,48 @@ clean_docker() {
 }
 
 deploy_stack() {
-    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack95.yml pg95"
-    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack10.yml pg10"
-    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c portainer-agent-stack.yml portainer"
+    $SSH_CMD root@$manager_node "docker stack deploy -c stack95.yml pg95"
+    $SSH_CMD root@$manager_node "docker stack deploy -c stack10.yml pg10"
+    $SSH_CMD root@$manager_node "docker stack deploy -c portainer-agent-stack.yml portainer"
     sleep 15s #Wait till everything has started
 
-    echo "-- Connect to Portainer at: http://$dsn1_node:9000/"
+    echo "-- Connect to Portainer at: http://$manager_node:9000/"
 }
 
 start_swarm() {
     SSH_CMD_FOR_EACH_NODE "systemctl start docker"
     SSH_CMD_FOR_EACH_NODE "docker swarm leave -f"
 
-    full_init_msg=$($SSH_CMD root@$MANAGER_NODE "docker swarm init --advertise-addr $dsn1_node")
+    full_init_msg=$($SSH_CMD root@$manager_node "docker swarm init --advertise-addr $manager_node")
     TOKEN=$(extract_token "$full_init_msg")
 
-    $SSH_CMD root@$dsn2_node "docker swarm join --token $TOKEN $dsn1_node:2377"
-    #ADJUSTMENT: $SSH_CMD root@dsn3 "docker swarm join --token $TOKEN $dsn1_node:2377"
+    for current_node in $other_nodes; do
+        $SSH_CMD root@$current_node "docker swarm join --token $TOKEN $manager_node:2377"
+    done
 }
 
 check_swarm() {
-    nodes=$($SSH_CMD root@$MANAGER_NODE "docker node ls")
+    nodes=$($SSH_CMD root@$manager_node "docker node ls")
     if [ -z "$nodes" ]; then
         echo "Is Manager Node ready? Aborting"
         exit 1
-    elif [[ "$nodes" != *"docker-swarm-node2"* ]]; then
-        echo "Is Node 2 ready? Aborting"
-        exit 1
     else
-        echo "Both Nodes are up!"
+        for current_hostname in $all_hostnames; do
+            if [[ "$nodes" != *"$current_hostname"* ]]; then
+                echo "Is $current_hostname ready? Aborting"
+                exit 1
+            fi
+        done
     fi
+
+    echo "Both Nodes are up!"
 }
 
 scale_service_with_timeout(){
     if  [ -z "$1" ] || [ -z "$2" ]; then
         echo "Missing Servicename or new replication count!"
     else
-        timeout 25s $SSH_CMD root@$MANAGER_NODE "docker service scale $1=$2"
+        timeout 25s $SSH_CMD root@$manager_node "docker service scale $1=$2"
         exit_code="$?"
         if [ "$exit_code" -gt 0 ]; then
             echo "Could not scale the service! Exit Code was: $exit_code"
@@ -228,4 +240,58 @@ observe_container_status(){
         print_id_ip_nodes
         sleep 4s
     done
+}
+
+# Sets the version label ('pg_ver') of a given host to 10
+# $1 = Host IP
+update_label_version_to_10(){
+    index=$(get_index_of_dsn_node $1)
+    if ! [ -z "$index" ] && [ $index -ge 0 ]; then
+        set_label_version $index 10
+    fi
+}
+
+# $1 = total number of new (v10) postgres instances after upgrade
+upgrade_provider(){
+    # TODO adjust to upgrade_subscriber code
+
+    # 1. Shutdown Provider Smart
+    prov_tuple="$(get_all_provider)"
+    prov_node=$(get_node "$prov_tuple")
+    prov_id=$(get_id "$prov_tuple")
+    $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
+    
+    # TODO write down in documentation that this expects that the provider is the last v9.5 db!
+    scale_service_with_timeout "pg95_db" 0 1> /dev/null
+
+    # 2. Adjust Cluster & Node Labels
+    set_cluster_version 10.13
+
+    # Beware that this only changes the node label of the provider node! 
+    # This code,again, expects that the provider is the last v9.5 db!
+    update_label_version_to_10 $prov_node
+
+    # 3. Increase v10 Instance count by one.
+    scale_service_with_timeout "pg10_db" $1 1> /dev/null
+    update_id_ip_nodes
+    sleep 30s
+}
+
+# $1 = name of the old (v9.5) postgres instance that will ge upgraded (replaced with a new (v10) one)
+# $2 = total number of new (v10) postgres instances after upgrade
+upgrade_subscriber(){
+    # TODO make $2 deprecated by getting current replica count from docker service directly and then increase by one to get total number of new postgres instances.
+    sub_tuple=$(get_tuple_from_name $1)
+    sub_node=$(get_node $sub_tuple)
+    kill_subscriber "$1" 1> /dev/null
+
+    update_label_version_to_10 $sub_node
+    scale_service_with_timeout "pg10_db" $2 1> /dev/null
+
+    update_id_ip_nodes
+    sleep 30s
+}
+
+update_cluster_version(){
+    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
 }

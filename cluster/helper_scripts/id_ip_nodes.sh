@@ -124,7 +124,7 @@ determine_db_version() {
 
 update_id_ip_nodes() {
     ID_IP_NODEs=""
-    for node in $ALL_NODES; do
+    for node in $all_nodes; do
         info_no=0
         running_containers=$(gather_running_containers root@$node)
         for info in $running_containers; do
@@ -132,7 +132,7 @@ update_id_ip_nodes() {
                 if [ $((info_no % 2)) == 1 ]; then
                     current_id=$info
                 else
-                    current_name=${info:0:9}
+                    current_name=${info:0:9} #pg_dbVV.X where VV = version (10 / 95) and X = replica number (0-9)
                     current_ip=""
                     
                     if [[ $info == pg95_db* ]]; then
