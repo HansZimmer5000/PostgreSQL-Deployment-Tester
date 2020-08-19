@@ -124,7 +124,7 @@ determine_db_version() {
 
 update_id_ip_nodes() {
     ID_IP_NODEs=""
-    for node in $ALL_NODES; do
+    for node in $all_nodes; do
         info_no=0
         running_containers=$(gather_running_containers root@$node)
         for info in $running_containers; do

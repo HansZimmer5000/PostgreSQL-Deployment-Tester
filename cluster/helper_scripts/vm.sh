@@ -60,7 +60,7 @@ start_machines() {
         sleep 5s
     done
 
-    for node in $ALL_NODES; do
+    for node in $all_nodes; do
         wait_for_vm $node
         printf "."
     done

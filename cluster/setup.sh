@@ -58,7 +58,7 @@ if $swarm_is_not_initialized; then
     echo "-- Starting Keepalived"
     start_keepalived
     echo "-- Starting Docker"
-    echo "$ALL_NODES"
+    echo "$all_nodes"
     start_swarm
     echo "-- Check if both nodes are in swarm"
     check_swarm

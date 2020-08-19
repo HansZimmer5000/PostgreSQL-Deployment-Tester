@@ -18,7 +18,7 @@ extract_token() {
 
 set_label(){
     # Do not delete the label before setting it, otherwise swarm most certainly will shutdown depended containers.
-    $SSH_CMD root@$MANAGER_NODE docker node update --label-add $2=$3 $1
+    $SSH_CMD root@$manager_node docker node update --label-add $2=$3 $1
 }
 
 set_label_version() {
@@ -26,7 +26,7 @@ set_label_version() {
 }
 
 get_label_version(){
-    $SSH_CMD root@$MANAGER_NODE "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' docker-swarm-node$1.localdomain"
+    $SSH_CMD root@$manager_node "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' docker-swarm-node$1.localdomain"
 }
 
 update_labels(){
@@ -55,9 +55,9 @@ gather_running_containers() {
 
 # $1 = name // $2 = local location // $3 = remote location
 reset_config() {
-    $SSH_CMD root@$MANAGER_NODE "docker config rm $1" 2>/dev/null
-    $SCP_CMD $2 root@$MANAGER_NODE:$3
-    $SSH_CMD root@$MANAGER_NODE "docker config create $1 $3"
+    $SSH_CMD root@$manager_node "docker config rm $1" 2>/dev/null
+    $SCP_CMD $2 root@$manager_node:$3
+    $SSH_CMD root@$manager_node "docker config create $1 $3"
 }
 
 build_images() {
@@ -77,8 +77,8 @@ set_configs() {
 }
 
 clean_docker() {
-    $SSH_CMD root@$MANAGER_NODE "docker stack rm pg95"
-    $SSH_CMD root@$MANAGER_NODE "docker stack rm pg10"
+    $SSH_CMD root@$manager_node "docker stack rm pg95"
+    $SSH_CMD root@$manager_node "docker stack rm pg10"
     sleep 10s #Wait till everything is deleted
 
     SSH_CMD_FOR_EACH_NODE "docker rm $(docker ps -aq) -f"
@@ -86,9 +86,9 @@ clean_docker() {
 }
 
 deploy_stack() {
-    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack95.yml pg95"
-    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c stack10.yml pg10"
-    $SSH_CMD root@$MANAGER_NODE "docker stack deploy -c portainer-agent-stack.yml portainer"
+    $SSH_CMD root@$manager_node "docker stack deploy -c stack95.yml pg95"
+    $SSH_CMD root@$manager_node "docker stack deploy -c stack10.yml pg10"
+    $SSH_CMD root@$manager_node "docker stack deploy -c portainer-agent-stack.yml portainer"
     sleep 15s #Wait till everything has started
 
     echo "-- Connect to Portainer at: http://$dsn1_node:9000/"
@@ -98,7 +98,7 @@ start_swarm() {
     SSH_CMD_FOR_EACH_NODE "systemctl start docker"
     SSH_CMD_FOR_EACH_NODE "docker swarm leave -f"
 
-    full_init_msg=$($SSH_CMD root@$MANAGER_NODE "docker swarm init --advertise-addr $dsn1_node")
+    full_init_msg=$($SSH_CMD root@$manager_node "docker swarm init --advertise-addr $dsn1_node")
     TOKEN=$(extract_token "$full_init_msg")
 
     $SSH_CMD root@$dsn2_node "docker swarm join --token $TOKEN $dsn1_node:2377"
@@ -106,7 +106,7 @@ start_swarm() {
 }
 
 check_swarm() {
-    nodes=$($SSH_CMD root@$MANAGER_NODE "docker node ls")
+    nodes=$($SSH_CMD root@$manager_node "docker node ls")
     if [ -z "$nodes" ]; then
         echo "Is Manager Node ready? Aborting"
         exit 1
@@ -122,7 +122,7 @@ scale_service_with_timeout(){
     if  [ -z "$1" ] || [ -z "$2" ]; then
         echo "Missing Servicename or new replication count!"
     else
-        timeout 25s $SSH_CMD root@$MANAGER_NODE "docker service scale $1=$2"
+        timeout 25s $SSH_CMD root@$manager_node "docker service scale $1=$2"
         exit_code="$?"
         if [ "$exit_code" -gt 0 ]; then
             echo "Could not scale the service! Exit Code was: $exit_code"

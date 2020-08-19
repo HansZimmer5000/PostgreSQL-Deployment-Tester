@@ -6,7 +6,7 @@ test_log(){
 }
 
 get_node_count(){
-    echo $ALL_NODES | wc -w
+    echo $all_nodes | wc -w
 }
 
 # TESTSCENARIOS
