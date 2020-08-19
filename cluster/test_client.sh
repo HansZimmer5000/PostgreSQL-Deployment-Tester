@@ -117,7 +117,7 @@ running_loop() {
                 echo "-- Missing Name"
             elif ! [ -z "$PARAM1" ]; then
                 echo "-- Killing Subscriber $PARAM1"
-                kill_subscriber $PARAM1 $PARAM2 1>  /dev/null
+                kill_pg_by_name $PARAM1 $PARAM2 1>  /dev/null
             fi
             update_id_ip_nodes
             ;;

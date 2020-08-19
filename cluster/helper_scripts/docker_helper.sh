@@ -159,22 +159,35 @@ scale_service_with_timeout(){
     fi
 }
 
-kill_postgres(){
-    CURRENT_INFO=$(get_node_and_id_from_name "$1")
-    IFS=',' read CURRENT_NODE CURRENT_ID <<< "${CURRENT_INFO}"
+# $1 = Postgres instance name according to ID_IP_NODES.sh
+# $2 = "smart". Will stop the container via a smart shutdown, if omitted the container will be stopped via 'docker rm'
+stop_pg_container(){
+    tuple=$(get_tuple_from_name $1)
+    node=$(get_node $tuple)
+    id=$(get_id $tuple)
 
-    $SSH_CMD root@$CURRENT_NODE "docker rm -f $CURRENT_ID"
+    if [ $2 == "smart" ]; then
+        $SSH_CMD root@$CURRENT_NODE "docker exec $CURRENT_ID pg_ctl stop -m smart"
+    else
+        $SSH_CMD root@$node "docker rm -f $id"
+    fi
 }
 
 # kill_provider only works under the assumption that there is at most one provider in the system!
 # Otherwise it will kill all providers.
+# $1 = "-c" If given will only kill the provider. If omitted this function will also scale the service down by one to avoid a restart.
+# $1 or $2 = "smart". Will stop postgres via a smart shutdown
 kill_provider(){
     for tuple in $(get_all_tuples); do
         current_role=$(get_role "$tuple")
         if [[ $current_role == "prov" ]]; then
             current_name=$(get_name "$tuple")
 
-            kill_subscriber "$current_name" "$1"
+            if [ "$1" == "smart" ] || [ "$2" == "smart" ]; then
+                kill_pg_by_name "$current_name" "$1" smart
+            else 
+                kill_pg_by_name "$current_name" "$1"
+            fi
         fi
     done
 }
@@ -182,12 +195,13 @@ kill_provider(){
 # Kill subscriber
 # $1 = Postgres instance name according to ID_IP_NODES.sh
 # $2 = "-c" If given will only kill the subscriber. If omitted this function will also scale the service down by one to avoid a restart.
-kill_subscriber(){
-    # TODO make it possible via parameter to shutdown "smart"
-    # TODO rename function since it basically can kill subscriber and provider instances.
-
-    kill_postgres "$1" 
-    echo Current Count = $current_sub_count
+# $2 or $3 = "smart". Will stop postgres via a smart shutdown
+kill_pg_by_name(){
+    if [ "$2" == "smart" ] || [ "$3" == "smart" ]; then
+        stop_pg_container "$1" smart
+    else 
+        stop_pg_container "$1"
+    fi
     
     if [ "$2" != "-c" ]; then
         current_sub_count=$(($current_sub_count - 1))
@@ -270,18 +284,17 @@ upgrade_provider(){
     prov_id=$(get_id "$prov_tuple")
     $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
     
-    # TODO write down in documentation that this expects that the provider is the last v9.5 db!
     scale_service_with_timeout "pg95_db" 0 1> /dev/null
 
     # 2. Adjust Cluster & Node Labels
     set_cluster_version 10.13
 
-    # Beware that this only changes the node label of the provider node! 
     # This code,again, expects that the provider is the last v9.5 db!
     set_version_label_of_IP_to_10 $prov_node
 
     # 3. Increase v10 Instance count by one.
     scale_service_with_timeout "pg10_db" $1 1> /dev/null
+    
     update_id_ip_nodes
     sleep 30s
 }
@@ -292,7 +305,7 @@ upgrade_subscriber(){
     # TODO make $2 deprecated by getting current replica count from docker service directly and then increase by one to get total number of new postgres instances.
     sub_tuple=$(get_tuple_from_name $1)
     sub_node=$(get_node $sub_tuple)
-    kill_subscriber "$1" 1> /dev/null
+    kill_pg_by_name "$1" 1> /dev/null
 
     set_version_label_of_IP_to_10 $sub_node
     scale_service_with_timeout "pg10_db" $2 1> /dev/null
