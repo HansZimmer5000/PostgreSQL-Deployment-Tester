@@ -3,15 +3,18 @@
 # Depends on (will be sourced by using script):
 # - ssh_scp.sh
 
+prepare_keepalived(){
+    set_keepalived_files
+    allow_keepalived_selinux
+}
+
 allow_keepalived_selinux() {
     # Additionally in current configuration:
     # in "/etc/sysconfig/selinux" is: SELINUX=disabled (needed restart)
     SSH_CMD_FOR_EACH_NODE "setenforce 0"
 }
 
-update_keepalived_basics() {
-    allow_keepalived_selinux
-
+set_keepalived_files() {
     SCP_CMD_FOR_EACH_NODE ./keepalived/check.sh /etc/keepalived/
     SCP_CMD_FOR_EACH_NODE ./keepalived/promote.sh /etc/keepalived/
 

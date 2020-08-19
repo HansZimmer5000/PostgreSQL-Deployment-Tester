@@ -189,9 +189,9 @@ running_loop() {
         "lb_vr")
             if ! [ -z "$PARAM1" ]; then
                 if ! [ -z "$PARAM2" ]; then
-                    set_label_version $PARAM1 $PARAM2
+                    set_version_label_of_index $PARAM1 $PARAM2
                 fi
-                get_label_version $PARAM1
+                get_version_label $PARAM1
             else
                 echo "Please Enter Node number to see the current label, also enter new Version number to set label"
             fi
