@@ -11,3 +11,7 @@ manager_node="192.168.99.107"
 other_nodes="192.168.99.108"
 all_nodes="$manager_node $other_nodes" 
 all_hostnames="docker-swarm-node1.localdomain docker-swarm-node2.localdomain"
+
+# VirtualBox Names
+# Names of the VirtualBox VMs
+all_vb_names=("Docker Swarm Node 1" "Docker Swarm Node 2")

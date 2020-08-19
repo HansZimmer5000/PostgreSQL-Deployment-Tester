@@ -56,8 +56,7 @@ $(get_current_node_ips)
 }
 
 start_machines() {
-    vms=("Docker Swarm Node 1" "Docker Swarm Node 2")
-    for vm in "${vms[@]}"; do
+    for vm in "${all_vb_names[@]}"; do
         VBoxManage startvm --type headless "$vm" &
         sleep 5s
     done

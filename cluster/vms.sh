@@ -35,9 +35,10 @@ while getopts 'hsc' opts; do
     case ${opts} in 
         h)  print_vms_help 
             exit 0 ;;
-        s)  shutdown_vm "Docker Swarm Node 1"
-            shutdown_vm "Docker Swarm Node 2"
-            shutdown_vm "Docker Swarm Node 3"
+        s)      
+            for vm in "${all_vb_names[@]}"; do
+                shutdown_vm $vm
+            done
             ;;
         c)  
             for current_node in $all_nodes; do
