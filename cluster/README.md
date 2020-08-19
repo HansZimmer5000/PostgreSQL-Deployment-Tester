@@ -104,7 +104,7 @@ To start up the full cluster execute `setup.sh -msp`, to only e.g. reset Postgre
 After the start setup.sh will source test_client.sh. For more info on that have a look into helper_scripts/README.md
 
 Configuration additionally to the listed in rolling upgrade:
-- Must match existing virtualbox instance names | TODO
+- Must match existing virtualbox instance names | Adjustable in `.env.sh` file
 - hostnames are fixed | Rename in virtualbox and replace hostnames in text with new one.
 
 ## Virtual Machines
