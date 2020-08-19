@@ -23,7 +23,12 @@ set_label(){
 
 set_label_version() {
     hostname=$(get_hostname $1)
-    set_label $hostname "pg_ver" "$2" 1> /dev/null
+    if [ -z "$hostname" ]; then
+        echo "Could not find the hostname for index $1"
+        exit 1
+    else
+        set_label $hostname "pg_ver" "$2" 1> /dev/null
+    fi
 }
 
 get_label_version(){

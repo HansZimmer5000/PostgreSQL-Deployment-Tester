@@ -16,23 +16,22 @@ get_node_count(){
 # Param 1 = v95 Instances
 # Param 2 = v10 Instances
 reset_labels(){
-    current_v95_node_num=1
-    while [ "$current_v95_node_num" -le "$1" ]; do
-        set_label_version $current_v95_node_num 9.5
+    current_v95_node_num=0
+    while [ "$current_v95_node_num" -lt "$1" ]; do
+        set_label_version $current_v95_node_num 9.5 
         current_v95_node_num=$(($current_v95_node_num+1))
     done
 
-    node_num_offset=$(($current_v95_node_num-1))
-    current_v10_node_num=1
-    while [ "$current_v10_node_num" -le "$2" ]; do
-        set_label_version $(($current_v10_node_num+$node_num_offset)) 10
+    current_v10_node_num=0
+    while [ "$current_v10_node_num" -lt "$2" ]; do
+        set_label_version $(($current_v10_node_num+$current_v95_node_num)) 10 
         current_v10_node_num=$(($current_v10_node_num+1))
     done
 }
 
 # Expecting v9.5 Subscriber count as Param1, default is 1
 # Expecting v10 Subscriber count as Param2, default is 0
-# Expecting if Provider should be v10, default is false (v9.5)
+# Expecting if Provider should be v10, default is false
 reset_cluster(){
     update_id_ip_nodes
 
