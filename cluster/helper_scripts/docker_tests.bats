@@ -8,15 +8,15 @@ source ./docker_helper.sh
   docker swarm join --token $expected_token 192.168.1.40:2377")
   [ "$expected_token" == "$token" ]
 
-  expected_token="$EXTRACT_TOKEN_FAILURE_RESULT"
+  expected_token="$extract_token_failure_text"
   token=$(extract_token "docker swarm join --token")
   [ "$expected_token" == "$token" ]
 
-  expected_token="$EXTRACT_TOKEN_FAILURE_RESULT"
+  expected_token="$extract_token_failure_text"
   token=$(extract_token "docker swarm join")
   [ "$expected_token" == "$token" ]
 
-  expected_token="$EXTRACT_TOKEN_FAILURE_RESULT"
+  expected_token="$extract_token_failure_text"
   token=$(extract_token "")
   [ "$expected_token" == "$token" ]
 

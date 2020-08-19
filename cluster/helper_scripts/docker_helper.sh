@@ -3,10 +3,10 @@
 # Depends on (will be sourced by using script):
 # - ssh_scp.sh
 
-EXTRACT_TOKEN_FAILURE_RESULT="NOT FOUND"
+extract_token_failure_text="NOT FOUND"
 
 extract_token() {
-    result="$EXTRACT_TOKEN_FAILURE_RESULT"
+    result="$extract_token_failure_text"
 
     token_raw=($(echo $1 | grep -o "SWMTKN.*"))
     if [ "${#token_raw[@]}" -gt 0 ]; then
@@ -21,7 +21,9 @@ set_label(){
     $SSH_CMD root@$manager_node docker node update --label-add $2=$3 $1
 }
 
-set_label_version() {
+# $1 = Node Index
+# $2 = New version label value
+set_version_label_of_index() {
     hostname=$(get_hostname $1)
     if [ -z "$hostname" ]; then
         echo "Could not find the hostname for index $1"
@@ -31,18 +33,33 @@ set_label_version() {
     fi
 }
 
-get_label_version(){
+# Sets the version label ('pg_ver') of a given host to 10
+# $1 = Host IP
+set_version_label_of_IP_to_10(){
+    index=$(get_index_of_dsn_node $1)
+    if ! [ -z "$index" ] && [ $index -ge 0 ]; then
+        set_version_label_of_index $index 10
+    fi
+}
+
+get_version_label(){
     hostname=$(get_hostname $1)
     $SSH_CMD root@$manager_node "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' $hostname"
 }
 
-update_labels(){
-    for current_hostname in $all_hostnames; do
-        set_label $current_hostname "pg_ver" "9.5"
-    done
+prepare_swarm() {
+    set_docker_files
+    build_images 1>/dev/null
+    set_v95_and_v10_labels $(get_node_count) 0
 }
 
-update_stacks() {
+set_docker_files(){
+    set_stacks
+    set_configs
+    set_scripts
+}
+
+set_stacks() {
     SCP_CMD_FOR_EACH_NODE ./stacks/stack95.yml /root/
     SCP_CMD_FOR_EACH_NODE ./stacks/stack10.yml /root/
     SCP_CMD_FOR_EACH_NODE ./stacks/portainer-agent-stack.yml /root/
@@ -142,9 +159,6 @@ scale_service_with_timeout(){
     fi
 }
 
-# TODO This variable is intentionally the same as in id_ip_nodes.sh, but this seems very ugly!
-current_sub_count=1
-
 kill_postgres(){
     CURRENT_INFO=$(get_node_and_id_from_name "$1")
     IFS=',' read CURRENT_NODE CURRENT_ID <<< "${CURRENT_INFO}"
@@ -165,7 +179,9 @@ kill_provider(){
     done
 }
 
-# Kill Subscriber (as harsh as possible) and immediately Scale the subscriber service down by one so Swarm doesn't directly start a new subscriber
+# Kill subscriber
+# $1 = Postgres instance name according to ID_IP_NODES.sh
+# $2 = "-c" If given will only kill the subscriber. If omitted this function will also scale the service down by one to avoid a restart.
 kill_subscriber(){
     # TODO make it possible via parameter to shutdown "smart"
     # TODO rename function since it basically can kill subscriber and provider instances.
@@ -242,14 +258,7 @@ observe_container_status(){
     done
 }
 
-# Sets the version label ('pg_ver') of a given host to 10
-# $1 = Host IP
-update_label_version_to_10(){
-    index=$(get_index_of_dsn_node $1)
-    if ! [ -z "$index" ] && [ $index -ge 0 ]; then
-        set_label_version $index 10
-    fi
-}
+
 
 # $1 = total number of new (v10) postgres instances after upgrade
 upgrade_provider(){
@@ -269,7 +278,7 @@ upgrade_provider(){
 
     # Beware that this only changes the node label of the provider node! 
     # This code,again, expects that the provider is the last v9.5 db!
-    update_label_version_to_10 $prov_node
+    set_version_label_of_IP_to_10 $prov_node
 
     # 3. Increase v10 Instance count by one.
     scale_service_with_timeout "pg10_db" $1 1> /dev/null
@@ -285,7 +294,7 @@ upgrade_subscriber(){
     sub_node=$(get_node $sub_tuple)
     kill_subscriber "$1" 1> /dev/null
 
-    update_label_version_to_10 $sub_node
+    set_version_label_of_IP_to_10 $sub_node
     scale_service_with_timeout "pg10_db" $2 1> /dev/null
 
     update_id_ip_nodes

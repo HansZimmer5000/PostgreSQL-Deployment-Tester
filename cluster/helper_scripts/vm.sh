@@ -4,11 +4,12 @@
 # - docker_helper.sh
 # - keepalived_helper.sh
 # - ssh_scp.sh
+# - .env.sh
 
 get_current_node_ips() {
     index=0
     for current_node in $all_nodes; do
-        if ! [ -z "$current_node" ]; then echo "node$index (label=$(get_label_version $index))": $($SSH_CMD root@$current_node hostname -I); fi
+        if ! [ -z "$current_node" ]; then echo "node$index (label=$(get_version_label $index))": $($SSH_CMD root@$current_node hostname -I); fi
         index=$((index+1))
     done
 }
@@ -25,12 +26,6 @@ wait_for_vm() {
     #echo "-- Waited $((END_TIME - START_TIME)) seconds for $1 to boot up"
 }
 
-update_all_nodes() {
-    update_keepalived_basics
-    update_labels
-    update_stacks
-}
-
 set_scripts() {
     SCP_CMD_FOR_EACH_NODE "./postgres/reconnect.sh" /etc/
     SCP_CMD_FOR_EACH_NODE "./postgres/demote.sh" /etc/
@@ -42,22 +37,8 @@ set_scripts() {
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/sub_setup.sh"
 }
 
-prepare_swarm() {
-    build_images 1>/dev/null
-    set_configs >/dev/null
-    set_scripts >/dev/null
-}
-
-prepare_machines() {
-    update_all_nodes
-    echo "Current IPs (each line is a different node):
-$(get_current_node_ips)
-"
-}
-
 start_machines() {
-    vms=("Docker Swarm Node 1" "Docker Swarm Node 2")
-    for vm in "${vms[@]}"; do
+    for vm in "${all_vb_names[@]}"; do
         VBoxManage startvm --type headless "$vm" &
         sleep 5s
     done
@@ -70,4 +51,30 @@ start_machines() {
 
     echo "-- Running VMs: "
     VBoxManage list runningvms
+}
+
+get_dsn_node(){
+    arr=($all_nodes)
+    echo ${arr[$1]}
+}
+
+get_hostname(){
+    arr=($all_hostnames)
+    echo ${arr[$1]}
+}
+
+get_node_count(){
+    arr=($all_hostnames)
+    echo ${#arr[@]}
+}
+
+get_index_of_dsn_node(){
+    index=0
+    for current_node in $all_nodes; do
+        if [[ "$1" == "$current_node" ]]; then
+            echo $index
+            break
+        fi
+        index=$((index+1))
+    done
 }
