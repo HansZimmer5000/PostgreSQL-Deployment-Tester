@@ -132,7 +132,7 @@ update_id_ip_nodes() {
                 if [ $((info_no % 2)) == 1 ]; then
                     current_id=$info
                 else
-                    current_name=${info:0:9}
+                    current_name=${info:0:9} #pg_dbVV.X where VV = version (10 / 95) and X = replica number (0-9)
                     current_ip=""
                     
                     if [[ $info == pg95_db* ]]; then
