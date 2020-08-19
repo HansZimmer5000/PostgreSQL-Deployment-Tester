@@ -1,5 +1,7 @@
 # Executables
 
+(Nodes and Hosts are used interchangeably)
+
 ## Docker Compose
 
 Eventhough the scripts are intended for Docker Swarm environments, it may can be used in Docker Compose clusters too. This is possible when every interaction with Swarm is replaced with an appropiate Compose equivalent. Extraordinary, the up and down scaling of replica count may also work with Compose (heard it works but did not tested it). Easy things to edit are:
@@ -59,12 +61,12 @@ How to use:
 
 Following the configuration | how to adjust it:
 - Docker Swarm Nodes / Hosts
-    - all hosts' root users are reachable via ssh on port 22 | If another port is used for SSH, change ssh command at `ssh_scp.sh`.
+    - all hosts' root users are reachable via ssh on port 22 | If another port is used for SSH, change ssh command at `ssh_scp.sh`. Every Host must be reachable under the set port!
     - ssh authenticates to hosts via ssh keys in the `keys` folder | If your host needs another key, rename that key to `dsnkey` and set it in the `keys` folder. Basically replace the old key.
-    - hosts IPs | Adjustable in the .env.sh file
+    - hosts IPs | Adjustable in the `.env.sh` file
     - Keepaliveds VIP & interface and `sub_setup.sh:get_ip` must be matched with what is running on the postgres machines! | Before start, logging to your host and see which IP it has, set the values in the `.env.sh` file accordingly. Also set the new VIP according to the base IP in keepalived's config and stacks!
-    - Hostnames | It is expected for Docker Nodes to have the hostname according to `docker-swarm-node<X>.localdomain`, where `<X>` is replaced with a number from 1 to the max host count. 
-    - there are at maximum three hosts | The problem lies when the script uses the above mentioned hostnames! Currently each host is hard coded (e.g. no "for all" function), so in case you want to add more hosts, add the hostnames to the other hardcoded hostnames (`vm_setup.sh`)
+    - Hostnames | Adjustable in the `.env.sh` file
+    - Multiple nodes | Add IPs and hostnames to the `.env.sh` file into the respectively variable, but beware that the order of IPs and hostnames matter. Also keep in mind that both IP and hostname on the same index must references the same node.
 - Postgres Cluster
     - There is only one provider per Cluster | TODO as some parts work on the basis of this without checking if there really is only one provider.
     - There are 0 or more (max 9) subscriber per Cluster | No Problem as long as their container name follows the name after deploying the stack (e.g. `pg10_db.1` for the `first container` of the `db service` of the `pg10 stack`.). If there are more than id_ip_nodes.sh, edit update_id_ip_nodes -> line with "current_name=${info:0:9}" and check if there is a tenth character that is a number to recognize replica values above 9.
