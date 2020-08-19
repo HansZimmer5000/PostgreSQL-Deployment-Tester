@@ -42,7 +42,6 @@ start_upgrade_phase_three(){
 }
 
 start_upgrade(){
-    # TODO always validate user input
     update_id_ip_nodes
     print_id_ip_nodes
     total_postgres_count=$(get_tuples_count)
