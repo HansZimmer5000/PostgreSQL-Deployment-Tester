@@ -13,9 +13,10 @@ get_node_count(){
 # Expecting 1 Provider 1 and Subscriber"
 ################
 
+# set_v95_and_v10_labels sets a given number of v9.5 and v10 labels. The accumulated numbers must not exceed the total number of nodes!
 # Param 1 = v95 Instances
 # Param 2 = v10 Instances
-reset_labels(){
+set_v95_and_v10_labels(){
     current_v95_node_num=0
     while [ "$current_v95_node_num" -lt "$1" ]; do
         set_label_version $current_v95_node_num 9.5 
@@ -61,7 +62,7 @@ reset_cluster(){
     fi
 
     test_log Reset Cluster with $v95_instances v9.5 instances and $v10_instances v10 instances
-    reset_labels $v95_instances $v10_instances
+    set_v95_and_v10_labels $v95_instances $v10_instances
 
     # Make sure the provider will be in the right version (docker swarm does not differentiate which version the postgres is running and changing of cluster version currently does not intefere with the running instances)
     kill_provider 1> /dev/null

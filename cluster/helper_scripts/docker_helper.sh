@@ -36,13 +36,19 @@ get_label_version(){
     $SSH_CMD root@$manager_node "docker node inspect -f '{{ .Spec.Labels.pg_ver }}' $hostname"
 }
 
-update_labels(){
-    for current_hostname in $all_hostnames; do
-        set_label $current_hostname "pg_ver" "9.5"
-    done
+prepare_swarm() {
+    set_docker_files
+    build_images 1>/dev/null
+    set_v95_and_v10_labels $(get_node_count) 0
 }
 
-update_stacks() {
+set_docker_files(){
+    set_stacks
+    set_configs
+    set_scripts
+}
+
+set_stacks() {
     SCP_CMD_FOR_EACH_NODE ./stacks/stack95.yml /root/
     SCP_CMD_FOR_EACH_NODE ./stacks/stack10.yml /root/
     SCP_CMD_FOR_EACH_NODE ./stacks/portainer-agent-stack.yml /root/

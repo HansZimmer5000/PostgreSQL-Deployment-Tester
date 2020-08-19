@@ -73,7 +73,7 @@ if $postgres_is_not_running; then
 
     # Prepare 
     echo "-- Preparing Machines and Swarm"
-    prepare_machines
+    prepare_keepalived
     prepare_swarm
 
     # Start Stack

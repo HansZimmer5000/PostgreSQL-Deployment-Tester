@@ -14,7 +14,7 @@ import_code(){
 
 rollback_all_subscriber(){
     #TODO implement more sophisticated rollback that checks if every step was successfull or not.
-    reset_labels $1 0
+    set_v95_and_v10_labels $1 0
     scale_service_with_timeout pg10_db 0
     scale_service_with_timeout pg95_db $1
 }

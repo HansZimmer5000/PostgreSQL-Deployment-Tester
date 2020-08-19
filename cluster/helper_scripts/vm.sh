@@ -25,12 +25,6 @@ wait_for_vm() {
     #echo "-- Waited $((END_TIME - START_TIME)) seconds for $1 to boot up"
 }
 
-update_all_nodes() {
-    update_keepalived_basics
-    update_labels
-    update_stacks
-}
-
 set_scripts() {
     SCP_CMD_FOR_EACH_NODE "./postgres/reconnect.sh" /etc/
     SCP_CMD_FOR_EACH_NODE "./postgres/demote.sh" /etc/
@@ -40,19 +34,6 @@ set_scripts() {
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/reconnect.sh"
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/demote.sh"
     SSH_CMD_FOR_EACH_NODE "chmod +x /etc/sub_setup.sh"
-}
-
-prepare_swarm() {
-    build_images 1>/dev/null
-    set_configs >/dev/null
-    set_scripts >/dev/null
-}
-
-prepare_machines() {
-    update_all_nodes
-    echo "Current IPs (each line is a different node):
-$(get_current_node_ips)
-"
 }
 
 start_machines() {
