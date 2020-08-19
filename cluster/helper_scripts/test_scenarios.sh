@@ -271,63 +271,6 @@ test_4(){
 
 ####### UPGRADE_TESTS
 
-# $1 = total number of new (v10) postgres instances after upgrade
-upgrade_provider(){
-    # TODO adjust to upgrade_subscriber code
-
-    # 1. Shutdown Provider Smart
-    prov_tuple="$(get_all_provider)"
-    prov_node=$(get_node "$prov_tuple")
-    prov_id=$(get_id "$prov_tuple")
-    $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
-    
-    # TODO write down in documentation that this expects that the provider is the last v9.5 db!
-    scale_service_with_timeout "pg95_db" 0 1> /dev/null
-
-    # 2. Adjust Cluster & Node Labels
-    set_cluster_version 10.13
-
-    # Beware that this only changes the node label of the provider node! 
-    # This code,again, expects that the provider is the last v9.5 db!
-    if [ "$prov_node" == "$dsn1_node" ]; then
-        set_label_version 1 10
-    elif [ "$prov_node" == "$dsn2_node" ]; then
-        set_label_version 2 10
-    elif [ "$prov_node" == "$dsn3_node" ]; then
-        set_label_version 3 10
-    fi
-
-    # 3. Increase v10 Instance count by one.
-    scale_service_with_timeout "pg10_db" $1 1> /dev/null
-    update_id_ip_nodes
-    sleep 30s
-}
-
-# $1 = name of the old (v9.5) postgres instance that will ge upgraded (replaced with a new (v10) one)
-# $2 = total number of new (v10) postgres instances after upgrade
-upgrade_subscriber(){
-    # TODO make $2 deprecated by getting current replica count from docker service directly and then increase by one to get total number of new postgres instances.
-    sub_tuple=$(get_tuple_from_name $1)
-    sub_node=$(get_node $sub_tuple)
-    kill_subscriber "$1" 1> /dev/null
-
-    if [ "$sub_node" == "$dsn1_node" ]; then
-        set_label_version 1 10
-    elif [ "$sub_node" == "$dsn2_node" ]; then
-        set_label_version 2 10
-    elif [ "$sub_node" == "$dsn3_node" ]; then
-        set_label_version 3 10
-    fi
-    scale_service_with_timeout "pg10_db" $2 1> /dev/null
-
-    update_id_ip_nodes
-    sleep 30s
-}
-
-update_cluster_version(){
-    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
-}
-
 upgrade_test_1(){
     # Major Upgrade of running Subscriber
     # 0. Reset Cluster

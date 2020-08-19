@@ -59,6 +59,13 @@ setup_vm(){
     fi
 }
 
-setup_vm $dsn1_node docker-swarm-node1.localdomain
-setup_vm $dsn2_node docker-swarm-node2.localdomain
-#setup_vm $dsn2_node docker-swarm-node2.localdomain
+setup_all_vms(){
+    current_index=$(get_node_count)
+    for [ current_index -ge 0 ]; do
+        current_node=$(get_dsn_node $current_index)
+        current_hostname=$(get_hostname $current_index)
+        setup_vm $current_node $current_hostname
+    done
+}
+
+setup_all_vms
