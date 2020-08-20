@@ -1,5 +1,17 @@
 #!/bin/sh
-# This File is supposed to be included ('source') from setup.sh so it can use some function from it, do not execute on its own!
+
+source ./.env.sh
+source ./helper_scripts/docker_helper.sh
+source ./helper_scripts/postgres_helper.sh
+source ./helper_scripts/id_ip_nodes.sh
+source ./helper_scripts/ssh_scp.sh
+source ./helper_scripts/vm_helper.sh
+source ./setup_scripts/docker_setup.sh
+source ./setup_scripts/keepalived_setup.sh
+source ./setup_scripts/vm_setup.sh
+source ./test_scripts/docker_test.sh
+source ./test_scripts/postgres_test.sh
+source ./test_scripts/test_scenarios.sh
 
 print_test_client_help(){
     echo "' $COMMAND $PARAM1 ' is not a valid command:"
@@ -98,10 +110,6 @@ if [ "$1" == "-h" ]; then
     print_test_client_help
     exit 0
 fi
-
-source ./helper_scripts/id_ip_nodes.sh
-source ./helper_scripts/test_scenarios.sh
-source ./helper_scripts/postgres_helper.sh
 
 running_loop() {
     LOOP=true

@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-source ./docker_helper.sh
+source ./docker_setup.sh
 
 @test "Testing extract_token" {
   expected_token="SWMTKN-1-2i8ohukidaywfkb6m27k5x7gfxbe5x249on5nojvzq2q5bd96d-bvm7g9evund9pbb2e2oss0360"

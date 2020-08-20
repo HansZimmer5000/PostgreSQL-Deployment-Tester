@@ -5,11 +5,10 @@ import_code(){
     source ./helper_scripts/ssh_scp.sh
     source ./helper_scripts/keepalived_helper.sh
     source ./helper_scripts/docker_helper.sh
-    source ./helper_scripts/vm.sh
-
+    source ./helper_scripts/vm_helper.sh
     source ./helper_scripts/id_ip_nodes.sh
-    source ./helper_scripts/test_scenarios.sh
     source ./helper_scripts/postgres_helper.sh
+    source ./test_scripts/test_scenarios.sh
 }
 
 rollback_all_subscriber(){
