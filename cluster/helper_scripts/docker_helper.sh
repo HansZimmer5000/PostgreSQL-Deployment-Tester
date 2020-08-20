@@ -52,6 +52,24 @@ set_version_label_of_IP_to_10(){
     fi
 }
 
+
+# set_v95_and_v10_labels sets the 'pg_ver' label of Docker Swarm Nodes to 9.5 and 10 respectively, according to the given numbers. The accumulated numbers must not exceed the total number of nodes!
+# $1 = v95 instance count
+# $2 = v10 instance count
+set_v95_and_v10_labels(){
+    current_v95_node_num=0
+    while [ "$current_v95_node_num" -lt "$1" ]; do
+        set_version_label_of_index $current_v95_node_num 9.5 
+        current_v95_node_num=$(($current_v95_node_num+1))
+    done
+
+    current_v10_node_num=0
+    while [ "$current_v10_node_num" -lt "$2" ]; do
+        set_version_label_of_index $(($current_v10_node_num+$current_v95_node_num)) 10 
+        current_v10_node_num=$(($current_v10_node_num+1))
+    done
+}
+
 # get_version_label returns the 'pg_ver' label value of a given Docker Swarm Nodes index.
 # $1 = Node Index
 # Context: SETUP, TEST, UPGRADE
@@ -201,7 +219,7 @@ stop_pg_container(){
     node=$(get_node $tuple)
     id=$(get_id $tuple)
 
-    if [ $2 == "smart" ]; then
+    if [ "$2" == "smart" ]; then
         $SSH_CMD root@$CURRENT_NODE "docker exec $CURRENT_ID pg_ctl stop -m smart"
     else
         $SSH_CMD root@$node "docker rm -f $id"
