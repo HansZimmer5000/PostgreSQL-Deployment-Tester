@@ -3,6 +3,9 @@
 source ./.env.sh
 source helper_scripts/ssh_scp.sh
 
+# setup_firewall adds rules to the firewall on a given VM.
+# $1 = VM ip
+# Context: SETUP
 setup_firewall(){
     #https://www.rootusers.com/how-to-open-a-port-in-centos-7-with-firewalld/
     #https://iomeweekly.blogspot.com/2014/09/install-keepalived-on-centos-7.html
@@ -17,6 +20,9 @@ setup_firewall(){
     $SSH_CMD root@$1 firewall-cmd --reload
 }
 
+# setup_packages updates the packages and starts docker on a given VM.
+# $1 = VM ip
+# Context: SETUP
 setup_packages(){
     $SSH_CMD root@$1 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
@@ -32,6 +38,10 @@ setup_packages(){
     $SSH_CMD root@$1 docker version
 }
 
+# set_hostname sets the hostname on a given VM to a given name
+# $1 = VM ip
+# $2 = new hostname
+# Context: SETUP
 set_hostname(){
     $SSH_CMD root@$1 hostnamectl set-hostname $2
 
@@ -40,6 +50,10 @@ set_hostname(){
     fi
 }
 
+# setup_vm setups the given VM for the Docker Swarm
+# $1 = VM ip
+# $2 = new hostname
+# Context: SETUP
 setup_vm(){
 
     set_hostname $1 $2
@@ -59,6 +73,8 @@ setup_vm(){
     fi
 }
 
+# setup_vm setups all VMs for the Docker Swarm
+# Context: SETUP
 setup_all_vms(){
     current_index=$(get_node_count)
     for [ current_index -ge 0 ]; do
