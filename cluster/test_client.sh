@@ -69,10 +69,10 @@ ssh_into_vm(){
 }
 
 set_cluster_version(){
-    SSH_CMD_FOR_EACH_NODE "echo $1 > /etc/keepalived/cluster_version.txt"
+    ssh_cmd_for_each_node "echo $1 > /etc/keepalived/cluster_version.txt"
 }
 get_cluster_version(){
-    SSH_CMD_FOR_EACH_NODE "cat /etc/keepalived/cluster_version.txt"
+    ssh_cmd_for_each_node "cat /etc/keepalived/cluster_version.txt"
 }
 
 get_virtualip_owner(){    
@@ -117,7 +117,7 @@ running_loop() {
                 echo "-- Missing Name"
             elif ! [ -z "$PARAM1" ]; then
                 echo "-- Killing Subscriber $PARAM1"
-                kill_subscriber $PARAM1 $PARAM2 1>  /dev/null
+                kill_pg_by_name $PARAM1 $PARAM2 1>  /dev/null
             fi
             update_id_ip_nodes
             ;;
