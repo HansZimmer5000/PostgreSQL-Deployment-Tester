@@ -86,4 +86,5 @@ else
     echo "-- Using existing stack V9.5 deployment"
 fi
 
-echo "Now execute test_client.sh to continue"
+echo "
+Now execute test_client.sh to continue"

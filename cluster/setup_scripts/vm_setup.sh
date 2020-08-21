@@ -54,31 +54,9 @@ get_dsn_node(){
     echo ${arr[$1]}
 }
 
-# get_hostname returns the Docker Swarm nodes hostname on a given index
-# $1 = Node Index according to .env.sh 'all_hostnames' variable
-# Context: SETUP
-get_hostname(){
-    arr=($all_hostnames)
-    echo ${arr[$1]}
-}
-
 # get_node_count returns hostname count of the .env.sh 'all_hostnames' variable.
 # Context: SETUP
 get_node_count(){
     arr=($all_hostnames)
     echo ${#arr[@]}
-}
-
-# get_index_of_dsn_node returns the index of a given Docker Swarm node ip.
-# $1 = Docker Swarm node ip
-# Context: SETUP
-get_index_of_dsn_node(){
-    index=0
-    for current_node in $all_nodes; do
-        if [[ "$1" == "$current_node" ]]; then
-            echo $index
-            break
-        fi
-        index=$((index+1))
-    done
 }

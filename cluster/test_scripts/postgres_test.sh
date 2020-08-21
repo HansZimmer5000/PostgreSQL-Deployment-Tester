@@ -33,7 +33,7 @@ get_local_table(){
 # $1 = Postgres Container name
 # Context: TEST
 get_table(){
-    tuple=$(get_tuple "$1")
+    tuple=$(get_tuple_from_name "$1")
     if [ -z $tuple ]; then
         echo "Container $1 was not found, is it really active?"
     else
@@ -196,26 +196,3 @@ check_roles() {
     done
 }
 
-# reconnect_subscriber reconnects a subscriber to the Provider.
-# $1 = Docker Swarm Node
-# $2 = Container ID
-# $3 = Container IP in the pgnet Network (is the basis for the pglogical subscription ID)
-# Context: TEST
-reconnect_subscriber(){
-    SUBSCRIPTION_ID="subscription${3//./}"
-    $SSH_CMD root@$1 "/etc/reconnect.sh" $2 $SUBSCRIPTION_ID
-}
-
-# reconnect_all_subscriber reconnects all subscriber to the Provider.
-# Context: TEST
-reconnect_all_subscriber(){
-    for tuple in $(get_all_tuples); do
-        current_role=$(get_role "$tuple")
-        current_node=$(get_node "$tuple")
-        current_id=$(get_id "$tuple")
-        current_ip=$(get_ip "$tuple")
-        if [[ $current_role == sub ]]; then
-            reconnect_subscriber $current_node $current_id $current_ip 1> /dev/null
-        fi
-    done
-}

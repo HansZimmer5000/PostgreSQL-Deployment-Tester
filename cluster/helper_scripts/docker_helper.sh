@@ -97,6 +97,19 @@ scale_service_with_timeout(){
     fi
 }
 
+# get_service_scale returns the current scaling of a given Docker Service.
+# $1 = Servicename
+# Context: TEST, UPGRADE
+get_service_scale(){
+    scale=0
+    for tuple in $(get_all_tuples); do
+        if [[ "$tuple" == *"$1"* ]]; then
+            scale=$(($scale+1))
+        fi
+    done
+    echo $scale
+}
+
 # stop_pg_container stop a given Postgres container by its name. 
 # $1 = Postgres instance name according to ID_IP_NODES.sh
 # $2 = "smart". Will stop the container via a smart shutdown, if omitted the container will be stopped via 'docker rm'
@@ -105,6 +118,8 @@ stop_pg_container(){
     tuple=$(get_tuple_from_name $1)
     node=$(get_node $tuple)
     id=$(get_id $tuple)
+    
+    echo "Stopping $tuple"
 
     if [ "$2" == "smart" ]; then
         $SSH_CMD root@$CURRENT_NODE "docker exec $CURRENT_ID pg_ctl stop -m smart"
@@ -145,12 +160,9 @@ kill_pg_by_name(){
     fi
     
     if [ "$2" != "-c" ]; then
-        current_sub_count=$(($current_sub_count - 1))
-        if [ "$current_sub_count" -lt 0 ]; then
-            current_sub_count=0
-        fi
+        old_scale=$(get_service_scale)
         IFS='.' read service_name replic_number <<< "$1"
-        scale_service_with_timeout $service_name $current_sub_count
+        scale_service_with_timeout $service_name $(($old_scale-1))
     fi
 }
 
@@ -180,8 +192,9 @@ start_new_subscriber(){
     # Test: (Re-) Start of Subscribers that creates subscription
     # Test: Subscriber also receives als data before start.
     echo "This may take a few moments and consider deployment-constraints / ports usage which could prevent a success!"
-    current_sub_count=$(($current_sub_count + 1))
-    scale_service_with_timeout "$1" $current_sub_count
+    old_scale=$(get_service_scale)
+    new_scale=$(($old_scale + 1))
+    scale_service_with_timeout "$1" $new_scale
     wait_for_all_pg_to_boot
 }
 
@@ -220,7 +233,7 @@ upgrade_provider(){
     prov_id=$(get_id "$prov_tuple")
     $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
     
-    scale_service_with_timeout "pg95_db" 0 1> /dev/null
+    scale_service_with_timeout "pg95_db" 0 #1> /dev/null
 
     # 2. Adjust Cluster & Node Labels
     set_cluster_version 10.13
@@ -229,10 +242,11 @@ upgrade_provider(){
     set_version_label_of_IP_to_10 $prov_node
 
     # 3. Increase v10 Instance count by one.
-    scale_service_with_timeout "pg10_db" $1 1> /dev/null
+    scale_service_with_timeout "pg10_db" $1 #1> /dev/null
     
     update_id_ip_nodes
     sleep 30s
+    reconnect_all_subscriber
 }
 
 # upgrade_subscriber upgrades a given subscriber.
@@ -240,13 +254,14 @@ upgrade_provider(){
 # $2 = total number of new (v10) postgres instances after upgrade
 # Context: TEST, UPGRADE
 upgrade_subscriber(){
-    # TODO make $2 deprecated by getting current replica count from docker service directly and then increase by one to get total number of new postgres instances.
-    sub_tuple=$(get_tuple_from_name $1)
+    # TODO make $2 deprecated by getting current replica count from docker service directly and then increase by one to get total number of new postgres instances. -> get_service_scale
+    sub_tuple=$(get_tuple_from_name "$1")
     sub_node=$(get_node $sub_tuple)
-    kill_pg_by_name "$1" 1> /dev/null
+    echo "Upgrading $sub_tuple"
+    kill_pg_by_name "$1" #1> /dev/null
 
-    set_version_label_of_IP_to_10 $sub_node
-    scale_service_with_timeout "pg10_db" $2 1> /dev/null
+    set_version_label_of_IP_to_10 "$sub_node"
+    scale_service_with_timeout "pg10_db" $2 #1> /dev/null
 
     update_id_ip_nodes
     sleep 30s
