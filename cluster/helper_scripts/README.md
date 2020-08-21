@@ -66,5 +66,3 @@ PGDATA=/var/lib/postgresql/10/data /usr/lib/postgresql/10/bin/pg_ctl start
 "
 psql -U postgres \postgres -c  "SELECT COUNT (*) FROM pgbench_accounts"
 ```
-
-

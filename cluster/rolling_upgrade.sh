@@ -1,16 +1,12 @@
-import_code(){
-    source ./.env.sh
-    source ./test_client.sh
 
-    source ./helper_scripts/ssh_scp.sh
-    source ./helper_scripts/keepalived_helper.sh
-    source ./helper_scripts/docker_helper.sh
-    source ./helper_scripts/vm.sh
+source ./.env.sh
+source ./helper_scripts/ssh_scp.sh
+source ./helper_scripts/docker_helper.sh
+source ./helper_scripts/vm_helper.sh
+source ./helper_scripts/id_ip_nodes.sh
+source ./helper_scripts/postgres_helper.sh
+source ./test_scripts/test_scenarios.sh
 
-    source ./helper_scripts/id_ip_nodes.sh
-    source ./helper_scripts/test_scenarios.sh
-    source ./helper_scripts/postgres_helper.sh
-}
 
 rollback_all_subscriber(){
     #TODO implement more sophisticated rollback that checks if every step was successfull or not.
@@ -21,7 +17,7 @@ rollback_all_subscriber(){
 
 start_upgrade_phase_one(){
     read -p "Please enter name of first postgres subscriber to upgrade: " sub_name
-    upgrade_subscriber $sub_name 1
+    upgrade_subscriber "$sub_name" 1
 }
 
 start_upgrade_phase_two(){
@@ -49,13 +45,13 @@ start_upgrade(){
     start_upgrade_phase_one
     print_id_ip_nodes
     echo "First Phase Done, Continue ('y') or Rollback ('r')?"
-    read -p ">" answer
+    read -p "> " answer
 
     if [ "$answer" != "r" ]; then
         start_upgrade_phase_two
         print_id_ip_nodes
         echo "Second Phase Done, Continue ('y') or Rollback ('r')?"
-        read -p ">" answer
+        read -p "> " answer
 
         if [ "$answer" != "r" ]; then
             start_upgrade_phase_three $total_postgres_count
@@ -69,5 +65,4 @@ start_upgrade(){
     fi
 }
 
-import_code
 start_upgrade

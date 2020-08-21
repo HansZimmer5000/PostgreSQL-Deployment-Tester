@@ -7,4 +7,4 @@ services:
       POSTGRES_PASSWORD: pass
     image: postgres:$OLD
     volumes:
-      - './$VOLUME_DIR/$OLD/:/var/lib/postgresql/data' 
+      - './$VOLUME_DIR/$OLD/:/var/lib/postgresql/data'

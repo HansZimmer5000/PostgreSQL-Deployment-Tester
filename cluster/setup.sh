@@ -5,10 +5,14 @@
 
 source ./.env.sh
 
-source ./helper_scripts/ssh_scp.sh
-source ./helper_scripts/keepalived_helper.sh
 source ./helper_scripts/docker_helper.sh
-source ./helper_scripts/vm.sh
+source ./helper_scripts/postgres_helper.sh
+source ./helper_scripts/id_ip_nodes.sh
+source ./helper_scripts/ssh_scp.sh
+source ./helper_scripts/vm_helper.sh
+source ./setup_scripts/docker_setup.sh
+source ./setup_scripts/keepalived_setup.sh
+source ./setup_scripts/vm_setup.sh
 
 print_setup_help(){
     echo "
@@ -82,4 +86,5 @@ else
     echo "-- Using existing stack V9.5 deployment"
 fi
 
-source ./test_client.sh
+echo "
+Now execute test_client.sh to continue"

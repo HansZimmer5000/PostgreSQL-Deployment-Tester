@@ -49,4 +49,4 @@ else
     echo "$PG_NEW_MAJOR_VERSION was not higher than $PG_OLD_MAJOR_VERSION"
     echo "Downgrade is not possible with this tool (pg_upgrade)"
 fi
-echo # For new line 
+echo # For new line

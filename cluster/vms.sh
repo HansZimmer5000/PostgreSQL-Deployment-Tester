@@ -37,7 +37,7 @@ while getopts 'hsc' opts; do
             exit 0 ;;
         s)      
             for vm in "${all_vb_names[@]}"; do
-                shutdown_vm $vm
+                shutdown_vm "$vm"
             done
             ;;
         c)  

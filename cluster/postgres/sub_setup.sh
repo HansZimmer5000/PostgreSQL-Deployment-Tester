@@ -80,4 +80,3 @@ init_replication() {
 echo "Setting up Replica from Scratch ($3) with Reachable Provider ($1) and its (V)IP ($2)"
 
 init_replication $1 $2 $3 &
-

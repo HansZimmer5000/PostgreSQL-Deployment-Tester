@@ -1,5 +1,18 @@
 #!/bin/sh
-# This File is supposed to be included ('source') from setup.sh so it can use some function from it, do not execute on its own!
+
+source ./.env.sh
+source ./helper_scripts/docker_helper.sh
+source ./helper_scripts/postgres_helper.sh
+source ./helper_scripts/id_ip_nodes.sh
+source ./helper_scripts/ssh_scp.sh
+source ./helper_scripts/vm_helper.sh
+source ./setup_scripts/docker_setup.sh
+source ./setup_scripts/keepalived_setup.sh
+source ./setup_scripts/vm_setup.sh
+source ./test_scripts/docker_test.sh
+source ./test_scripts/postgres_test.sh
+source ./test_scripts/test_scenarios.sh
+source ./test_scripts/vm_test.sh
 
 print_test_client_help(){
     echo "' $COMMAND $PARAM1 ' is not a valid command:"
@@ -64,44 +77,10 @@ end:    will exit this script.
 "
 }
 
-ssh_into_vm(){
-    $SSH_CMD root@$1
-}
-
-set_cluster_version(){
-    ssh_cmd_for_each_node "echo $1 > /etc/keepalived/cluster_version.txt"
-}
-get_cluster_version(){
-    ssh_cmd_for_each_node "cat /etc/keepalived/cluster_version.txt"
-}
-
-get_virtualip_owner(){    
-    for current_node in $all_nodes; do
-        ping -c 1 $current_node 1> /dev/null
-    done
-    ping -c 1 192.168.99.149 1> /dev/null
-
-    virtualip_entry=($(arp -n 192.168.99.149))
-    IFS=', ' read -r -a array <<< "$virtualip_entry"
-    virtualip_mac="${array[3]}"
-
-    for entry in $(arp -a | grep "docker") ; do
-        IFS=', ' read -r -a array <<< "$entry"
-        if [ "${array[3]}" == "$virtualip_mac" ]; then
-            echo "$entry"
-            break
-        fi
-    done
-}
-
 if [ "$1" == "-h" ]; then
     print_test_client_help
     exit 0
 fi
-
-source ./helper_scripts/id_ip_nodes.sh
-source ./helper_scripts/test_scenarios.sh
-source ./helper_scripts/postgres_helper.sh
 
 running_loop() {
     LOOP=true

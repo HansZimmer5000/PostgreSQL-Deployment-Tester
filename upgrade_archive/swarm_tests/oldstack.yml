@@ -10,4 +10,4 @@ services:
     environment:
       POSTGRES_PASSWORD: pass
     volumes:
-      - data_9.5.18:/var/lib/postgresql/data 
+      - data_9.5.18:/var/lib/postgresql/data

@@ -1,21 +1,5 @@
 #!/bin/sh
 
-# Depends on (will be sourced by using script):
-# - docker_helper.sh
-# - keepalived_helper.sh
-# - ssh_scp.sh
-# - .env.sh
-
-# get_current_node_ips returns the current Docker Swarm node IPs and the value of the Docker Swarm Label 'pg_ver'
-# Context: SETUP, TEST, UPGRADE
-get_current_node_ips() {
-    index=0
-    for current_node in $all_nodes; do
-        if ! [ -z "$current_node" ]; then echo "node$index (label=$(get_version_label $index))": $($SSH_CMD root@$current_node hostname -I); fi
-        index=$((index+1))
-    done
-}
-
 # wait_for_vm waits for a given VM to start up
 # $1 = VM IP
 # Context: SETUP
@@ -70,31 +54,9 @@ get_dsn_node(){
     echo ${arr[$1]}
 }
 
-# get_hostname returns the Docker Swarm nodes hostname on a given index
-# $1 = Node Index according to .env.sh 'all_hostnames' variable
-# Context: SETUP
-get_hostname(){
-    arr=($all_hostnames)
-    echo ${arr[$1]}
-}
-
 # get_node_count returns hostname count of the .env.sh 'all_hostnames' variable.
 # Context: SETUP
 get_node_count(){
     arr=($all_hostnames)
     echo ${#arr[@]}
-}
-
-# get_index_of_dsn_node returns the index of a given Docker Swarm node ip.
-# $1 = Docker Swarm node ip
-# Context: SETUP
-get_index_of_dsn_node(){
-    index=0
-    for current_node in $all_nodes; do
-        if [[ "$1" == "$current_node" ]]; then
-            echo $index
-            break
-        fi
-        index=$((index+1))
-    done
 }

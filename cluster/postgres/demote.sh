@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# This script is currently unused but it may be useful in the future!
+
 remove_old_provider(){
     docker exec $1 psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.drop_subscription('$2');"
 

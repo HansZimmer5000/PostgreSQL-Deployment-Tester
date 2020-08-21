@@ -13,23 +13,6 @@ get_node_count(){
 # Expecting 1 Provider 1 and Subscriber"
 ################
 
-# set_v95_and_v10_labels sets a given number of v9.5 and v10 labels. The accumulated numbers must not exceed the total number of nodes!
-# Param 1 = v95 Instances
-# Param 2 = v10 Instances
-set_v95_and_v10_labels(){
-    current_v95_node_num=0
-    while [ "$current_v95_node_num" -lt "$1" ]; do
-        set_version_label_of_index $current_v95_node_num 9.5 
-        current_v95_node_num=$(($current_v95_node_num+1))
-    done
-
-    current_v10_node_num=0
-    while [ "$current_v10_node_num" -lt "$2" ]; do
-        set_version_label_of_index $(($current_v10_node_num+$current_v95_node_num)) 10 
-        current_v10_node_num=$(($current_v10_node_num+1))
-    done
-}
-
 # Expecting v9.5 Subscriber count as Param1, default is 1
 # Expecting v10 Subscriber count as Param2, default is 0
 # Expecting if Provider should be v10, default is false
@@ -89,14 +72,39 @@ reset_cluster(){
 # TODO paint success / fail in green / red after test.
 # TODO make logging of tests more abstract (f.e. "scenario (1) reset params (0 0 false): success") and may add a log file for further debugging
 # TODO when there were 1 v95 sub and 1 v95 prov, both had VIP, eventhough one notify_log showed that it did everything correctly. What happened?
-all_reset_params=("0 0 false" "1 0 false" "0 1 false" "0 0 true" "1 0 true" "0 1 true" "$(get_node_count) 0 true")
+all_reset_params=("0 0 false" "1 0 false" "0 1 false" "0 0 true" "1 0 true" "0 1 true")
+all_reset_params_with_subscriber=("1 0 false" "0 1 false" "1 0 true" "0 1 true")
+
+execute_test_scenario_for_all_clusters(){
+    for reset_param in "${all_reset_params[@]}"; do
+        test_log Testscenario "'$1'" with reset params: $reset_param
+        reset_cluster $reset_param
+        $1
+    done
+}
+
+execute_test_scenario_for_subscriber_clusters(){
+    for reset_param in "${all_reset_params_with_subscriber[@]}"; do
+        test_log Testscenario "'$1'" with reset params: $reset_param
+        reset_cluster $reset_param
+        $1
+    done
+}
 
 test_1(){
-    for reset_param in "${all_reset_params[@]}"; do
-        test_log Testscenario 1 with reset params: $reset_param
-        reset_cluster $reset_param 1
-        test_scenario_1
-    done
+    execute_test_scenario_for_all_clusters test_scenario_1
+}
+
+test_2(){
+    execute_test_scenario_for_subscriber_clusters test_scenario_2
+}
+
+test_3(){
+    execute_test_scenario_for_subscriber_clusters test_scenario_3
+}
+
+test_4(){
+    execute_test_scenario_for_subscriber_clusters test_scenario_4
 }
 
 test_scenario_1(){
@@ -114,17 +122,13 @@ test_scenario_1(){
     check_roles
 }
 
-test_2(){
+test_scenario_2(){
     # Check if new subscriber gets old and new data.
     # 0. Reset Cluster
     # 1. Add Data via provider
     # 2. Start new subscriber
     # 3. Add Data via provider
     # 4. Check if subscriber has both datasets
-
-    # 0.
-    test_log "0. Reset Cluster"
-    reset_cluster 0 1> /dev/null
 
     # 1.
     test_log "1. Add Data via provider"
@@ -157,7 +161,7 @@ test_2(){
     fi
 }
 
-test_3(){
+test_scenario_3(){
     # Check if new provider actually gets recognized as new provider
     # 0. Reset Cluster
     # 1. Add Data via provider
@@ -168,15 +172,15 @@ test_3(){
     # 6. Add Data via provider
     # 7. Check that all instances have the new data
 
-    test_log "0. Reset Cluster"
-    reset_cluster 1 1> /dev/null
+    #test_log "0. Reset Cluster"
+    #reset_cluster 1 1> /dev/null
 
     test_log "1. Add Data via provider"
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
-    FIRST_INSERTED_ID=1
 
+    FIRST_INSERTED_ID=1
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
     test_log "2. Check that all instances have same state"
@@ -215,7 +219,7 @@ test_3(){
     fi
 }
 
-test_4(){
+test_scenario_4(){
     # Check if new provider has old data
     # 0. Reset Cluster
     # 1. Add Data via provider
@@ -225,8 +229,8 @@ test_4(){
     # 5. Add Data via provider
     # 6. Check that all instances have same state
 
-    test_log "0. Reset Cluster"
-    reset_cluster 1 1> /dev/null
+    #test_log "0. Reset Cluster"
+    #reset_cluster 1 1> /dev/null
 
     test_log "1. Add Data via provider"
     provider_tuple="$(get_all_provider)"
@@ -288,7 +292,7 @@ upgrade_test_1(){
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
-
+    
     FIRST_INSERTED_ID=1
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
@@ -386,7 +390,7 @@ upgrade_test_2(){
     get_table $(get_name "$provider_tuple")
     result=$(check_tables true)
     if [[ $result == true ]]; then
-        echo "Upgrade Test 4 was successfull"
+        echo "Upgrade Test 2 was successfull"
     else
         >&2 echo "$result"
     fi
