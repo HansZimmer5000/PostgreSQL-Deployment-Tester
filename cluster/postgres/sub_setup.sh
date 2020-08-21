@@ -23,12 +23,13 @@ get_ip() {
 
 # $1 = Bool, Provider is Reachable
 # $2 = Text, Provider IP
+# $3 = Bool, Database exists
 init_replication() {
     wait_for_startup 
     SUBSCRIBER_IP=$(get_ip)
     SUBSCRIPTION_ID="${SUBSCRIBER_IP//./}"
 
-    if $3; then
+    if $3; then # TODO echo empty $3 is true
             echo "Setup Replication from Scratch"
             psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
             -- PG LOGICAL
@@ -49,7 +50,7 @@ init_replication() {
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
         SELECT pglogical.create_node(
             node_name := 'subscriber95',
-            dsn := 'host=$SUBSCRIBER_IP port=5432 dbname=testdb password=pass user=postgres'
+            dsn := 'host=$SUBSCRIBER_IP port=5432 dbname=$POSTGRES_DB password=$POSTGRES_PASSWORD user=$POSTGRES_USER'
         );"
 
     if $1; then
@@ -58,7 +59,7 @@ init_replication() {
             -- user Docker Service Name as host url
             SELECT pglogical.create_subscription(
                 subscription_name := 'subscription$SUBSCRIPTION_ID',
-                provider_dsn := 'host=$2 port=5432 dbname=testdb password=pass user=postgres'
+                provider_dsn := 'host=$2 port=5432 dbname=$POSTGRES_DB password=$POSTGRES_PASSWORD user=$POSTGRES_USER'
             );"
             
         echo "3/3 Starting subscription and wait till synchronization is complete"
