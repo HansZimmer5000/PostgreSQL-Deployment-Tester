@@ -30,6 +30,8 @@ fi
 
 # allow the container to be started with `--user`
 if [ "$1" = 'postgres' ] && [ "$(id -u)" = '0' ]; then
+        echo "LINE 33 BEING EXECUTED"
+
         mkdir -p "$PGDATA"
         chown -R postgres "$PGDATA"
         chmod 700 "$PGDATA"
@@ -97,6 +99,7 @@ upgrade_backup(){
     fi
 }
 
+mkdir -p $PGDATA
 backup_dir="/var/lib/postgresql/9.5/data"
 
 init_basebackup $provider_is_reachable $PROVIDER_IP $backup_dir

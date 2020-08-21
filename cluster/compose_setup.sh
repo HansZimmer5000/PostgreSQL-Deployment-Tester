@@ -40,7 +40,7 @@ if $postgres_is_not_running; then
 
     # Start Stack 
     echo "-- Bringing Compose files up"
-    docker-compose -f stacks/stack95_compose.yml up --scale db95=2 -d #--remove-orphans
+    docker-compose -f stacks/stack95_compose.yml up --scale db95=1 -d #--remove-orphans
     docker-compose -f stacks/stack10_compose.yml up --scale db10=0 -d #--remove-orphans
 fi
 
