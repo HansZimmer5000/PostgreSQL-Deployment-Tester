@@ -1,3 +1,3 @@
 #!/usr/bin/env bats
 
-source ./vm.sh
+source ./vm_helper.sh
