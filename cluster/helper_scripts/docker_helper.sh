@@ -119,8 +119,6 @@ stop_pg_container(){
     node=$(get_node $tuple)
     id=$(get_id $tuple)
     
-    echo "Stopping $tuple"
-
     if [ "$2" == "smart" ]; then
         $SSH_CMD root@$CURRENT_NODE "docker exec $CURRENT_ID pg_ctl stop -m smart"
     else
@@ -225,24 +223,17 @@ observe_container_status(){
 # $1 = total number of new (v10) postgres instances after upgrade
 # Context: TEST, UPGRADE
 upgrade_provider(){
-    # TODO adjust to upgrade_subscriber code (e.g. get new v10 instance count from current count + 1)
-
-    # 1. Shutdown Provider Smart
     prov_tuple="$(get_all_provider)"
     prov_node=$(get_node "$prov_tuple")
     prov_id=$(get_id "$prov_tuple")
-    $SSH_CMD root@$prov_node "docker exec $prov_id pg_ctl stop -m smart"
-    
-    scale_service_with_timeout "pg95_db" 0 #1> /dev/null
+    prov_name=$(get_name "$prov_tuple")
 
-    # 2. Adjust Cluster & Node Labels
+    kill_pg_by_name $prov_name smart
+    scale_service_with_timeout "pg95_db" 0 1> /dev/null
+
     set_cluster_version 10.13
-
-    # This code,again, expects that the provider is the last v9.5 db!
     set_version_label_of_IP_to_10 $prov_node
-
-    # 3. Increase v10 Instance count by one.
-    scale_service_with_timeout "pg10_db" $1 #1> /dev/null
+    scale_service_with_timeout "pg10_db" $1 1> /dev/null
     
     update_id_ip_nodes
     sleep 30s
@@ -254,14 +245,13 @@ upgrade_provider(){
 # $2 = total number of new (v10) postgres instances after upgrade
 # Context: TEST, UPGRADE
 upgrade_subscriber(){
-    # TODO make $2 deprecated by getting current replica count from docker service directly and then increase by one to get total number of new postgres instances. -> get_service_scale
     sub_tuple=$(get_tuple_from_name "$1")
     sub_node=$(get_node $sub_tuple)
     echo "Upgrading $sub_tuple"
-    kill_pg_by_name "$1" #1> /dev/null
+    kill_pg_by_name "$1" 1> /dev/null
 
     set_version_label_of_IP_to_10 "$sub_node"
-    scale_service_with_timeout "pg10_db" $2 #1> /dev/null
+    scale_service_with_timeout "pg10_db" $2 1> /dev/null
 
     update_id_ip_nodes
     sleep 30s
