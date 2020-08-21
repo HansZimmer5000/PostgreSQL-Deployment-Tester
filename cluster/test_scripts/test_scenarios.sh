@@ -346,7 +346,7 @@ upgrade_test_2(){
     #       - Change the Keepalivd Dominate-Cluster-Version file to V10.
 
     test_log "0. Reset Cluster"
-    reset_cluster 1 #1> /dev/null
+    reset_cluster 1 1> /dev/null
 
     test_log "1. Add Data via provider"
     provider_tuple="$(get_all_provider)"
@@ -354,7 +354,7 @@ upgrade_test_2(){
     PROVIDER_ID=$(get_id "$provider_tuple")
 
     FIRST_INSERTED_ID=1
-    add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID #1> /dev/null
+    add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
     test_log "2. Check that all instances have same state"
     result=$(check_tables true)
@@ -384,7 +384,7 @@ upgrade_test_2(){
     PROVIDER_ID=$(get_id "$provider_tuple")
 
     FIRST_INSERTED_ID=2
-    add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID #1> /dev/null
+    add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
     test_log "7. Check that all instances have same state"
     get_table $(get_name "$provider_tuple")
