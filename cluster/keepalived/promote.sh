@@ -7,6 +7,7 @@ remove_old_subscription(){
 }
 
 enable_providing(){
+    #TODO have some dynamic way to set dbname, password and user
     docker exec $1 psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.create_node(node_name := 'provider95', dsn := 'host=$2 port=5432 dbname=testdb password=pass user=postgres');"
 
     docker exec $1 psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.replication_set_add_all_tables('default', ARRAY['public']);"
