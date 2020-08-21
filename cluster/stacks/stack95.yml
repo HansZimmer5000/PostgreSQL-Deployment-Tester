@@ -57,9 +57,6 @@ services:
               mode: host
         networks:
             - pgnet
-        volumes:
-            #- data_9.5.18:/var/lib/postgresql/9.5/data
-            - /etc/upgrade_to_v10.sh:/etc/upgrade_to_v10.sh
         deploy:
             placement:
               constraints:

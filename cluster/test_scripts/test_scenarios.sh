@@ -179,8 +179,8 @@ test_scenario_3(){
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
-    FIRST_INSERTED_ID=1
 
+    FIRST_INSERTED_ID=1
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
     test_log "2. Check that all instances have same state"
@@ -292,6 +292,7 @@ upgrade_test_1(){
     provider_tuple="$(get_all_provider)"
     PROVIDER_NODE=$(get_node "$provider_tuple")
     PROVIDER_ID=$(get_id "$provider_tuple")
+    
     FIRST_INSERTED_ID=1
     add_entry $PROVIDER_NODE $PROVIDER_ID $FIRST_INSERTED_ID 1> /dev/null
 
