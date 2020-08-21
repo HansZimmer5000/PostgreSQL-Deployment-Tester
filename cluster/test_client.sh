@@ -12,6 +12,7 @@ source ./setup_scripts/vm_setup.sh
 source ./test_scripts/docker_test.sh
 source ./test_scripts/postgres_test.sh
 source ./test_scripts/test_scenarios.sh
+source ./test_scripts/vm_test.sh
 
 print_test_client_help(){
     echo "' $COMMAND $PARAM1 ' is not a valid command:"

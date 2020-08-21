@@ -16,39 +16,11 @@ get_current_node_ips() {
     done
 }
 
-#TODO
-ssh_into_vm(){
-    $SSH_CMD root@$1
-}
-
-#TODO
+# set_cluster_version sets the given value into the cluster_version.txt on the Docker Swarm nodes
+# $1 = new value / Postgres Major and Minor Version (e.g. 9.5.18 / 10.13)
+# Context: SETUP, TEST, UPGRADE
 set_cluster_version(){
     ssh_cmd_for_each_node "echo $1 > /etc/keepalived/cluster_version.txt"
-}
-
-#TODO
-get_cluster_version(){
-    ssh_cmd_for_each_node "cat /etc/keepalived/cluster_version.txt"
-}
-
-#TODO
-get_virtualip_owner(){    
-    for current_node in $all_nodes; do
-        ping -c 1 $current_node 1> /dev/null
-    done
-    ping -c 1 192.168.99.149 1> /dev/null
-
-    virtualip_entry=($(arp -n 192.168.99.149))
-    IFS=', ' read -r -a array <<< "$virtualip_entry"
-    virtualip_mac="${array[3]}"
-
-    for entry in $(arp -a | grep "docker") ; do
-        IFS=', ' read -r -a array <<< "$entry"
-        if [ "${array[3]}" == "$virtualip_mac" ]; then
-            echo "$entry"
-            break
-        fi
-    done
 }
 
 # get_index_of_dsn_node returns the index of a given Docker Swarm node ip.
