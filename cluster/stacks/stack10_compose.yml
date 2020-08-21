@@ -8,7 +8,7 @@ volumes:
 
 services:
 
-    db:
+    db10:
         hostname: 'subscriber10'
         image: mypglog:10-raw
         environment:
