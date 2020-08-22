@@ -213,9 +213,6 @@ start:      [major version number without dots]
 kill:       [container name] 
             will kill a given container by its name. May execute with 'smart' to shutdown postgres smart.
         
-reset:      [number] [number] [bool]
-            will reset the cluster to the given v9.5 replication count (first param), v10 replication count (second param) and a boolean if the provider should be in version 10 (false = v9.5).
-
 -- Get Info about VMs & Containers
 
 status: [-o,-f] 
