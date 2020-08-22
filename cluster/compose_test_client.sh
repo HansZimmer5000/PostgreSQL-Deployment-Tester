@@ -105,44 +105,6 @@ print_id_ip_nodes() {
     done
 }
 
-#############
-################
-#############
-
-print_test_client_help(){
-    echo "' $COMMAND $PARAM1 ' is not a valid command:"
-    echo "
--- Interact with Container 
-start:      [servicename]
-            will start a new postgres container within the specified service (e.g. pg95_db or pg10_db). 
-            BEWARE as container expose ports via host mode which limits the container per VM to one!
-        
-kill:       [dbname] 
-            will reduce the replica count of the swarm stack and kill a given container by its name as printed by status. Also set '-c' to crash-kill a container and not adjust the replica count.
-        
-reset:      [number] [number] [bool]
-            will reset the cluster to the given v9.5 replication count (first param), v10 replication count (second param) and a boolean if the provider should be in version 10 (false = v9.5).
-
--- Get Info about VMs & Containers
-
-status: [-o,-f] 
-        will return the status of the containers. Either fast (-f, without update info) and continously (-o never stops)
-        
--- Test Cluster
-
-check:      will check if the shown roles by 'status' are correct and replication works as expected.
-        
--- Misc.
-
-end:    will exit this script.
-
-"
-}
-
-if [ "$1" == "-h" ]; then
-    print_test_client_help
-    exit 0
-fi
 
 get_tuple_from_name() {
     for tuple in $ID_IP_NODEs; do
@@ -153,14 +115,13 @@ get_tuple_from_name() {
     done
 }
 
-# TODO $1 must be name: stacks_db95_1 e.g.
 stop_pg_container(){
     tuple=$(get_tuple_from_name $1)
     id=$(get_id $tuple)
     echo $tuple
     
     if [ "$2" == "smart" ]; then
-        docker exec $CURRENT_ID pg_ctl stop -m smart
+        docker exec $id pg_ctl stop -m smart
     else
         docker rm -f $id
     fi
@@ -193,7 +154,7 @@ scale_service_with_timeout(){
     fi
 }
 
-# $1 = major version according to naming in stackfile and servicename in stackfile.
+# $1 = Container name
 kill_pg_by_name(){
     if [ "$2" == "smart" ] || [ "$3" == "smart" ]; then
         stop_pg_container "$1" smart
@@ -237,6 +198,45 @@ wait_for_all_pg_to_boot(){
     echo ""
 }
 
+#############
+################
+#############
+
+print_test_client_help(){
+    echo "' $COMMAND $PARAM1 ' is not a valid command:"
+    echo "
+-- Interact with Container 
+start:      [major version number without dots]
+            will start a new postgres container within the specified composfile (e.g. 95 or 10). 
+            BEWARE as container expose ports via host mode which limits the container per host to one!
+        
+kill:       [container name] 
+            will kill a given container by its name. May execute with 'smart' to shutdown postgres smart.
+        
+reset:      [number] [number] [bool]
+            will reset the cluster to the given v9.5 replication count (first param), v10 replication count (second param) and a boolean if the provider should be in version 10 (false = v9.5).
+
+-- Get Info about VMs & Containers
+
+status: [-o,-f] 
+        will return the status of the containers. Either fast (-f, without update info) and continously (-o never stops)
+        
+-- Test Cluster
+
+check:      will check if the shown roles by 'status' are correct and replication works as expected.
+        
+-- Misc.
+
+end:    will exit this script.
+
+"
+}
+
+if [ "$1" == "-h" ]; then
+    print_test_client_help
+    exit 0
+fi
+
 running_loop() {
     LOOP=true
 
@@ -251,7 +251,7 @@ running_loop() {
                 echo "-- Missing Name"
             elif ! [ -z "$PARAM1" ]; then
                 echo "-- Killing Subscriber $PARAM1"
-                kill_pg_by_name $PARAM1 $PARAM2 1>  /dev/null
+                kill_pg_by_name $PARAM1 $PARAM2 1> /dev/null
             fi
             update_id_ip_nodes
             ;;

@@ -120,7 +120,7 @@ stop_pg_container(){
     id=$(get_id $tuple)
     
     if [ "$2" == "smart" ]; then
-        $SSH_CMD root@$CURRENT_NODE "docker exec $CURRENT_ID pg_ctl stop -m smart"
+        $SSH_CMD root@$CURRENT_NODE "docker exec $id pg_ctl stop -m smart"
     else
         $SSH_CMD root@$node "docker rm -f $id"
     fi
