@@ -48,8 +48,8 @@ build_images() {
     scp_cmd_for_each_node "../custom_image/docker-entrypoint.sh" /etc/
     ssh_cmd_for_each_node "chmod +x /etc/docker-entrypoint.sh"
 
-    ssh_cmd_for_each_node "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5-raw"
-    ssh_cmd_for_each_node "docker build /etc/ -f /etc/10.13.dockerfile -t mypglog:10-raw"
+    ssh_cmd_for_each_node "docker build /etc/ -f /etc/9.5.18.dockerfile -t mypglog:9.5"
+    ssh_cmd_for_each_node "docker build /etc/ -f /etc/10.13.dockerfile -t mypglog:10"
 }
 
 # set_configs resets two Docker Swarm configs and their files.

@@ -23,7 +23,7 @@ services:
 
     db:
         hostname: 'subscriber10'
-        image: mypglog:10-raw
+        image: mypglog:10
         environment:
             - POSTGRES_PASSWORD=pass # Always set, needed for sub_setups.sh
             - POSTGRES_USER=postgres # Always set, needed for sub_setups.sh

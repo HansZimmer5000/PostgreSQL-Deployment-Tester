@@ -35,7 +35,7 @@ services:
 
     db:
         hostname: 'subscriber95'
-        image: mypglog:9.5-raw
+        image: mypglog:9.5
         environment:
             - POSTGRES_PASSWORD=pass
             - POSTGRES_USER=postgres
