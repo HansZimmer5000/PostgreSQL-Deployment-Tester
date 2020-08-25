@@ -62,7 +62,7 @@ provider_is_reachable=false
 
 if ! [ -z "$PROVIDER_IP" ] ; then
         echo "Try to reach $PROVIDER_IP:5432"
-        echo $(curl -s $PROVIDER_IP:5432) >> /dev/null 
+        curl -s $PROVIDER_IP:5432
         return_code=$?
         echo "Got Curl Exit Code $return_code"
         if [ "$return_code" == "52" ] || [ "$return_code" == "0" ] ; then
@@ -90,15 +90,25 @@ upgrade_backup(){
     export PGBINNEW=/usr/lib/postgresql/10/bin
     export PGDATAOLD=$1
     export PGDATANEW=$2
+
+
+    #$PGBINOLD/pg_controldata -D $PGDATAOLD 
+    #$PGBINOLD/pg_ctl -D $PGDATAOLD reload
+    #$PGBINOLD/pg_ctl -D $PGDATAOLD stop -t 5
+    #ls -a $PGDATAOLD
+    #cat $PGDATAOLD/postmaster.pid
+    #mv $PGDATAOLD/postmaster.pid $PGDATAOLD/old_postmaster.old 
+
+    # Change current location to be able to write in the folder (log)
+    orig_dir=$(pwd)
+    cd ~
     if [ -d $PGBINNEW ]; then 
         $PGBINNEW/pg_upgrade 
     fi
+    cd $orig_dir
+    exit 0
 }
 
-echo "-- Creating PGDATA and setting Permissions"
-mkdir -p $PGDATA
-chown -R "$(id -u)" "$PGDATA" 2>/dev/null || :
-        chmod 700 "$PGDATA" 2>/dev/null || :
 backup_dir="/var/lib/postgresql/9.5/data"
 if ! [ -z "$PGDATA_OLD" ]; then
         backup_dir="$PGDATA_OLD"
@@ -111,11 +121,6 @@ fi
 # Get Backup only if Provider is reachable and a mount was not reused
 if "$provider_is_reachable" && [ -z "$PGDATA_OLD" ]; then
     init_basebackup $PROVIDER_IP $backup_dir
-fi
-
-# Upgrade if provider is reachable (which implies execution of pg_basebackup) or PGDATA_OLD is set.
-if "$provider_is_reachable" || ! [ -z "$PGDATA_OLD" ]; then
-    upgrade_backup $backup_dir $PGDATA
 fi
 
 init_new_db=true
@@ -255,7 +260,15 @@ EOSQL
 fi
 
 # Modification
+
+# Upgrade if provider is reachable (which implies execution of pg_basebackup) or PGDATA_OLD is set.
+set +Eeo pipefail
+if "$provider_is_reachable" || ! [ -z "$PGDATA_OLD" ]; then
+    upgrade_backup $backup_dir $PGDATA
+fi
+
 /etc/sub_setup.sh $provider_is_reachable $PROVIDER_IP $init_new_db
+set -Eeo pipefail
 # End of Modification
 
 exec "$@"

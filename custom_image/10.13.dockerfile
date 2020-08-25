@@ -20,6 +20,11 @@ RUN apt-get install postgresql-10-pglogical
 #RUN "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main 10" > /etc/apt/sources.list.d/pgdg.list
 RUN apt-get install -y --no-install-recommends --no-install-suggests postgresql-9.5 
 
+# Enable Postgres to work with named Volume 
+RUN mkdir -p /var/lib/postgresql/10/data
+RUN chown -R postgres /var/lib/postgresql/10/data
+VOLUME [ "/var/lib/postgresql/10/data" ]
+
 # Change to user postgres (see https://github.com/docker-library/postgres/blob/master/9.5/Dockerfile)
 USER 999
 COPY docker-entrypoint.sh /docker-entrypoint.sh
