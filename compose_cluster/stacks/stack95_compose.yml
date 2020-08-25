@@ -4,7 +4,7 @@ networks:
     pgnet:
 
 volumes:
-    pgdata:
+    pgdata95:
 
 services:
 
@@ -27,8 +27,8 @@ services:
             - PGDATA=/var/lib/postgresql/9.5/data  # Always set, needed for docker_entrypoint.sh
             - PROVIDER_IP=192.168.99.149 # TODO how to make this dynamic by somehow getting this value from ../.env.sh?
         volumes: 
+            - pgdata95:/var/lib/postgresql/9.5/data
             - ../postgres/sub_setup.sh:/etc/sub_setup.sh
-            - pgdata:/var/lib/postgresql/9.5/data
             - ../postgres/table_setup.sql:/docker-entrypoint-initdb.d/init.sql
             - ../postgres/sub_postgresql.conf:/usr/share/postgresql/postgresql.conf.sample
         ports:
