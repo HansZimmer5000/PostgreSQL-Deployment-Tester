@@ -108,3 +108,9 @@ get_tuple_from_name() {
 get_all_tuples(){
     echo "$ID_IP_NODEs"
 }
+
+# get_tuples_count returns the tuple count.
+# Context: TEST, UPGRADE
+get_tuples_count(){
+    echo "$ID_IP_NODEs" | wc -w
+}
