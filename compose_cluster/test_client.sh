@@ -20,8 +20,8 @@ promote:    [container name]
 
 -- Get Info about VMs & Containers
 
-status: [-o,-f] 
-        will return the status of the containers. Either fast (-f, without update info) and continously (-o never stops)
+status: [-f] 
+        will return the status of the containers. Fast ,-f, without update info.
         
 -- Test Cluster
 
@@ -77,9 +77,7 @@ running_loop() {
             ;;
         "status") 
             echo "-- Container Status"
-            if [ "$PARAM1" == "-o" ]; then
-                observe_container_status
-            elif [ "$PARAM1" == "-f" ]; then
+            if [ "$PARAM1" == "-f" ]; then
                 print_id_ip_nodes
             else
                 update_id_ip_nodes
