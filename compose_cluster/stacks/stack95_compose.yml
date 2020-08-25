@@ -8,18 +8,28 @@ volumes:
 
 services:
 
-    db10:
-        hostname: 'subscriber10'
-        image: mypglog:10-raw
+    adminer:
+        image: adminer:4.7.2 
+        environment:
+          - ADMINER_DEFAULT_SERVER=192.168.99.149
+        networks:
+          - pgnet
+        ports:
+          - 8082:8080
+
+    db95:
+        hostname: 'subscriber95'
+        image: mypglog:9.5
         environment:
             - POSTGRES_PASSWORD=pass
             - POSTGRES_USER=postgres
             - POSTGRES_DB=testdb
-            - PGDATA=/var/lib/postgresql/10/data #Already set in Image, here just again to make it clear and reader friendly.
+            - PGDATA=/var/lib/postgresql/9.5/data #Already set in Image, here just again to make it clear and reader friendly.
             - PROVIDER_IP=192.168.99.149 # TODO how to make this dynamic by somehow getting this value from ../.env.sh?
         volumes: 
             - ../postgres/sub_setup.sh:/etc/sub_setup.sh
-            #- pgdata:/var/lib/postgresql/10/data # BIG TODO!!: Due to volume usage, restarted container will be in the role whatever the container before had!! Maybe clear volume at every container start?
+            # COMPOSE - BEWARE! Compose may reuse old mounts/volumes if non are given!
+            #- pgdata:/var/lib/postgresql/9.5/data # BIG TODO!!: Due to volume usage, restarted container will be in the role whatever the container before had!! Maybe clear volume at every container start?
             - ../postgres/table_setup.sql:/docker-entrypoint-initdb.d/init.sql
             - ../postgres/sub_postgresql.conf:/usr/share/postgresql/postgresql.conf.sample
         ports:

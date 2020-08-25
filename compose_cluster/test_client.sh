@@ -1,5 +1,14 @@
 #!/bin/sh
 
+# $1 = Container Name
+promote_sub(){
+    tuple=$(get_tuple_from_name $1)
+    container_id=$(get_id $tuple)
+    ip=$(get_ip $tuple)
+    subscription_id="subscription${ip//./}"
+    ./postgres/promote.sh $container_id $subscription_id
+}
+
 gather_running_containers() {
     docker ps --format "table {{.ID}}\t{{.Names}}"
 }
@@ -213,6 +222,9 @@ start:      [major version number without dots]
 kill:       [container name] 
             will kill a given container by its name. May execute with 'smart' to shutdown postgres smart.
         
+promote:    [container name]
+            will promote a given subscriber to provider.
+
 -- Get Info about VMs & Containers
 
 status: [-o,-f] 
@@ -260,6 +272,10 @@ running_loop() {
                 start_new_subscriber $PARAM1 1> /dev/null
                 update_id_ip_nodes
             fi
+            ;;
+        "promote")
+            echo "-- Upgrading $PARAM1"
+            promote_sub $PARAM1
             ;;
         "reset") 
             echo "-- Reseting Cluster"

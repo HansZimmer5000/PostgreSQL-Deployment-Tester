@@ -1,5 +1,10 @@
 #!/bin/sh
 
+build_images(){
+    docker build ../custom_image -f ../custom_image/9.5.18.dockerfile -t mypglog:9.5
+    docker build ../custom_image -f ../custom_image/10.13.dockerfile -t mypglog:10
+}
+
 # VARIABLES & CONSTANTS
 ################
 
@@ -31,18 +36,19 @@ postgres_is_not_running=$postgres_is_not_running
 "
 
 if $postgres_is_not_running; then
-    # CleanUp
+    echo "-- Building Images"
+    build_images 1> /dev/null
+
     echo "-- Cleaning Up Old Stuff"
-    docker-compose -f stacks/stack95_compose.yml rm -fs
-    docker-compose -f stacks/stack10_compose.yml rm -fs
+    docker-compose -f stacks/stack95_compose.yml rm -fs 1> /dev/null
+    docker-compose -f stacks/stack10_compose.yml rm -fs 1> /dev/null
     docker volume prune 
     docker rm $(docker ps -aq)
 
-    # Start Stack 
     echo "-- Bringing Compose files up"
-    docker-compose -f stacks/stack95_compose.yml up --scale db95=1 -d 
-    docker-compose -f stacks/stack10_compose.yml up --scale db10=0 -d
+    docker-compose -f stacks/stack95_compose.yml up --scale db95=1 -d 1> /dev/null 
+    docker-compose -f stacks/stack10_compose.yml up --scale db10=0 -d 1> /dev/null
 fi
 
 echo "
-Now execute compose_test_client.sh to continue"
+Now execute test_client.sh to continue"
