@@ -6,7 +6,7 @@ promote_sub(){
     container_id=$(get_id $tuple)
     ip=$(get_ip $tuple)
     subscription_id="subscription${ip//./}"
-    ../postgres/promote.sh $container_id $subscription_id
+    ./postgres/promote.sh $container_id $subscription_id
 }
 
 execute_sql() {
