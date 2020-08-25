@@ -80,30 +80,44 @@ init_basebackup(){
     echo "*:*:*:$POSTGRES_USER:$POSTGRES_PASSWORD" > ~/.pgpass
     chmod 0600 ~/.pgpass
 
-    if $1; then
-            echo "-- executing pg_basebackup"
-            pg_basebackup -c fast -X stream -h $2 -U postgres -v --no-password -D $3 
-    fi
+    echo "-- executing pg_basebackup"
+    pg_basebackup -c fast -X stream -h $1 -U postgres -v --no-password -D $2 
 }
 
 upgrade_backup(){
-    # TODO this may be executed in v9.5 container (when it should not)!
-    # The state is when the container starts with a non-empty PGDATA directory which he then tries to upgrade, which will fail since the v9.5 container does not have the '.../10/bin/pg_upgrade' script on purpose.
-    if $1; then
-            echo "-- executing pg_upgrade with Path: $PATH"
-            export PGBINOLD=/usr/lib/postgresql/9.5/bin
-            export PGBINNEW=/usr/lib/postgresql/10/bin
-            export PGDATAOLD=$2
-            export PGDATANEW=$3
-            /usr/lib/postgresql/10/bin/pg_upgrade 
+    echo "-- executing pg_upgrade"
+    export PGBINOLD=/usr/lib/postgresql/9.5/bin
+    export PGBINNEW=/usr/lib/postgresql/10/bin
+    export PGDATAOLD=$1
+    export PGDATANEW=$2
+    if [ -d $PGBINNEW ]; then 
+        $PGBINNEW/pg_upgrade 
     fi
 }
 
+echo "-- Creating PGDATA and setting Permissions"
 mkdir -p $PGDATA
+chown -R "$(id -u)" "$PGDATA" 2>/dev/null || :
+        chmod 700 "$PGDATA" 2>/dev/null || :
 backup_dir="/var/lib/postgresql/9.5/data"
+if ! [ -z "$PGDATA_OLD" ]; then
+        backup_dir="$PGDATA_OLD"
+fi
 
-init_basebackup $provider_is_reachable $PROVIDER_IP $backup_dir
-upgrade_backup $provider_is_reachable $backup_dir $PGDATA
+# TODO code clearer that there are two ways. 
+# 1 = PGDATA_OLD is not set -> get data from provider via pg_basebackup, use normal backup_dir, then upgrade it
+# 2 = PGDATA_OLD is set -> use PGDATA_OLD as backup_dir and upgrade data.
+
+# Get Backup only if Provider is reachable and a mount was not reused
+if "$provider_is_reachable" && [ -z "$PGDATA_OLD" ]; then
+    init_basebackup $PROVIDER_IP $backup_dir
+fi
+
+# Upgrade if provider is reachable (which implies execution of pg_basebackup) or PGDATA_OLD is set.
+if "$provider_is_reachable" || ! [ -z "$PGDATA_OLD" ]; then
+    upgrade_backup $backup_dir $PGDATA
+fi
+
 init_new_db=true
 if [ "$(ls -A $PGDATA)" ]; then
         init_new_db=false
