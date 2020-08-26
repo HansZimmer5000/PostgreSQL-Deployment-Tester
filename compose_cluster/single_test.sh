@@ -1,5 +1,6 @@
 #!/bin/sh
 
+source ./.env.sh
 source helper_scripts/postgres.sh
 source helper_scripts/id_ip_nodes.sh
 source helper_scripts/docker.sh
@@ -13,9 +14,9 @@ print_id_ip_nodes
 
 echo "-- Promote Old Postgres"
 # Promote Old Postgres
-promote_sub stacks_db95_1 1> /dev/null
-update_id_ip_nodes
-print_id_ip_nodes
+#promote_sub stacks_db95_1 1> /dev/null
+#update_id_ip_nodes
+#print_id_ip_nodes
 
 echo "-- Fill Old Postgres"
 docker exec -it \

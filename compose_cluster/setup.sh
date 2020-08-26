@@ -1,5 +1,6 @@
 #!/bin/sh
 
+source ./.env.sh
 source ./setup_scripts/docker.sh
 
 # VARIABLES & CONSTANTS

@@ -1,5 +1,6 @@
 #!/bin/sh
 
+source ./.env.sh
 source helper_scripts/docker.sh
 source helper_scripts/id_ip_nodes.sh
 source helper_scripts/postgres.sh

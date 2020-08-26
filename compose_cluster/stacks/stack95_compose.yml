@@ -23,7 +23,7 @@ services:
         environment:
             - POSTGRES_PASSWORD=pass # Always set, needed for sub_setups.sh
             - POSTGRES_USER=postgres # Always set, needed for sub_setups.sh
-            - POSTGRES_DB=testdb # Always set, needed for sub_setups.sh
+            - POSTGRES_DB=testdb # Always set, needed for sub_setups.sh TODO how to make this dynamic by somehow getting this value from ../.env.sh?
             - PGDATA=/var/lib/postgresql/9.5/data  # Always set, needed for docker_entrypoint.sh
             - PROVIDER_IP=192.168.99.149 # TODO how to make this dynamic by somehow getting this value from ../.env.sh?
         volumes: 
