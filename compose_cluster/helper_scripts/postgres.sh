@@ -12,3 +12,16 @@ promote_sub(){
 execute_sql() {
     docker exec $1 psql -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "$2"
 }
+
+remove_old_provider(){
+    tuple=$(get_tuple_from_name $1)
+    container_id=$(get_id $tuple)
+    ip=$(get_ip $tuple)
+    subscription_id="subscription${ip//./}"
+
+    #docker exec $container_id psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.drop_subscription('$subscription_id');"
+
+    docker exec $container_id psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "SELECT pglogical.drop_node('provider95');"
+
+    docker exec $container_id psql -e -v ON_ERROR_STOP=1 --username postgres --dbname testdb -c "DROP EXTENSION pglogical;"
+}
