@@ -1,5 +1,9 @@
 #!/bin/bash
-#set -e
+
+# Commented Code does not help! pg_upgrade still recognizes data as "not shut down cleanly"
+#rm $PGDATAOLD/postmaster.pid
+#echo '/usr/lib/postgresql/9.5/bin/postgres "-D" "/var/lib/postgresql/9.5/data" "-p" "50432" "-b" "-c" "listen_addresses=" "-c" "unix_socket_permissions=0700" "-c" "unix_socket_directories=/var/lib/postgresql"' > $PGDATAOLD/postmaster.opts
+#echo '/usr/lib/postgresql/9.5/bin/postgres' > $PGDATAOLD/postmaster.opts
 
 if [ "$#" -eq 0 -o "${1:0:1}" = '-' ]; then
 	echo "$(whoami) first if"
@@ -14,11 +18,13 @@ if [ "$1" = 'pg_upgrade' -a "$(id -u)" = '0' ]; then
 	chown postgres .
 	chown -R postgres:postgres "$PGDATAOLD" "$PGDATANEW"
 
-	# IF this is executed (manually as root inside the container), it somewhat works (fails at encodings, but I think thats a minor problem)
-	#su - postgres -c "/usr/lib/postgresql/10/bin/initdb -D /var/lib/postgresql/10/data/"
-	#su - postgres -c "/usr/lib/postgresql/10/bin/pg_upgrade -b /usr/lib/postgresql/9.5/bin -B /usr/lib/postgresql/10/bin -d /var/lib/postgresql/9.5/data/ -D /var/lib/postgresql/10/data/"
-	exec gosu postgres "$BASH_SOURCE" "$@"
-	#exit 0
+	# IF this is executed (manually as root inside the container), it works in all cases
+	su - postgres -c "/usr/lib/postgresql/10/bin/initdb -D /var/lib/postgresql/10/data/ --encoding=UTF8 --locale=en_US.utf8"
+	su - postgres -c "/usr/lib/postgresql/10/bin/pg_upgrade -b /usr/lib/postgresql/9.5/bin -B /usr/lib/postgresql/10/bin -d /var/lib/postgresql/9.5/data/ -D /var/lib/postgresql/10/data/"
+
+	# Works only if container was shutdown normally / cleanly
+	#exec gosu postgres "$BASH_SOURCE" "$@"
+	exit 0
 fi
 
 if [ "$1" = 'pg_upgrade' ]; then
@@ -29,6 +35,8 @@ if [ "$1" = 'pg_upgrade' ]; then
 	fi
 fi
 
-echo "$(whoami) Execcuting $@ $PGBINOLD $PGBINNEW $PGDATAOLD $PGDATANEW"
-#exec "$@"
-exec /usr/lib/postgresql/10/bin/pg_upgrade -b /usr/lib/postgresql/9.5/bin -B /usr/lib/postgresql/10/bin -d /var/lib/postgresql/9.5/data/ -D /var/lib/postgresql/10/data/
+echo "$(whoami) Executing $@ $PGBINOLD $PGBINNEW $PGDATAOLD $PGDATANEW"
+exec "$@"
+
+# Commented Code does not help! 
+#exec /usr/lib/postgresql/10/bin/pg_upgrade -b /usr/lib/postgresql/9.5/bin -B /usr/lib/postgresql/10/bin -d /var/lib/postgresql/9.5/data/ -D /var/lib/postgresql/10/data/
