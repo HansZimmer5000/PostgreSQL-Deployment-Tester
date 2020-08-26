@@ -1,0 +1,31 @@
+#!/bin/bash
+#set -e
+
+if [ "$#" -eq 0 -o "${1:0:1}" = '-' ]; then
+	echo "first if"
+	set -- pg_upgrade "$@"
+fi
+
+if [ "$1" = 'pg_upgrade' -a "$(id -u)" = '0' ]; then
+	echo "second if $BASH_SOURCE $@"
+
+	mkdir -p "$PGDATAOLD" "$PGDATANEW"
+	chmod 700 "$PGDATAOLD" "$PGDATANEW"
+	chown postgres .
+	chown -R postgres:postgres "$PGDATAOLD" "$PGDATANEW"
+
+	#su - postgres -c "/usr/lib/postgresql/10/bin/initdb -D /var/lib/postgresql/10/data/"
+	#su - postgres -c "/usr/lib/postgresql/10/bin/pg_upgrade -b /usr/lib/postgresql/9.5/bin -B /usr/lib/postgresql/10/bin -d /var/lib/postgresql/9.5/data/ -D /var/lib/postgresql/10/data/"
+	exec gosu postgres "$BASH_SOURCE" "$@"
+fi
+
+if [ "$1" = 'pg_upgrade' ]; then
+	echo "third if"
+	if [ ! -s "$PGDATANEW/PG_VERSION" ]; then
+		echo "$(whoami) fourth if with $PGDATANEW and $POSTGRES_INITDB_ARGS"
+		PGDATA="$PGDATANEW" eval "initdb $POSTGRES_INITDB_ARGS"
+	fi
+fi
+
+echo "Execcuting $@"
+exec "$@"
