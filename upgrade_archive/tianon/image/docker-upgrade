@@ -2,31 +2,33 @@
 #set -e
 
 if [ "$#" -eq 0 -o "${1:0:1}" = '-' ]; then
-	echo "first if"
+	echo "$(whoami) first if"
 	set -- pg_upgrade "$@"
 fi
 
 if [ "$1" = 'pg_upgrade' -a "$(id -u)" = '0' ]; then
-	echo "second if $BASH_SOURCE $@"
+	echo "$(whoami) second if with $BASH_SOURCE and $@"
 
 	mkdir -p "$PGDATAOLD" "$PGDATANEW"
 	chmod 700 "$PGDATAOLD" "$PGDATANEW"
 	chown postgres .
 	chown -R postgres:postgres "$PGDATAOLD" "$PGDATANEW"
 
-	# IF this is executed manually as root inside the container, it somewhat works (fails at encodings, but I think thats a minor problem)
+	# IF this is executed (manually as root inside the container), it somewhat works (fails at encodings, but I think thats a minor problem)
 	#su - postgres -c "/usr/lib/postgresql/10/bin/initdb -D /var/lib/postgresql/10/data/"
 	#su - postgres -c "/usr/lib/postgresql/10/bin/pg_upgrade -b /usr/lib/postgresql/9.5/bin -B /usr/lib/postgresql/10/bin -d /var/lib/postgresql/9.5/data/ -D /var/lib/postgresql/10/data/"
 	exec gosu postgres "$BASH_SOURCE" "$@"
+	#exit 0
 fi
 
 if [ "$1" = 'pg_upgrade' ]; then
-	echo "third if"
+	echo "$(whoami) third if"
 	if [ ! -s "$PGDATANEW/PG_VERSION" ]; then
 		echo "$(whoami) fourth if with $PGDATANEW and $POSTGRES_INITDB_ARGS"
 		PGDATA="$PGDATANEW" eval "initdb $POSTGRES_INITDB_ARGS"
 	fi
 fi
 
-echo "Execcuting $@"
-exec "$@"
+echo "$(whoami) Execcuting $@ $PGBINOLD $PGBINNEW $PGDATAOLD $PGDATANEW"
+#exec "$@"
+exec /usr/lib/postgresql/10/bin/pg_upgrade -b /usr/lib/postgresql/9.5/bin -B /usr/lib/postgresql/10/bin -d /var/lib/postgresql/9.5/data/ -D /var/lib/postgresql/10/data/
