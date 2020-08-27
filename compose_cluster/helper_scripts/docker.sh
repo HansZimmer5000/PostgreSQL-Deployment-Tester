@@ -12,6 +12,7 @@ kill_pg_by_name(){
         stop_pg_container "$1"
     fi
     
+    # Old Idea via Scale
     #if [ "$2" != "-c" ]; then
     #    old_scale=$(get_service_scale)
     #    scale_service_with_timeout "$1" $(($old_scale-1))
