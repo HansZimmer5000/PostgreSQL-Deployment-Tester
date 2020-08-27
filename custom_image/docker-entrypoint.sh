@@ -106,7 +106,6 @@ upgrade_backup(){
         $PGBINNEW/pg_upgrade 
     fi
     cd $orig_dir
-    exit 0
 }
 
 backup_dir="/var/lib/postgresql/9.5/data"
@@ -156,6 +155,18 @@ if [ "$1" = 'postgres' ]; then
                         export POSTGRES_INITDB_ARGS="$POSTGRES_INITDB_ARGS --xlogdir $POSTGRES_INITDB_XLOGDIR"
                 fi
                 eval 'initdb --username="$POSTGRES_USER" --pwfile=<(echo "$POSTGRES_PASSWORD") '"$POSTGRES_INITDB_ARGS"
+
+                # Modification
+                # Upgrade if provider is reachable (which implies execution of pg_basebackup) or PGDATA_OLD is set.
+                set +Eeo pipefail
+                data_from_upgrade=false
+                if "$provider_is_reachable" || ! [ -z "$PGDATA_OLD" ]; then
+                    upgrade_backup $backup_dir $PGDATA
+                    data_from_upgrade=true
+                    init_new_db=false
+                fi
+                set -Eeo pipefail
+                # Modification End
                 
                 # unset/cleanup "nss_wrapper" bits
                 if [ "${LD_PRELOAD:-}" = '/usr/lib/libnss_wrapper.so' ]; then
@@ -172,9 +183,9 @@ if [ "$1" = 'postgres' ]; then
                                 cat >&2 <<-'EOWARN'
 
                                         WARNING: The supplied POSTGRES_PASSWORD is 100+ characters.
-
-                                          This will not work if used via PGPASSWORD with "psql".
-
+                                         
+                                         This will not work if used via PGPASSWORD with "psql".
+                                          
                                           https://www.postgresql.org/message-id/flat/E1Rqxp2-0004Qt-PL%40wrigleys.postgresql.org (BUG #6412)
                                           https://github.com/docker-library/postgres/issues/507
 
@@ -190,7 +201,7 @@ EOWARN
                                          Docker's default configuration, this is
                                          effectively any other container on the same
                                          system.
-
+                                         
                                          Use "-e POSTGRES_PASSWORD=password" to set
                                          it in "docker run".
                                 ****************************************************
@@ -215,7 +226,7 @@ EOWARN
                 export PGPASSWORD="${PGPASSWORD:-$POSTGRES_PASSWORD}"
                 psql=( psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --no-password )
 
-                if [ "$POSTGRES_DB" != 'postgres' ]; then
+                if [ "$POSTGRES_DB" != 'postgres' ] && ! $data_from_upgrade; then # Modification: && ! $data_from_upgrade 
                         "${psql[@]}" --dbname postgres --set db="$POSTGRES_DB" <<-'EOSQL'
                                 CREATE DATABASE :"db" ;
 EOSQL
@@ -224,6 +235,7 @@ EOSQL
                 psql+=( --dbname "$POSTGRES_DB" )
 
                 echo
+                ls /docker-entrypoint-initdb.d/
                 for f in /docker-entrypoint-initdb.d/*; do
                         case "$f" in
                                 *.sh)
@@ -260,14 +272,10 @@ EOSQL
 fi
 
 # Modification
-
-# Upgrade if provider is reachable (which implies execution of pg_basebackup) or PGDATA_OLD is set.
 set +Eeo pipefail
-if "$provider_is_reachable" || ! [ -z "$PGDATA_OLD" ]; then
-    upgrade_backup $backup_dir $PGDATA
-fi
 
 /etc/sub_setup.sh $provider_is_reachable $PROVIDER_IP $init_new_db
+
 set -Eeo pipefail
 # End of Modification
 
