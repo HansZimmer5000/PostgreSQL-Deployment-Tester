@@ -47,6 +47,7 @@ print_id_ip_nodes
 # - set all variables and PGDATA correct
 # - new data must be initdb before
 # - install needed librariers via apt-get (pglogical 9.5 / postgres 9.5)
+# - Do not re insert / re create datbases and tables
 
 echo "-- Start New Postgres"
 start_new_subscriber 10
