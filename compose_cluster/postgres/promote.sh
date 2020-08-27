@@ -21,6 +21,7 @@ echo "Promoting with:
 container_id($container_id)
 subscription_id($subscription_id)
 virtual_ip($virtual_ip)
+POSTGRES_DB($POSTGRES_DB)
 "
 
 echo $(remove_old_subscription $container_id $subscription_id)
